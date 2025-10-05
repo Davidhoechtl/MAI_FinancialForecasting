@@ -1,0 +1,110 @@
+%
+% FH Technikum Wien
+% !TEX encoding = UTF-8 Unicode
+%
+% Erstellung von Master- und Bachelorarbeiten an der FH Technikum Wien mit Hilfe von LaTeX und der Klasse TWBOOK
+%
+% Um ein eigenes Dokument zu erstellen, müssen Sie folgendes ergänzen:
+% 1) Mit \documentclass[..] einstellen
+%    * Master- oder Bachelorarbeit
+%    * Studiengang
+%    * Sprache (english, german, ngerman)
+%    * Zitationsstandard (Harvard, IEEE) (Standard: IEEE)
+%    * Biber oder BibTeX als Literaturbackend (Biber, BibTeX) (Standard: Biber)
+% 2) Deckblatt, Kurzfassung, etc. ausfüllen
+% 3) und die Arbeit schreiben (die verwendeten Literaturquellen in Literatur.bib eintragen)
+%
+% Getestet mit TeXstudio mit Zeichenkodierung utf-8 (=ansinew/latin1) und TexLive unter Ubuntu
+% Zu beachten ist, dass die Kodierung der Datei mit der Kodierung des paketes inputenc zusammen passt!
+% Die Kodierung der Datei twbook.cls MUSS ANSI betragen!
+% Bei der Verwendung von UTF8 muss nicht nur die Kodierung des Dokuments auf UTF8 gestellt sein, sondern auch die des BibTex-Files!
+%
+% Bugreports und Feedback bitte per E-Mail an latex@technikum-wien.at
+%
+% Version V2.24 von 2024-12-19 otrebski
+%
+\documentclass[MAI,Projekt,english,IEEE]{twbook}%\documentclass[Bachelor,BMR,ngerman]{twbook}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\addbibresource{Literatur.bib}
+%% Definieren Sie hier bei Bedarf weitere Literaturdatenbanken
+
+% Die nachfolgenden Pakete stellen sonst nicht benötigte Features zur Verfügung
+\usepackage{blindtext}
+\usepackage{parskip}  % automatically removes indent and adds vertical space
+
+%
+% Einträge für Deckblatt, Kurzfassung, etc.
+%
+\title{Enhancing Stochastic Financial Forecasting Models through Market Sentiment Analysis Using AI}
+\author{David Höchtl BSc.}
+\studentnumber{2410585053}
+%\author{Titel Vorname Name, Titel\and{}Titel Vorname Name, Titel}
+%\studentnumber{XXXXXXXXXXXXXXX\and{}XXXXXXXXXXXXXXX}
+\supervisor{Dr. rer. nat. Sharwin Rezagholi, MSc.}
+%\supervisor[Begutachter]{Titel Vorname Name, Titel}
+%\supervisor[Begutachterin]{Titel Vorname Name, Titel}
+%\secondsupervisor{Titel Vorname Name, Titel}
+%\secondsupervisor[Begutachter]{Titel Vorname Name, Titel}
+%\secondsupervisor[Begutachterinnen]{Titel Vorname Name, Titel}
+\place{Wien}
+\kurzfassung{\blindtext}
+\schlagworte{Schlagwort1, Schlagwort2, Schlagwort3, Schlagwort4}
+\outline{\blindtext}
+%\acknowledgements{\blindtext}
+
+\begin{document}
+
+\maketitle
+
+\chapter{Introduction}
+
+Financial markets are highly complex systems that are influenced by the behaviour of humans and economic events. Predicting financial time series has always been a big challenge in finance and data science. Traditionally, autoregressive models or technical indicators were used to achieve this goal. While this approach created a mathematical and statistical foundation, it falls short when confronted with unstructured data like news headlines or investor sentiment.
+
+With the rapid advances of artificial intelligence (AI), especially in natural language processing (NLP), new ways for understanding those unstructured texts have been found. For example, transformer models can extract semantic information from text. This information could be used to engineer new features that help explain variance in the movement of stock market indices like the S\&P500 or the MSCI World.
+
+The goal of this master thesis, therefore, is to investigate if a stochastic forecasting approach can be improved by adding sentiment-based features extracted from news headlines and/or social media posts. As a proof of concept (PoC), the work will analyse an ARMA model with and without sentiment integration. Later, more complex AI models – ranging from linear regression and XGBoost to recurrent neural networks (RNN), long short-term memory networks (LSTM), and state-of-the-art transformer models like GPT – will be evaluated and benchmarked. To analyse performance, metrics such as Mean Percentage Error (MPE), Accuracy, and F1-Score will be used.
+
+This investigation contributes to an ongoing debate about the efficient market hypothesis, which states that new information is integrated into prices in a very short time, rendering the information useless for predicting future movements.
+
+\chapter{Research Problem and Goals}
+\section{Research Problem}
+Trotz jahrzehnte langer Forschung im Bereich von Finanzvorhersagen, bleibt die Prognose von short-time movements eine Herausforderung. Klassische Ansätze hängen ausschließlich von vorherigen Preisbewegungen und technischen Indikatoren ab. Die Einflussfaktoren die den Markt bewegen gehen jedoch weit über diese Informationen hinaus. Zum Beispiel können Zeitschriften, Social Media, Politik, Makro-Ekonomische Events ebenfalls zu Kursbewegungen beitragen.
+
+Aktuelle Studien befassen sich deshlab immer mehr mit dem analysieren von Medientexten um zusätzliche Vorhersagegenauigkeit zu erzielen. Jedoch ist der quantitative Wert dieses Features umstritten. Additionally, the interaction between technical indicators and sentiment features—and their impact on model performance across different AI architectures—remains an open question.
+\section{Goals}
+Das Ziel dieser Arbeit ist, das Quantifizieren des Nutzens von Marktsentiment für das Vorhersagen von Kursbewegungen. Außerdem soll verglichen werden welches Modell am meisten von diesem neuen Feature profitiert.
+Um genauer zu sein versucht die Arbeit:
+
+1. Eine Pipeline für das sammeln und kombinieren von Zeitungsüberschriften. Es sollen mehrere unterschiedliche Datensätze kombiniert werden, welche Überschriften aus amerikanischen Medienkanälen sammeln. Das Ziel ist es einen großen Kropus an Daten für das Sentiment feature zu erstellen.
+
+2. Das Erstellen des Sentiment Features (1: positiv, -1: negativ, 0: neutral) mittels unterschiedlichsten Ansätzen. Es soll experimentiert werden, welche sentiment analyse Strategie die besten Ergebnisse liefert. Zum Beispiel kann ein Lexikon basiertert Ansatz mit einem gefintunedtem Transformermodell verglichen werden.
+
+3. Das Untersuchen von temporärer Effizients dieses Sentiment Features, um zu untersuchen wie schnell Aussagekraft von vergangenen Sentiment Scores über die Zeit schwindet. 3-day-lag vs 1-day-lag, intra-day-lag.
+
+4. Implementieren einer Pipeline welche technische Indikatoren errechnet und diese mit dem Sentiment Score zu einer gemeinsamen Feature-Matrix verbindet.
+
+5. Evaluate model performance using standardized metrics such as Mean Percentage Error (MPE), Accuracy, and F1-Score, for both price change prediction (regression) and market direction classification (up/down).
+
+6. Analyze Feature Contribution via statistical tests and model weight analysis
+
+\chapter{Literature Review}
+
+\chapter{Methodology}
+%
+% Hier beginnen die Verzeichnisse.
+%
+\clearpage
+\printbibliography
+\clearpage
+
+% Das Abbildungsverzeichnis
+\listoffigures
+\clearpage
+
+% Das Tabellenverzeichnis
+\listoftables
+\clearpage
+
+\end{document}

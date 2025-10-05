@@ -1,0 +1,7 @@
+#pycharm
+ARMAPoC/.idea
+ARMAPoC/__pycache__
+
+#LaTex ignores
+Proposal/vscode/
+Proposal/build/
