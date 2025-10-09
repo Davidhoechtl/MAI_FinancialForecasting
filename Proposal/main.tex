@@ -33,7 +33,7 @@
 % Die nachfolgenden Pakete stellen sonst nicht benötigte Features zur Verfügung
 \usepackage{blindtext}
 \usepackage{parskip}  % automatically removes indent and adds vertical space
-
+\usepackage{float}         % für [H], optional
 %
 % Einträge für Deckblatt, Kurzfassung, etc.
 %
@@ -90,8 +90,109 @@ Um genauer zu sein versucht die Arbeit:
 6. Analyze Feature Contribution via statistical tests and model weight analysis
 
 \chapter{Literature Review}
+Die Idee Marktstimmung mit technischen Indikatoren zu verbinden ist keine neue Idee. Dies wurde bereits von mehreren Studien durchgeführt \cite{ANBAEEFARIMANI2022108742} \cite{10380556} \cite{9175549}. In \cite{ANBAEEFARIMANI2022108742} wurden beispielsweise Sentimentdaten und gängige technische Indikatoren wie Volatilitätsbänder, Volumen, oder EMA (weighted moving average) verwendet um Forex (Foreign exchange markets) zu predicten. Ähnlich hat \cite{9175549} versucht mittels tagesaggregierten Sentiment und Stock-data (wurde nicht weiter beschrieben) die Aktienkurse von einzelnen Unternehmen wie Apple, Amazon, Microsoft vorherzusagen. Beide dieser Arbeiten haben eine Erfolgreiche Korrelation sowie Performance verbesserung feststellen können. Interessanterweise konnte \cite{ANBAEEFARIMANI2022108742} feststellen, dass das Kombinieren von technischen Indikatoren und sentiment besonder performant ist, was dafür sprich, dass es bestimmte synergien zwischen den Features geben könnte.
+
+Diese Studien beziehen sich jedoch nur auf einzelnen Unternehmen beziehungsweise auf den Geldmarkt. Ob und wie viel Marktstimmung hilft in effizienten Märkten wie Aktienindexen Kurse vorherzusagen ist teil dieser Arbeit.
 
 \chapter{Methodology}
+Die Grundlage dieser Arbeit bildet ein großer Datensatz aus Zeitungsüberschriften, welche aus verschiedenen amerikanischen Medienquellen stammen. Hierfür werden mehrere amerikanische Datensätze kombiniert (z.~B. Kaggle News Headlines Dataset).
+Die Daten werden mittels Pipeline vereinheitlicht, Duplikate werden entfernt und in einer Timeseries zeitlich zugeordnet.
+
+Zusätzlich wird Kurs- und Volumendaten des Zielindex über eine öffentliche API (z.~B. investpy API oder Alpha Vantage) gesammelt. Die Frequenz der Daten (wöchentlich, täglich, stündlich) wird an das Volumen/Granualität des Zeitungsüberschriften-Korpus angeglichen (nur bei ausreichend Daten wäre eine Analyse auf stündlicher Basis möglich).
+
+\section{Features Matrix}
+Der Sentiment Score wird mittels unterschiedlicher Methoden errechnet. Angefangen mit "primitiven" Lexikon ansätzen bis hin zu modernstensten State of the Art Transformer modellen wie FinBERT oder GPT-5. Die technischen Indikatoren werden ebenfalls mittels Pipeline aus vergangen Preisen und Volumnen Daten errechne. Als Ausgabe dieses Schrittes soll eine Feature Matrix entstehen die möglicherweise so aussieht:
+
+\begin{table}[H]
+\centering
+\caption{Mögliche Feature Matrix}
+\begin{tabularx}{\textwidth}{l X}
+\hline
+\textbf{Feature} & \textbf{Beschreibung und Einsatz} \\ 
+\hline
+\textbf{Close Price / Price Change} & 
+Der Schlusskurs ist der letzte gehandelte Preis eines Handelstages bzw. die Preisänderung (Price Change) misst die relative oder absolute Veränderung zum vorherigen Schlusskurs. \\
+\hline
+\textbf{Volumen} & 
+Das Handelsvolumen gibt die Anzahl der gehandelten Einheiten in einem Zeitraum an. \\
+\hline
+\textbf{Exponential Moving Average (EMA)} & 
+Der EMA ist ein gleitender Durchschnitt, der neueren Kurswerten ein höheres Gewicht gibt. \\
+\hline
+\textbf{Bollinger Bands} & 
+Bestehen aus einem gleitenden Durchschnitt und zwei Standardabweichungen ober- und unterhalb davon. \\
+\hline
+\textbf{Williams \%R} & 
+Ein Momentum-Indikator, der misst, ob ein Wertpapier überkauft (nahe 0) oder überverkauft (nahe -100) ist. \\
+\hline
+\textbf{Accumulation/Distribution Indicator (ADI)} & 
+Kombiniert Preis- und Volumendaten, um den Kapitalfluss in ein Wertpapier zu bestimmen. \\
+\hline
+\textbf{Sentiment Score} & 
+Tages aggregierter sentiment score welcher die Marktstimmung wieder gibts. \\
+\hline
+\end{tabularx}
+\end{table}
+
+(Die Angaben der Tabelle sind eine Idee, sowohl technische Indikatoren als auch die Möglichen Sentiment-Features können/werden sich noch Ändern)
+
+\section{First prototype}
+Im Zuge eines minimalen Experiment konnte mithilfe von ARIMA-Modellen erste Hinweise produziert werden, dass Sentiment einen Mehrwert hat. Hierfur wurde ein auto regressives (AR) Modell mit Moving Average (MA) verwendet. Diese Modelle werden vor allem in der statistik und in ekonomischen Szenarien verwendet. Wichtig hier wurde nicht die oben vorgeschlagene Feature Matrix verwendet, sonder ausschließlich der Preis bzw. Sentiment-Score der letzten N Tage.
+
+Ein ARIMA(p,d,q) Modell hat 3 unterschiedliche Parameter:
+\begin{itemize}
+    \item p => die N letzten Datenpunkte (t-1, t-2, ... t-n)
+    \item d => Differenzierungsgrad macht die Änderungen stationär (zum Beispiel von Kursbewegung zu Differenz zum Vortag)
+    \item q => die N letzten Regressionsfehler
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Setup des Experiements}
+\begin{tabularx}{\textwidth}{l X}
+\hline
+\textbf{Model} & 
+Arima(1,0,1) vs ARIMA (1,0,1) + täglich aggregierter Sentiment \\
+\hline
+\textbf{Dataset} & 
+
+- Kaggle Dataset (CNBC, Reuters, The Guardians - Überschriften) im Zeitraum von ~01.01.2018 - ~16.07.2020 \cite{LucasPhamFinDataset}
+
+- Täglicher Preis des S\&P500 (US) im selben Zeitraum über die investpy API
+
+(648 Datenpunkte) \\
+
+\hline
+\textbf{Sentiment Model} & 
+Vader Lexikon \\
+\hline
+\textbf{Benchmark} &
+AIC, BIC \\
+\hline
+\end{tabularx}
+\end{table}
+
+\section{Results}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{PICs/ARMA101_Result.png}
+    \caption{AIC and BIC Benchmark}
+    \label{fig:myimage}
+\end{figure}
+
+Sowohl AIC als auch BIC sind bei zugabe von Sentiment-Score kleiner geworden. Auch wenn der unterschied maginal ist, konnte in diesem minimalen experiment nachgewiesen werden, dass sentiment eine positiven Effekt auf Model-Performance haben kann.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{PICs/ARIMA101_sentiment_p_value.png}
+    \caption{Feature list ARMA(1,0,1) with sentiment}
+    \label{fig:myimage2}
+\end{figure}
+
+Der niedrige p-value bei dem Featuer daily\_sentiment spricht außerdem für eine statistische signifikanz.
+
+Trotz des vielversprechenden Ergebnisses konnten zwei Probleme indentifiziert werden. Zum einen konnte das ARMA sentiment das ARMA modell zwar meistens übertreffen aber nicht in jeder Konfiguration. Des Weiteren konnte für das Jahr 2018 aus den Daten heraus keine signifikante Verbindung zwischen Sentiment und Kursbewegung nachgewiesen werden (p-value \= 0.457). Das Experiment ist demnach zwar ein wichtiger Hinweis dass Sentiment Varianz erklärt es braucht jedoch mehr Daten und weiter Untersuchungen um klare Antworten zu finden.
+
 %
 % Hier beginnen die Verzeichnisse.
 %
