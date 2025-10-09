@@ -90,7 +90,9 @@ Um genauer zu sein versucht die Arbeit:
 6. Analyze Feature Contribution via statistical tests and model weight analysis
 
 \chapter{Literature Review}
-Die Idee Marktstimmung mit technischen Indikatoren zu verbinden ist keine neue Idee. Dies wurde bereits von mehreren Studien durchgeführt \cite{ANBAEEFARIMANI2022108742} \cite{10380556} \cite{9175549}. In \cite{ANBAEEFARIMANI2022108742} wurden beispielsweise Sentimentdaten und gängige technische Indikatoren wie Volatilitätsbänder, Volumen, oder EMA (weighted moving average) verwendet um Forex (Foreign exchange markets) zu predicten. Ähnlich hat \cite{9175549} versucht mittels tagesaggregierten Sentiment und Stock-data (wurde nicht weiter beschrieben) die Aktienkurse von einzelnen Unternehmen wie Apple, Amazon, Microsoft vorherzusagen. Beide dieser Arbeiten haben eine Erfolgreiche Korrelation sowie Performance verbesserung feststellen können. Interessanterweise konnte \cite{ANBAEEFARIMANI2022108742} feststellen, dass das Kombinieren von technischen Indikatoren und sentiment besonder performant ist, was dafür sprich, dass es bestimmte synergien zwischen den Features geben könnte.
+Die Idee Marktstimmung mit technischen Indikatoren zu verbinden ist keine neue Idee. Dies wurde bereits von mehreren Studien durchgeführt \cite{ANBAEEFARIMANI2022108742} \cite{10380556} \cite{9175549}. In \cite{ANBAEEFARIMANI2022108742} wurden beispielsweise Sentimentdaten und gängige technische Indikatoren wie Volatilitätsbänder, Volumen, oder EMA (weighted moving average) verwendet um Forex (Foreign exchange markets) zu predicten. Ähnlich hat \cite{9175549} versucht mittels tagesaggregierten Sentiment und Stock-data (wurde nicht weiter beschrieben) die Aktienkurse von einzelnen Unternehmen wie Apple, Amazon, Microsoft vorherzusagen. Beide dieser Arbeiten haben eine Erfolgreiche Korrelation sowie Performance verbesserung feststellen können. Interessanterweise konnte \cite{ANBAEEFARIMANI2022108742} feststellen, dass das Kombinieren von technischen Indikatoren und sentiment besonder performant ist, was dafür sprich, dass es bestimmte synergien zwischen den Features geben könnte. 
+
+Auch social media post (vor allem twitter oder Financial Hubs) werden in vielen Studien für das Sentiment-Feature herangezogen. Zum Beispiel verwendet \cite{CHOI2024121589} unter anderem Eigenschaften wie (views, likes, dislikes, keywords) um das Price Momentum vorherzusagen. Studien wie \cite{khan2022stock} gehen sogar noch einen schritt weiter und kombinieren news und social media um besimmte Titel vorherzusagen, was die Accuracy robuster gemacht hat. 
 
 Diese Studien beziehen sich jedoch nur auf einzelnen Unternehmen beziehungsweise auf den Geldmarkt. Ob und wie viel Marktstimmung hilft in effizienten Märkten wie Aktienindexen Kurse vorherzusagen ist teil dieser Arbeit.
 
@@ -139,7 +141,7 @@ Tages aggregierter sentiment score welcher die Marktstimmung wieder gibts. \\
 \section{First prototype}
 Im Zuge eines minimalen Experiment konnte mithilfe von ARIMA-Modellen erste Hinweise produziert werden, dass Sentiment einen Mehrwert hat. Hierfur wurde ein auto regressives (AR) Modell mit Moving Average (MA) verwendet. Diese Modelle werden vor allem in der statistik und in ekonomischen Szenarien verwendet. Wichtig hier wurde nicht die oben vorgeschlagene Feature Matrix verwendet, sonder ausschließlich der Preis bzw. Sentiment-Score der letzten N Tage.
 
-Ein ARIMA(p,d,q) Modell hat 3 unterschiedliche Parameter:
+Ein ARIMA(p,d,q) Modell hat 3 unterschiedliche Parameter \cite{WikipediaARIMA}:
 \begin{itemize}
     \item p => die N letzten Datenpunkte (t-1, t-2, ... t-n)
     \item d => Differenzierungsgrad macht die Änderungen stationär (zum Beispiel von Kursbewegung zu Differenz zum Vortag)
