@@ -60,7 +60,7 @@
 
 \chapter{Introduction}
 
-Financial markets are highly complex systems that are influenced by the behaviour of humans and economic events. Predicting financial time series has always been a big challenge in finance and data science. Traditionally, autoregressive models or technical indicators were used to achieve this goal. While this approach created a mathematical and statistical foundation, it falls short when confronted with unstructured data like news headlines or investor sentiment.
+Financial markets are highly complex systems that are influenced by the behaviour of humans and economic events. For decades data scientists and economicals have attempted to predict and explain financial time series, but it still remains a big challenge. Traditionally, autoregressive models or technical indicators were used to achieve this goal. While this approach created a mathematical and statistical foundation, it falls short when confronted with unstructured data like news headlines or investor sentiment.
 
 With the rapid advances of artificial intelligence (AI), especially in natural language processing (NLP), new ways for understanding those unstructured texts have been found. For example, transformer models can extract semantic information from text. This information could be used to engineer new features that help explain variance in the movement of stock market indices like the S\&P500 or the MSCI World.
 
@@ -92,79 +92,77 @@ Specifically this study tries to:
 6. analyze Feature Contribution via statistical tests and model weight analysis
 
 \chapter{Literature Review}
-Die Idee Marktstimmung mit technischen Indikatoren zu verbinden ist keine neue Idee. Dies wurde bereits von mehreren Studien durchgeführt \cite{ANBAEEFARIMANI2022108742} \cite{10380556} \cite{9175549}. In \cite{ANBAEEFARIMANI2022108742} wurden beispielsweise Sentimentdaten und gängige technische Indikatoren wie Volatilitätsbänder, Volumen, oder EMA (weighted moving average) verwendet um Forex (Foreign exchange markets) zu predicten. Ähnlich hat \cite{9175549} versucht mittels tagesaggregierten Sentiment und Stock-data (wurde nicht weiter beschrieben) die Aktienkurse von einzelnen Unternehmen wie Apple, Amazon, Microsoft vorherzusagen. Beide dieser Arbeiten haben eine Erfolgreiche Korrelation sowie Performance verbesserung feststellen können. Interessanterweise konnte \cite{ANBAEEFARIMANI2022108742} feststellen, dass das Kombinieren von technischen Indikatoren und sentiment besonder performant ist, was dafür sprich, dass es bestimmte synergien zwischen den Features geben könnte. 
+The idea to combine market sentiment with stochastic and technical indicators is not new. Many studies have already done research on it \cite{ANBAEEFARIMANI2022108742} \cite{10380556} \cite{9175549}. The combination of sentiment and well known indicators like ballinger bands, volume, EMA (weighted moving average) are used in \cite{ANBAEEFARIMANI2022108742} to predict the price changes in Forex (Foreign exchange markets), with good performance. Similarly \cite{9175549} tried using daily aggregated sentiment and stock-data(isn´t further explained) to predict price changes of certain companies like Apple, Amazon or Microsoft. Both works have proofen a correlation between stock price and sentiment, which lead to increased model performance. Also noteable is that \cite{ANBAEEFARIMANI2022108742} stated that specifically combining both technical indicators and sentiment lead to the most performant model, hinting possible feature synergies or complimentations.
 
-Auch social media post (vor allem twitter oder Financial Hubs) werden in vielen Studien für das Sentiment-Feature herangezogen. Zum Beispiel verwendet \cite{CHOI2024121589} unter anderem Eigenschaften wie (views, likes, dislikes, keywords) um das Price Momentum vorherzusagen. Studien wie \cite{khan2022stock} gehen sogar noch einen schritt weiter und kombinieren news und social media um besimmte Titel vorherzusagen, was die Accuracy robuster gemacht hat.
+However, newspaper headlines are not the only reliable source, social media posts (e.g. twitter or social hubs) can also be utilized to create sentiment features. For example \cite{CHOI2024121589} used properties like views, likes, dislikes, and keywords to predict price momentum (up, down). Other studies like \cite{khan2022stock} even go a step further by combining both news paper headlines with social media content to create more robust accuracy.
 
-Diese Studien beziehen sich jedoch nur auf einzelnen Unternehmen beziehungsweise auf den Geldmarkt. Ob und wie viel Marktstimmung hilft in effizienten Märkten wie Aktienindexen Kurse vorherzusagen ist teil dieser Arbeit.
+In comparision to others this study will focus not on single companies or foreign exchange markets but broad stock indices. It is expected that indices like S\&P 500 or MSCI-Word are going to be harder to predict, because they are influenced by a broader range of factors.
 
 \chapter{Methodology}
-Die Grundlage dieser Arbeit bildet ein großer Datensatz aus Zeitungsüberschriften, welche aus verschiedenen amerikanischen Medienquellen stammen. Hierfür werden mehrere amerikanische Datensätze kombiniert (z.~B. Kaggle News Headlines Dataset).
-Die Daten werden mittels Pipeline vereinheitlicht, Duplikate werden entfernt und in einer Timeseries zeitlich zugeordnet.
-
-Zusätzlich wird Kurs- und Volumendaten des Zielindex über eine öffentliche API (z.~B. investpy API oder Alpha Vantage) gesammelt. Die Frequenz der Daten (wöchentlich, täglich, stündlich) wird an das Volumen/Granualität des Zeitungsüberschriften-Korpus angeglichen (nur bei ausreichend Daten wäre eine Analyse auf stündlicher Basis möglich).
+The fundamental data of this work will be a big corpus of news paper headlines, that combine multiple american media sources (CNBC, Reuters, The Guradians, ...). A pipeline that combines many of those datasets will be implemented. Primary goal ist to unify many different datasets, remove duplicates and create a time series with news information.
+On the other hand using investpy or other public APIs (Alpha Vantage) stock and volume data will be collected for the target index. The frequency will be adjusted for the granuality of the sentiment data (for example an intra day sentiment score is only possible if enough data can be collected).
 
 \section{Features Matrix}
-Der Sentiment Score wird mittels unterschiedlicher Methoden errechnet. Angefangen mit "primitiven" Lexikon ansätzen bis hin zu modernstensten State of the Art Transformer modellen wie FinBERT oder GPT-5. Die technischen Indikatoren werden ebenfalls mittels Pipeline aus vergangen Preisen und Volumnen Daten errechne. Als Ausgabe dieses Schrittes soll eine Feature Matrix entstehen die möglicherweise so aussieht:
+Sentiment scores will be genreated with different algorithms and models to compare the effect on performance and stability. Starting from "primitive" tools like lexicon based analysis to state of the art fine tuned transformer models like FinBERT or LLMs like GPT-5. Technical indicators will be calculated from the past price and volume data as part of the feature matrix pipeline. A possible matrix could look like this:
 
 \begin{table}[H]
 \centering
-\caption{Mögliche Feature Matrix}
+\caption{Possible Feature Matrix}
 \begin{tabularx}{\textwidth}{l X}
 \hline
-\textbf{Feature} & \textbf{Beschreibung und Einsatz} \\ 
+\textbf{Feature} & \textbf{Description} \\ 
 \hline
 \textbf{Close Price / Price Change} & 
-Der Schlusskurs ist der letzte gehandelte Preis eines Handelstages bzw. die Preisänderung (Price Change) misst die relative oder absolute Veränderung zum vorherigen Schlusskurs. \\
+The price of a fincial instrument at the end of each trading day / The price change that measures the relative or absolute change to prior days \\
 \hline
-\textbf{Volumen} & 
-Das Handelsvolumen gibt die Anzahl der gehandelten Einheiten in einem Zeitraum an. \\
+\textbf{Volume} & 
+Trading volume shows how many shares have been traded in a give time interval \\
 \hline
 \textbf{Exponential Moving Average (EMA)} & 
-Der EMA ist ein gleitender Durchschnitt, der neueren Kurswerten ein höheres Gewicht gibt. \\
+Moving Average that assignes greater weight to newer data points \\
 \hline
-\textbf{Bollinger Bands} & 
-Bestehen aus einem gleitenden Durchschnitt und zwei Standardabweichungen ober- und unterhalb davon. \\
+\textbf{Bollinger Bands} &
+Consist of a moving average and two standard deviations positioned above and below it. \\
 \hline
 \textbf{Williams \%R} & 
-Ein Momentum-Indikator, der misst, ob ein Wertpapier überkauft (nahe 0) oder überverkauft (nahe -100) ist. \\
+A momentum indicator that indicates whether a stock is overbought (around 0) or oversold (around -100). \\
 \hline
 \textbf{Accumulation/Distribution Indicator (ADI)} & 
-Kombiniert Preis- und Volumendaten, um den Kapitalfluss in ein Wertpapier zu bestimmen. \\
+An indicator that combines price and volume data to determine the capital flow into a stock. \\
 \hline
 \textbf{Sentiment Score} & 
-Tages aggregierter sentiment score welcher die Marktstimmung wieder gibts. \\
+daily aggregated score, that tries to predict market sentiment \\
 \hline
 \end{tabularx}
 \end{table}
 
-(Die Angaben der Tabelle sind eine Idee, sowohl technische Indikatoren als auch die Möglichen Sentiment-Features können/werden sich noch Ändern)
+(Disclaimer: The provided feature matrix is only an idea. Both technical indicators and sentiment features can/will be changed)
 
 \section{First prototype}
-Im Zuge eines minimalen Experiment konnte mithilfe von ARIMA-Modellen erste Hinweise produziert werden, dass Sentiment einen Mehrwert hat. Hierfur wurde ein auto regressives (AR) Modell mit Moving Average (MA) verwendet. Diese Modelle werden vor allem in der statistik und in ekonomischen Szenarien verwendet. Wichtig hier wurde nicht die oben vorgeschlagene Feature Matrix verwendet, sonder ausschließlich der Preis bzw. Sentiment-Score der letzten N Tage.
+In the course of a minimal experiment, ARIMA-Models produced hints that sentiment has a statistical value for predicitng prices. For this purpose, an autoregressive (AR) model with a moving average (MA) component was used. ARIMA models are primary used in statistic and economic szenarios. It is important to note that, in this case the previous proposed matrix was not used. Instead only price and sentiment of prior N days where utilized for predicting future values.
 
-Ein ARIMA(p,d,q) Modell hat 3 unterschiedliche Parameter \cite{WikipediaARIMA}:
+A ARIMA(p,d,q) model has 3 different parameter \cite{WikipediaARIMA}:
 \begin{itemize}
-    \item p => die N letzten Datenpunkte (t-1, t-2, ... t-n)
-    \item d => Differenzierungsgrad macht die Änderungen stationär (zum Beispiel von Kursbewegung zu Differenz zum Vortag)
-    \item q => die N letzten Regressionsfehler
+    \item p => N past datapoints (t-1, t-2, ... t-n)
+    \item d => degree of differencing, makes changes stationary (e.g., from price movement to price change)
+    \item q => N past regression errors
 \end{itemize}
 
 \begin{table}[H]
 \centering
-\caption{Setup des Experiements}
+\caption{Setup of the experiment}
 \begin{tabularx}{\textwidth}{l X}
 \hline
 \textbf{Model} & 
-Arima(1,0,1) vs ARIMA (1,0,1) + täglich aggregierter Sentiment \\
+Arima(1,0,1) vs ARIMA (1,0,1) + daily aggregated sentiment \\
 \hline
 \textbf{Dataset} & 
 
-- Kaggle Dataset (CNBC, Reuters, The Guardians - Überschriften) im Zeitraum von ~01.01.2018 - ~16.07.2020 \cite{LucasPhamFinDataset}
+- Kaggle dataset (CNBC, Retuers, The Guardians - headlines) covering ~01.01.2018 - ~16.07.2020 \cite{LucasPhamFinDataset}
 
-- Täglicher Preis des S\&P500 (US) im selben Zeitraum über die investpy API
+- daily prices of the S\&P500 (US) in the same time range via investpy API
 
-(648 Datenpunkte) \\
+(648 data points) \\
 
 \hline
 \textbf{Sentiment Model} & 
@@ -184,7 +182,7 @@ AIC, BIC \\
     \label{fig:myimage}
 \end{figure}
 
-Sowohl AIC als auch BIC sind bei zugabe von Sentiment-Score kleiner geworden. Auch wenn der unterschied maginal ist, konnte in diesem minimalen experiment nachgewiesen werden, dass sentiment eine positiven Effekt auf Model-Performance haben kann.
+Both AIC and BIC shrink with the addition of sentiment score. Even though the difference is small, this experiment provide valuable insights that sentiment can contribute positive to model performance.
 
 \begin{figure}[H]
     \centering
@@ -193,9 +191,9 @@ Sowohl AIC als auch BIC sind bei zugabe von Sentiment-Score kleiner geworden. Au
     \label{fig:myimage2}
 \end{figure}
 
-Der niedrige p-value bei dem Featuer daily\_sentiment spricht außerdem für eine statistische signifikanz.
+The low p-value proves that the feature daily\_sentiment is statistical significant
 
-Trotz des vielversprechenden Ergebnisses konnten zwei Probleme indentifiziert werden. Zum einen konnte das ARMA sentiment das ARMA modell zwar meistens übertreffen aber nicht in jeder Konfiguration. Des Weiteren konnte für das Jahr 2018 aus den Daten heraus keine signifikante Verbindung zwischen Sentiment und Kursbewegung nachgewiesen werden (p-value \= 0.457). Das Experiment ist demnach zwar ein wichtiger Hinweis dass Sentiment Varianz erklärt es braucht jedoch mehr Daten und weiter Untersuchungen um klare Antworten zu finden.
+While this results are very promising following two challenges were indentified. First, while the ARMA sentiment model generally outperformed the ARMA mdoel, this was not the case for every configuration. Second for the year 2018, no significant relationship between sentiment and price movement could be proven (p-value \= 0.457). Therefore, although this experiment is an important indicator that sentiment explains some variance, more data and further investigations are needed to find clear answers.
 
 %
 % Hier beginnen die Verzeichnisse.
