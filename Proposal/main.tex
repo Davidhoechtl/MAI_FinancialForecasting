@@ -37,7 +37,7 @@
 %
 % Einträge für Deckblatt, Kurzfassung, etc.
 %
-\title{Enhancing Stochastic Financial Forecasting Models through Market Sentiment Analysis Using AI}
+\title{Enhancing financial forecasting by sentiment analysis}
 \author{David Höchtl BSc.}
 \studentnumber{2410585053}
 %\author{Titel Vorname Name, Titel\and{}Titel Vorname Name, Titel}
@@ -62,9 +62,11 @@
 
 Financial markets are highly complex systems that are influenced by the behaviour of humans and economic events. For decades data scientists and economicals have attempted to predict and explain financial time series, but it still remains a big challenge. Traditionally, autoregressive models or technical indicators were used to achieve this goal. While this approach created a mathematical and statistical foundation, it falls short when confronted with unstructured data like news headlines or investor sentiment.
 
-With the rapid advances of artificial intelligence (AI), especially in natural language processing (NLP), new ways for understanding those unstructured texts have been found. For example, transformer models can extract semantic information from text. This information could be used to engineer new features that help explain variance in the movement of stock market indices like the S\&P500 or the MSCI World.
+With the rapid advances of artificial intelligence (AI), especially in natural language processing (NLP), new ways for understanding those unstructured texts have been found. For example, transformer models can extract semantic information from text. This information could be used to engineer new features that help explain variance in the movement of stock market indices like the S\&P500 or the MSCI World. 
 
-The goal of this master thesis, therefore, is to investigate if a stochastic forecasting approach can be improved by adding sentiment-based features extracted from news headlines and/or social media posts. As a proof of concept (PoC), the work will analyse an ARMA model with and without sentiment integration. Later, more complex AI models – ranging from linear regression and XGBoost to recurrent neural networks (RNN), long short-term memory networks (LSTM), and state-of-the-art transformer models like GPT – will be evaluated and benchmarked. To analyse performance, metrics such as Mean Percentage Error (MPE), Accuracy, and F1-Score will be used.
+The goal of this master thesis, therefore, is to investigate if a stochastic forecasting approach can be improved by adding sentiment-based features extracted from news headlines and/or social media posts. This feature can be understood as an indicator (usually ranged between -1 and 1), that tries to reflect the emotions of investors towards the current economy. In the scope of a single headline it captures how optimistic (bullish) or pessimistic (bearish) the context appears.
+
+As a proof of concept (PoC), the work will analyse an ARMA model with and without sentiment integration. Later, more complex AI models – ranging from XGBoost to recurrent neural networks (RNN), long short-term memory networks (LSTM), and state-of-the-art transformer models like GPT – 5 may be evaluated and benchmarked. To analyse performance, metrics such as Mean Percentage Error (MPE), Accuracy, and F1-Score will be used.
 
 This investigation contributes to an ongoing debate about the efficient market hypothesis, which states that new information is integrated into prices in a very short time, rendering the information useless for predicting future movements.
 
@@ -73,7 +75,7 @@ This investigation contributes to an ongoing debate about the efficient market h
 
 Despite decades-long research in terms of stock predictions, the prognosis of short-term movements remains a challenge. Classic methods depend solely on previous price movements and technical indicators. However, the influential factors that move the market go far beyond these information. News, Social Media, politics, macro-economic events are examples that could contribute to changes in the stock market as well.
 
-Current studies increasingly work with the analysis of media texts to achieve additional prediction-accuracy, though, the quantitative value of these features is debated. Additionally, the interaction between technical indicators and sentiment features — and their impact on model performance across different AI architectures — remains an open question.
+Current studies \cite{ANBAEEFARIMANI2022108742} increasingly work with the analysis of media texts to achieve additional prediction-accuracy, though, the quantitative value of these features is debated. Additionally, the interaction between technical indicators and sentiment features — and their impact on model performance across different AI architectures — remains an open question.
 \section{Goals}
 The goal of this study is to quantify the benefit of market-sentiment to predict changes in stock prices. Different AI-algorithms will be compared and analysed on which would benefit the most from this new feature.
 
@@ -92,11 +94,11 @@ Specifically this study tries to:
 6. analyze Feature Contribution via statistical tests and model weight analysis
 
 \chapter{Literature Review}
-The idea to combine market sentiment with stochastic and technical indicators is not new. Many studies have already done research on it \cite{ANBAEEFARIMANI2022108742} \cite{10380556} \cite{9175549}. The combination of sentiment and well known indicators like ballinger bands, volume, EMA (weighted moving average) are used in \cite{ANBAEEFARIMANI2022108742} to predict the price changes in Forex (Foreign exchange markets), with good performance. Similarly \cite{9175549} tried using daily aggregated sentiment and stock-data(isn´t further explained) to predict price changes of certain companies like Apple, Amazon or Microsoft. Both works have proofen a correlation between stock price and sentiment, which lead to increased model performance. Also noteable is that \cite{ANBAEEFARIMANI2022108742} stated that specifically combining both technical indicators and sentiment lead to the most performant model, hinting possible feature synergies or complimentations.
+The idea to combine market sentiment with stochastic and technical indicators is not new. Many studies have already done research on it \cite{ANBAEEFARIMANI2022108742} \cite{10380556} \cite{9175549}. The combination of sentiment and well known indicators like ADI (divergences between the price and the volume), volume, EMA (weighted moving average) are used in \cite{ANBAEEFARIMANI2022108742} to predict the price changes in Forex (Foreign exchange markets), with good performance. Similarly \cite{9175549} tried using daily aggregated sentiment and stock-data(isn´t further explained) to predict price changes of certain companies like Apple, Amazon or Microsoft. Both works have proven a correlation between stock price and sentiment, which lead to increased model performance. Also noteable is that \cite{ANBAEEFARIMANI2022108742} stated that specifically combining both technical indicators and sentiment lead to the most performant model, hinting possible feature synergies or complimentations.
 
 However, newspaper headlines are not the only reliable source, social media posts (e.g. twitter or social hubs) can also be utilized to create sentiment features. For example \cite{CHOI2024121589} used properties like views, likes, dislikes, and keywords to predict price momentum (up, down). Other studies like \cite{khan2022stock} even go a step further by combining both news paper headlines with social media content to create more robust accuracy.
 
-In comparision to others this study will focus not on single companies or foreign exchange markets but broad stock indices. It is expected that indices like S\&P 500 or MSCI-Word are going to be harder to predict, because they are influenced by a broader range of factors.
+In comparison to others this study will focus not on single companies or foreign exchange markets but broad stock indices. On might argue that sentiment analysis is more effective for indices because it reflects more macroeconomic factors. However, the opposite could also be true. Headlines related to a specific company (not included by the index) may introduce noise into the aggregated sentiment score, potentially reducing predictive power. Comparing the outcome of this study with the related ones may give new insights on this topic.
 
 \chapter{Methodology}
 The fundamental data of this work will be a big corpus of news paper headlines, that combine multiple american media sources (CNBC, Reuters, The Guradians, ...). A pipeline that combines many of those datasets will be implemented. Primary goal ist to unify many different datasets, remove duplicates and create a time series with news information.
@@ -121,8 +123,8 @@ Trading volume shows how many shares have been traded in a give time interval \\
 \textbf{Exponential Moving Average (EMA)} & 
 Moving Average that assignes greater weight to newer data points \\
 \hline
-\textbf{Bollinger Bands} &
-Consist of a moving average and two standard deviations positioned above and below it. \\
+\textbf{Average True Range (ATR)} &
+Measues volatility over a specific time period. \\
 \hline
 \textbf{Williams \%R} & 
 A momentum indicator that indicates whether a stock is overbought (around 0) or oversold (around -100). \\
