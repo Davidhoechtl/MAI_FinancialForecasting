@@ -57,9 +57,7 @@
 \begin{document}
 
 \maketitle
-
 \chapter{Abstract}
-
 Financial markets are highly complex systems that are influenced by human behaviours and economic events. For decades, data scientists and economists have attempted to predict and explain financial time series, but it still remains a big challenge. Traditionally, autoregressive models or technical indicators were used to achieve this goal. While this approach created a mathematical and statistical foundation, it falls short when confronted with unstructured data like news headlines or investor sentiment.
 
 With the rapid advances in artificial intelligence (AI), especially in natural language processing (NLP), new ways for understanding those unstructured texts have been found. For example, transformer models can extract semantic information from text. This information could be used to engineer new features that help explain variance in the movement of stock market indices like the S\&P500 or the MSCI World. 
@@ -70,56 +68,10 @@ As a proof of concept (PoC), the work will analyse an ARMA model with and withou
 
 This investigation contributes to an ongoing debate about the efficient market hypothesis, which states that new information is integrated into prices almost instantly, rendering the information useless for predicting future movements.
 
-\chapter{Motivation and Goals}
-\section{Motivation}
-
+\chapter{Motivation}
 Despite decades-long research in terms of stock predictions, the forecasting of short-term movements remains a challenge. Traditional methods depend solely on previous price movements and technical indicators. However, the influential factors that move the market go far beyond this information. News, Social Media, politics, macro-economic events are examples that could contribute to changes in the stock market as well.
 
 Current studies \cite{ANBAEEFARIMANI2022108742} increasingly work with the analysis of media texts to achieve additional prediction-accuracy, though, the quantitative value of these features is debated. Additionally, the interaction between technical indicators and sentiment features — and their impact on model performance across different AI architectures — remains an open question.
-
-\section{Goals}
-The goal of this study is to quantify the benefit of market-sentiment to predict changes in stock prices. Different AI-algorithms will be compared and analysed to determine which would benefit the most from this new feature.
-
-Specifically this study tries to:
-
-1. create a pipeline to collect and combine news articles. Multiple different datasets that contain American news headlines will be combined. The goal is to create a bigger volume of data to create the sentiment feature.
-
-2. take the data and calculate the sentiment score (1: positiv, -1: negativ, 0: neutral) with different methods and models. There will be experiments on which of the algorithms delivers the best results. For Example a lexicon based approach or a state of the art fine tuned transformer models can be used.
-
-3. compare the difference of sentiment-lag (-day-lag vs 1-day-lag, intra-day-lag) to analyse the decay of explainability over time.
-
-4. implement a pipeline for extracting technical indicators from the stock market prices and combining tehm with the sentiment score. The output should be a feature matrix that the different ai-models can use
-
-5. evaluate model performance using standardized metrics such as Mean Percentage Error (MPE), Accuracy, and F1-Score, for both price change prediction (regression) and market direction classification (up/down).
-
-6. analyze Feature Contribution via statistical tests and model weight analysis
-
-\begin{table}[h!]
-\centering
-\caption{Goals Milestone Plan}
-\label{tab:milestones}
-\begin{tabular}{|c|p{6cm}|p{5cm}|c|}
-\hline
-\textbf{Week / Month} & \textbf{Task} & \textbf{Status} \\
-\hline
-Week 1--2 (Sept) & Start with Literature Review and scouting for the first prototyp datasets of news headlines & Done \\
-\hline
-Week 3--4 (Sept) & Create a simple sentiment pipeline that classifies news headlines. Analyse different finance APIs that can provide daily prices for finacial trackers & Done \\
-\hline
-Week 5--6 (Oct) & Use the gathered an prepared data to train ARMA Models and compare the effect of adding the sentiment feature. (first prototype) & Done \\
-\hline
-Week 7--10 (Oct/Nov) & Create a pipeline that can combine different dataset, gather more data and try around with different sentiment lags (analyse the decay of explainability over time) / compare sentiment models (lexicon -> transformer) & Pending \\
-\hline
-Week 11--12 (Nov) & Create pipeline that calculates technical indicators and combine them with the sentiment scores to create a complete feature Matrix & Pending \\
-\hline
-Week 13--16 (Dec) & Model training and evaluation (ARMA, XGBoost, RNN, LSTM, GPT) & Evaluation metrics (MPE, Accuracy, F1-Score) & Pending \\
-\hline
-Week 17--18 (Jan) & feature contirbution analysis, performance comparision and preparation of presentation & Pending \\
-\hline
-Week 19--20 (Jan) & buffer & - \\
-\hline
-\end{tabular}
-\end{table}
 
 \chapter{Literature Review}
 The idea to combine market sentiment with stochastic and technical indicators is not new. Many studies have already done research on it \cite{ANBAEEFARIMANI2022108742} \cite{10380556} \cite{9175549}. The combination of sentiment and well known indicators like ADI (divergences between the price and the volume), volume, EMA (weighted moving average) are used in \cite{ANBAEEFARIMANI2022108742} to predict the price changes in Forex (Foreign exchange markets), with good performance. Similarly \cite{9175549} tried using daily aggregated sentiment and stock-data(isn´t further explained) to predict price changes of certain companies like Apple, Amazon or Microsoft. Both works have proven a correlation between stock price and sentiment, which lead to increased model performance. Also noteable is that \cite{ANBAEEFARIMANI2022108742} stated that specifically combining both technical indicators and sentiment lead to the most performant model, hinting possible feature synergies or complimentations.
@@ -128,11 +80,11 @@ However, newspaper headlines are not the only reliable source, social media post
 
 In comparison to others this study will focus not on single companies or foreign exchange markets but broad stock indices. On might argue that sentiment analysis is more effective for indices because it reflects more macroeconomic factors. However, the opposite could also be true. Headlines related to a specific company (not included by the index) may introduce noise into the aggregated sentiment score, potentially reducing predictive power. Comparing the outcome of this study with the related ones may give new insights on this topic.
 
-\chapter{Methodology}
+\chapter{Proposed Methods}
 The fundamental data of this work will be a big corpus of news paper headlines, that combine multiple American media sources (CNBC, Reuters, The Guradians, ...). A pipeline that combines many of those datasets will be implemented. Primary goal ist to unify many different datasets, remove duplicates and create a time series with news information.
 On the other hand using investpy or other public APIs (Alpha Vantage) stock and volume data will be collected for the target index. The frequency will be adjusted for the granuality of the sentiment data (for example an intra day sentiment score is only possible if enough data can be collected).
 
-\section{Features Matrix}
+\section{Example Features Matrix}
 Sentiment scores will be genreated with different algorithms and models to compare the effect on performance and stability. Starting from "primitive" tools like lexicon based analysis to state of the art fine tuned transformer models like FinBERT or LLMs like GPT-5. Technical indicators will be calculated from the past price and volume data as part of the feature matrix pipeline. A possible matrix could look like this:
 
 \begin{table}[H]
@@ -168,7 +120,44 @@ daily aggregated score, that tries to predict market sentiment \\
 
 (Disclaimer: The provided feature matrix is only an idea. Both technical indicators and sentiment features can/will be changed)
 
-\section{First prototype}
+\section{Example Metrics and Statistical Tests}
+For regression forecasting tasks (price changes), the following metrics can be used: \textbf{Mean Percentage Error (MPE)}, \textbf{Mean Absolute Error (MAE)}
+
+When predicting directional movements (up, down), the following classification metrics can be applied: \textbf{Accuracy}, \textbf{Precision}, \textbf{Recall}, \textbf{F1-Score}
+
+To validate whether sentiment features have a statistically significant impact on model performance, the following tests could be used: \textbf{p-Value Test}, \textbf{Granger Causality Test}
+
+\section{Goal and Milestones}
+The goal of this study is to quantify the benefit of market-sentiment to predict changes in stock prices. Different AI-algorithms will be compared and analysed to determine which would benefit the most from this new feature. Following milestone list will outline the work:
+
+\begin{table}[H]
+\centering
+\caption{Goals Milestone Plan}
+\label{tab:milestones}
+\begin{tabular}{|c|p{9,5cm}|p{1,5cm}|c|}
+\hline
+\textbf{Week / Month} & \textbf{Task} & \textbf{Status} \\
+\hline
+Week 1--2 (Sept) & Start with Literature Review and scouting for the first prototyp datasets of news headlines & Done \\
+\hline
+Week 3--4 (Sept) & Create a simple sentiment pipeline that classifies news headlines. Analyse different finance APIs that can provide daily prices for finacial trackers & Done \\
+\hline
+Week 5--6 (Oct) & Use the gathered an prepared data to train ARMA Models and compare the effect of adding the sentiment feature. (first prototype) & Done \\
+\hline
+Week 7--10 (Oct/Nov) & Create a pipeline that can combine different dataset, gather more data and try around with different sentiment lags (analyse the decay of explainability over time) / compare sentiment models (lexicon -> transformer) & Pending \\
+\hline
+Week 11--12 (Nov) & Create pipeline that calculates technical indicators and combine them with the sentiment scores to create a complete feature Matrix & Pending \\
+\hline
+Week 13--16 (Dec) & Model training and evaluation (ARMA, XGBoost, RNN, LSTM, GPT) Evaluation metrics (MPE, Accuracy, F1-Score) & Pending \\
+\hline
+Week 17--18 (Jan) & feature contirbution analysis, performance comparision and preparation of presentation & Pending \\
+\hline
+Week 19--20 (Jan) & buffer & - \\
+\hline
+\end{tabular}
+\end{table}
+
+\chapter{First prototype}
 In the course of a minimal experiment, ARIMA-Models produced hints that sentiment has a statistical value for predicitng prices. For this purpose, an autoregressive (AR) model with a moving average (MA) component was used. ARIMA models are primary used in statistic and economic szenarios. It is important to note that, in this case the previous proposed matrix was not used. Instead only price and sentiment of prior N days where utilized for predicting future values.
 
 A ARIMA(p,d,q) model has 3 different parameter \cite{WikipediaARIMA}:
@@ -177,6 +166,8 @@ A ARIMA(p,d,q) model has 3 different parameter \cite{WikipediaARIMA}:
     \item d => degree of differencing, makes changes stationary (e.g., from price movement to price change)
     \item q => N past regression errors
 \end{itemize}
+
+\section{Setup}
 
 \begin{table}[H]
 \centering
@@ -225,6 +216,20 @@ The low p-value proves that the feature daily\_sentiment is statistical signific
 
 While this results are very promising following two challenges were indentified. First, while the ARMA sentiment model generally outperformed the ARMA mdoel, this was not the case for every configuration. Second for the year 2018, no significant relationship between sentiment and price movement could be proven (p-value \= 0.457). Therefore, although this experiment is an important indicator that sentiment explains some variance, more data and further investigations are needed to find clear answers.
 
+\chapter{Example Plots}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{PICs/Example_plot_sentiment_price.png}
+    \caption{Sentiment vs Price}
+    \label{fig:myimage3}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{PICs/Example_plot_prediction_vs_actual.png}
+    \caption{Predicted vs Actual Prices}
+    \label{fig:myimage4}
+\end{figure}
 %
 % Hier beginnen die Verzeichnisse.
 %
