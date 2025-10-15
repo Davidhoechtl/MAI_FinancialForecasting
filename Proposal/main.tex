@@ -74,11 +74,11 @@ Despite decades-long research in terms of stock predictions, the forecasting of 
 Current studies \cite{ANBAEEFARIMANI2022108742} increasingly work with the analysis of media texts to achieve additional prediction-accuracy, though, the quantitative value of these features is debated. Additionally, the interaction between technical indicators and sentiment features — and their impact on model performance across different AI architectures — remains an open question.
 
 \chapter{Literature Review}
-The idea to combine market sentiment with stochastic and technical indicators is not new. Many studies have already done research on it \cite{ANBAEEFARIMANI2022108742} \cite{10380556} \cite{9175549}. The combination of sentiment and well known indicators like ADI (divergences between the price and the volume), volume, EMA (weighted moving average) are used in \cite{ANBAEEFARIMANI2022108742} to predict the price changes in Forex (Foreign exchange markets), with good performance. Similarly \cite{9175549} tried using daily aggregated sentiment and stock-data(isn´t further explained) to predict price changes of certain companies like Apple, Amazon or Microsoft. Both works have proven a correlation between stock price and sentiment, which lead to increased model performance. Also noteable is that \cite{ANBAEEFARIMANI2022108742} stated that specifically combining both technical indicators and sentiment lead to the most performant model, hinting possible feature synergies or complimentations.
+The idea of combining market sentiment with stochastic and technical indicators is not new. Many studies have already done research on it \cite{ANBAEEFARIMANI2022108742} \cite{10380556} \cite{9175549}. The combination of sentiment and well known indicators like ADI (divergences between the price and the volume), volume, EMA (weighted moving average) are used in \cite{ANBAEEFARIMANI2022108742} to predict the price changes in Forex (Foreign exchange markets), with good performance. Similarly \cite{9175549} tried using daily aggregated sentiment and stock-data (isn´t further explained) to predict price changes of certain companies like Apple, Amazon or Microsoft. Both works have proven a correlation between stock price and sentiment, which led to increased model performance. Also notable is that \cite{ANBAEEFARIMANI2022108742} stated that specifically combining both technical indicators and sentiment led to the most performant model, hinting possible feature synergies or complementations.
 
 However, newspaper headlines are not the only reliable source, social media posts (e.g. twitter or social hubs) can also be utilized to create sentiment features. For example \cite{CHOI2024121589} used properties like views, likes, dislikes, and keywords to predict price momentum (up, down). Other studies like \cite{khan2022stock} even go a step further by combining both news paper headlines with social media content to create more robust accuracy.
 
-In comparison to others this study will focus not on single companies or foreign exchange markets but broad stock indices. On might argue that sentiment analysis is more effective for indices because it reflects more macroeconomic factors. However, the opposite could also be true. Headlines related to a specific company (not included by the index) may introduce noise into the aggregated sentiment score, potentially reducing predictive power. Comparing the outcome of this study with the related ones may give new insights on this topic.
+In comparison to others this study will focus not on single companies or foreign exchange markets but broad stock indices. One might argue that sentiment analysis is more effective for indices because it reflects more macroeconomic factors. However, the opposite could also be true. Headlines related to a specific company (not included by the index) may introduce noise into the aggregated sentiment score, potentially reducing predictive power. Comparing the outcome of this study with the related ones may give new insights on this topic.
 
 \chapter{Proposed Methods}
 The fundamental data of this work will be a big corpus of news paper headlines, that combine multiple American media sources (CNBC, Reuters, The Guradians, ...). A pipeline that combines many of those datasets will be implemented. Primary goal ist to unify many different datasets, remove duplicates and create a time series with news information.
@@ -104,7 +104,7 @@ Trading volume shows how many shares have been traded in a give time interval \\
 Moving Average that assignes greater weight to newer data points \\
 \hline
 \textbf{Average True Range (ATR)} &
-Measues volatility over a specific time period. \\
+Measures volatility over a specific time period. \\
 \hline
 \textbf{Williams \%R} & 
 A momentum indicator that indicates whether a stock is overbought (around 0) or oversold (around -100). \\
@@ -140,9 +140,9 @@ The goal of this study is to quantify the benefit of market-sentiment to predict
 \hline
 Week 1--2 (Sept) & Start with Literature Review and scouting for the first prototyp datasets of news headlines & Done \\
 \hline
-Week 3--4 (Sept) & Create a simple sentiment pipeline that classifies news headlines. Analyse different finance APIs that can provide daily prices for finacial trackers & Done \\
+Week 3--4 (Sept) & Create a simple sentiment pipeline that classifies news headlines. Analyse different finance APIs that provide daily prices for finacial products & Done \\
 \hline
-Week 5--6 (Oct) & Use the gathered an prepared data to train ARMA Models and compare the effect of adding the sentiment feature. (first prototype) & Done \\
+Week 5--6 (Oct) & Use the gathered and prepared data to train ARMA Models and compare the effect of adding the sentiment feature. (first prototype) & Done \\
 \hline
 Week 7--10 (Oct/Nov) & Create a pipeline that can combine different dataset, gather more data and try around with different sentiment lags (analyse the decay of explainability over time) / compare sentiment models (lexicon -> transformer) & Pending \\
 \hline
@@ -163,7 +163,7 @@ In the course of a minimal experiment, ARIMA-Models produced hints that sentimen
 A ARIMA(p,d,q) model has 3 different parameter \cite{WikipediaARIMA}:
 \begin{itemize}
     \item p => N past datapoints (t-1, t-2, ... t-n)
-    \item d => degree of differencing, makes changes stationary (e.g., from price movement to price change)
+    \item d => degree of differencing, makes changes stationary (from price movement to price change)
     \item q => N past regression errors
 \end{itemize}
 
