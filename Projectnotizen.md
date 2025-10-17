@@ -97,3 +97,15 @@ Am Ende soll es möglich sein, unterschiedliche Modelle anhand definierter Metri
 ## Ziel bis 10.10
 - Proposal erstellen
 - Literaturrecherche fertigstellen
+
+
+## 17.10.2025
+pipeline refactorn
+mehr daten
+Sentiment Lag
+Sentiment Modelle
+
+Weighted mean für daily sentiment
+Sentiment score je quelle
+Sentiment LLM -> Gewichtung der Headlines (Relevanz Score)
+Regionales Sentiment Feature
