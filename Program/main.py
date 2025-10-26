@@ -111,7 +111,7 @@ print(best_sentiment_model.summary())
 
 from Utils import result_plots as rp
 
-# rp.plot_price_change_sentiment_scatter(df_combined)
-# rp.plot_arima_pvalues(best_sentiment_model)
-# rp.sentiment_price_plot(df_combined)
+rp.plot_price_change_sentiment_scatter(df_combined)
+rp.plot_arima_pvalues(best_sentiment_model)
+rp.sentiment_price_plot(df_combined)
 rp.prediction_vs_real_priceChange(df_combined, best_model, best_sentiment_model, start_date='03/05/2020', end_date='19/07/2020')

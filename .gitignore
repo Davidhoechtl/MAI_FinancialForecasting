@@ -7,6 +7,7 @@ ARMAPoC/__pycache__
 Program/.idea
 Program/__pycache__
 Program/Sentiment/Datasets/Headlines_2017_12_to_2020_7_USEastern/processed_headlines.csv
+Program/Sentiment/Datasets/FNSPID/All_external.csv
 Program/SP500_Prices/Sources/Alpha_Vantage_UsEastern/SPY_hourly_2023.csv
 
 #LaTex ignores

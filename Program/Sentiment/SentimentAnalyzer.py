@@ -151,6 +151,12 @@ def deduplicate(combined: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: Deduplicated DataFrame.
     """
 
+    # Find duplicate headlines per source
+    duplicates = combined[combined.duplicated(subset=['source', 'headline'], keep='first')]
+
+    print(f"🔁 Found {len(duplicates)} duplicate rows")
+    print(duplicates.head(10))
+
     # Remove duplicates (keep the first occurrence)
     deduped = combined.drop_duplicates(subset=['source', 'headline'], keep='first')
 
