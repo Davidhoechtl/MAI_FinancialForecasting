@@ -1,6 +1,11 @@
 import pandas as pd
 from enum import Enum
 
+from Sentiment.Models.Vader import VaderSentimentModel
+from Sentiment.Models.SentimentModelBase import SentimentModelBase
+from Utils.pandas_helper import hash_headline_column
+
+
 class SentimentModel(Enum):
     VADER = 1
 
@@ -29,7 +34,11 @@ def analyze_sentiment(datasets: list[pd.DataFrame], sentiment_model: SentimentMo
     combined = deduplicate(combined)
 
     if sentiment_model == SentimentModel.VADER:
-        combined['sentiment'] = analyze_with_vader(combined['headline'])
+        model = VaderSentimentModel()
+    else:
+        raise ValueError(f"Unknown sentiment model: {sentiment_model}")
+
+    combined["sentiment"] = get_sentiment(combined['headline'], model)
 
     mapped_to_timeseries = group_by_granularity(combined, granuality_level)
 
@@ -100,21 +109,19 @@ def group_by_granularity(combined: pd.DataFrame, granularity_level: GranularityL
 
     return grouped
 
-def analyze_with_vader(headlines: pd.Series) -> pd.Series:
-    from nltk.sentiment import SentimentIntensityAnalyzer
-    import nltk
+def get_sentiment( headlines: pd.Series, sentiment_model: SentimentModelBase) -> pd.Series:
+    # could not load from file -> analyze and write to file
+    headlines = sentiment_model.preprocess(headlines)
 
-    nltk.download('vader_lexicon')
+    if not sentiment_model.try_load_preprocessed(hash_headline_column(headlines)):
+        sentiment_model.analyze(headlines)
 
-    sia = SentimentIntensityAnalyzer()
-    def classify_sentiment_polarity(text):
-        if pd.isna(text):
-            return None
-        sentiment_score = sia.polarity_scores(text)['compound']
-        return sentiment_score
+    # sanity check sentiment must have the same size as headlines
+    if len(headlines) != len(sentiment_model.sentiment):
+        raise Exception("The retrieved sentiment series length mismatches with the headline series")
 
-    return headlines.apply(classify_sentiment_polarity)
-
+    # return the sentiment pd.Series, that was either loaded or analyzed
+    return sentiment_model.sentiment
 
 def preprocess(combined: pd.DataFrame, sentiment_model: SentimentModel) -> pd.DataFrame:
     """

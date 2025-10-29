@@ -1,0 +1,100 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.7 Chrome/138.0.7204.251 Electron/37.7.1 Safari/537.36" version="28.2.7">
+  <diagram name="Page-1" id="MAXzF3UIa_Qs_iK_4EUo">
+    <mxGraphModel dx="1701" dy="996" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="nHs_YjNGr8Ro5CF6kmBJ-2" target="nHs_YjNGr8Ro5CF6kmBJ-7" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-2" value="Dataset 1" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="150" y="90" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="nHs_YjNGr8Ro5CF6kmBJ-3" target="nHs_YjNGr8Ro5CF6kmBJ-11" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-3" value="Dataset 2" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="540" y="90" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-4" value="Date;Headline;Description;" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="125" y="50" width="170" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-5" value="Source;Date;Headline;Description;" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="515" y="50" width="170" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="1" source="nHs_YjNGr8Ro5CF6kmBJ-7" target="nHs_YjNGr8Ro5CF6kmBJ-14" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-7" value="Dataset 1 Adapter" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="150" y="170" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-8" value="" style="endArrow=none;dashed=1;html=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="70" y="340" as="sourcePoint" />
+            <mxPoint x="760" y="340" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-9" value="Unify Datasets to same format" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="10" y="310" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-10" value="Source;Date;Headline" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="310" y="310" width="190" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-11" value="Dataset 2 Adapter" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="540" y="170" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="nHs_YjNGr8Ro5CF6kmBJ-14" target="nHs_YjNGr8Ro5CF6kmBJ-25" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-14" value="SentimentAnalyzer" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="174" y="360" width="480" height="460" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="nHs_YjNGr8Ro5CF6kmBJ-14" source="nHs_YjNGr8Ro5CF6kmBJ-13" target="nHs_YjNGr8Ro5CF6kmBJ-15" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-13" value="Concate All Datasets" style="rounded=1;whiteSpace=wrap;html=1;" parent="nHs_YjNGr8Ro5CF6kmBJ-14" vertex="1">
+          <mxGeometry x="180" y="30" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="nHs_YjNGr8Ro5CF6kmBJ-14" source="nHs_YjNGr8Ro5CF6kmBJ-15" target="nHs_YjNGr8Ro5CF6kmBJ-16" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-15" value="Preprocess Headlines" style="rounded=1;whiteSpace=wrap;html=1;" parent="nHs_YjNGr8Ro5CF6kmBJ-14" vertex="1">
+          <mxGeometry x="180" y="100" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="nHs_YjNGr8Ro5CF6kmBJ-14" source="nHs_YjNGr8Ro5CF6kmBJ-16" target="nHs_YjNGr8Ro5CF6kmBJ-17" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-16" value="Remove Duplicates" style="rounded=1;whiteSpace=wrap;html=1;" parent="nHs_YjNGr8Ro5CF6kmBJ-14" vertex="1">
+          <mxGeometry x="180" y="170" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="nHs_YjNGr8Ro5CF6kmBJ-14" source="nHs_YjNGr8Ro5CF6kmBJ-17" target="nHs_YjNGr8Ro5CF6kmBJ-24" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-17" value="Sentiment analysis with model X" style="rounded=1;whiteSpace=wrap;html=1;" parent="nHs_YjNGr8Ro5CF6kmBJ-14" vertex="1">
+          <mxGeometry x="180" y="240" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-23" value="Map to timeseries&lt;div&gt;(daily, weekly, monthly)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="nHs_YjNGr8Ro5CF6kmBJ-14" vertex="1">
+          <mxGeometry x="180" y="380" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="nHs_YjNGr8Ro5CF6kmBJ-14" source="nHs_YjNGr8Ro5CF6kmBJ-24" target="nHs_YjNGr8Ro5CF6kmBJ-23" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-24" value="Group by&lt;div&gt;(daily, weekly, monthly)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="nHs_YjNGr8Ro5CF6kmBJ-14" vertex="1">
+          <mxGeometry x="180" y="310" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-25" value="Final dataset" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="354" y="860" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.763;entryY=-0.005;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="nHs_YjNGr8Ro5CF6kmBJ-11" target="nHs_YjNGr8Ro5CF6kmBJ-14" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nHs_YjNGr8Ro5CF6kmBJ-26" value="Source;Date;Headline;Aggregated_sentiment" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="319" y="930" width="190" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="yCJLc_c7KTmU015FWP22-1" value="Vertical Container" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="510" width="200" height="200" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
