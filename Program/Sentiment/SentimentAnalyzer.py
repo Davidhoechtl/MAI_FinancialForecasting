@@ -1,16 +1,19 @@
 import pandas as pd
 from enum import Enum
 
+from Sentiment.Models.FinBERT import FinBERTSentimentModel
 from Sentiment.Models.Vader import VaderSentimentModel
 from Sentiment.Models.SentimentModelBase import SentimentModelBase
 from Utils.pandas_helper import hash_headline_column
+from Utils.sentiment_plots import show_daily_sentiment, plot_sentiment_distribution
 
 
 class SentimentModel(Enum):
-    VADER = 1
+    VADER = 1,
+    FINBERT = 2
 
 class GranularityLevel(Enum):
-    DAILY = 1
+    DAILY = 1,
     WEEKLY = 2
 
 def analyze_sentiment(datasets: list[pd.DataFrame], sentiment_model: SentimentModel, granuality_level: GranularityLevel) -> pd.DataFrame:
@@ -35,10 +38,14 @@ def analyze_sentiment(datasets: list[pd.DataFrame], sentiment_model: SentimentMo
 
     if sentiment_model == SentimentModel.VADER:
         model = VaderSentimentModel()
+    elif sentiment_model == SentimentModel.FINBERT:
+        model = FinBERTSentimentModel()
     else:
         raise ValueError(f"Unknown sentiment model: {sentiment_model}")
 
     combined["sentiment"] = get_sentiment(combined['headline'], model)
+    show_daily_sentiment(combined)
+    plot_sentiment_distribution(combined)
 
     mapped_to_timeseries = group_by_granularity(combined, granuality_level)
 

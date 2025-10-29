@@ -100,10 +100,13 @@ def sentiment_price_plot(df):
     plt.tight_layout()
     plt.show()
 
-def plot_price_change_sentiment_scatter(df):
+def plot_price_change_sentiment_scatter(df, lag):
+    df_copy = df.copy()
+    df_copy[f'sentiment_lag{lag}'] = df_copy['daily_sentiment'].shift(lag)
+
     plt.figure(figsize=(10, 6))
-    sns.regplot(x=df['daily_sentiment'], y=df['Pct_Change'], line_kws={"color": "red"})
-    plt.title("Daily Sentiment vs Price Change")
+    sns.regplot(x=df_copy[f'sentiment_lag{lag}'], y=df['Pct_Change'], line_kws={"color": "red"})
+    plt.title(f"Daily Sentiment lag{lag} vs Price Change")
     plt.xlabel("Daily Sentiment")
     plt.ylabel("Price Change in %")
     plt.grid(alpha=0.3)
@@ -137,4 +140,63 @@ def plot_arima_pvalues(model, significance_level=0.05):
     plt.legend()
     plt.grid(alpha=0.3, axis='y')
     plt.tight_layout()
+    plt.show()
+
+def plot_arma_aic_heatmap(results_arima, results_arima_sentiment):
+    """
+    Plots three heatmaps side by side:
+    1. ARIMA baseline AIC
+    2. ARIMA + Sentiment AIC
+    3. ΔAIC = (sentiment - baseline)
+       -> Green = improvement (lower AIC), Red = worse
+
+    Parameters
+    ----------
+    results_arima : list[dict]
+        [{'p': int, 'q': int, 'AIC': float}, ...]
+    results_arima_sentiment : list[dict]
+        Same structure, for sentiment-augmented models.
+    """
+
+    df_base = pd.DataFrame(results_arima)
+    df_sent = pd.DataFrame(results_arima_sentiment)
+
+    # Merge on p,q for ΔAIC calculation
+    df_merge = pd.merge(df_base, df_sent, on=['p', 'q'], suffixes=('_base', '_sent'))
+    df_merge['delta_AIC'] = df_merge['AIC_sent'] - df_merge['AIC_base']
+
+    # Pivot tables
+    pivot_base = df_merge.pivot(index='p', columns='q', values='AIC_base')
+    pivot_sent = df_merge.pivot(index='p', columns='q', values='AIC_sent')
+    pivot_diff = df_merge.pivot(index='p', columns='q', values='delta_AIC')
+
+    # Create 3 plots side by side
+    fig, axes = plt.subplots(1, 3, figsize=(16, 5), sharex=True, sharey=True)
+
+    sns.heatmap(
+        pivot_base, annot=True, fmt=".1f", cmap="coolwarm",
+        cbar_kws={'label': 'AIC'}, ax=axes[0]
+    )
+    axes[0].set_title("ARIMA baseline")
+    axes[0].set_xlabel("q")
+    axes[0].set_ylabel("p")
+
+    sns.heatmap(
+        pivot_sent, annot=True, fmt=".1f", cmap="coolwarm",
+        cbar_kws={'label': 'AIC'}, ax=axes[1]
+    )
+    axes[1].set_title("ARIMA + Sentiment")
+    axes[1].set_xlabel("q")
+    axes[1].set_ylabel("")
+
+    sns.heatmap(
+        pivot_diff, annot=True, fmt=".2f", cmap="RdYlGn_r", center=0,
+        cbar_kws={'label': 'ΔAIC (sent - base)'}, ax=axes[2]
+    )
+    axes[2].set_title("ΔAIC (Improvement)")
+    axes[2].set_xlabel("q")
+    axes[2].set_ylabel("")
+
+    plt.suptitle("AIC Comparison: ARIMA vs ARIMA + Sentiment", fontsize=14, y=1.02)
+    # plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.show()
