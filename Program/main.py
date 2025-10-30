@@ -5,6 +5,8 @@ import Sentiment.SentimentLoader as sentiment_loader
 from Forecasting.ARMA import ARMAForecastingModel
 import os
 
+import SP500_Prices.PriceAnalyzer as technicals_loader
+from SP500_Prices.PriceAnalyzer import TechnicalIndicators
 from Sentiment.SentimentAnalyzer import DatasetSources
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "1"  # prevent OpenMP conflict early
@@ -37,7 +39,10 @@ end_date = "18/07/2020"
 df_prices = investpy_sp500_scrape.get_sp500_data(start_date, end_date)
 df_prices = df_prices.reset_index()
 # print(df_prices.head())
-
+df_technicals = technicals_loader.analyze_price(
+    df_price=df_prices,
+    indicators=[TechnicalIndicators.VOLATILITY]
+)
 df_sentiment = sentiment_loader.load(
     datasets= [DatasetSources.LUCASPHAM],
     sentiment_model= Sentiment.SentimentAnalyzer.SentimentModel.FINBERT,
