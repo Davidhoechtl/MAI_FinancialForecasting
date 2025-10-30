@@ -1,7 +1,15 @@
 from Sentiment.Datasets.Headlines_2017_12_to_2020_7_USEastern.dataset_adapter import Adapter1
 from Sentiment.Datasets.NIFTY.nifty_adapter import NiftyAdapter
-from Sentiment.SentimentAnalyzer import analyze_sentiment, SentimentModel, GranularityLevel
+from Sentiment.Datasets.dataset_adapter_base import DatasetAdapterBase
+from Sentiment.SentimentAnalyzer import analyze_sentiment, SentimentModel, GranularityLevel, DatasetSources
 import pandas as pd
+
+def load_dataset(dataset_adapter: DatasetAdapterBase, start_date: str, end_date: str) -> pd.DataFrame:
+    if not dataset_adapter.try_load_preprocessed():
+        dataset_adapter.load()
+    df = dataset_adapter.to_standard_format()
+    df = filter_dataset_by_dates(df, start_date, end_date)
+    return df
 
 def filter_dataset_by_dates(df: pd.DataFrame, start: str = None, end: str = None) -> pd.DataFrame:
     """
@@ -26,6 +34,7 @@ def filter_dataset_by_dates(df: pd.DataFrame, start: str = None, end: str = None
     return df
 
 def load(
+    datasets: list[DatasetSources],
     sentiment_model:SentimentModel,
     granularity_level: GranularityLevel,
     start_date: str = None,
@@ -34,26 +43,26 @@ def load(
     Loads all headline datasets, filters by date, and runs sentiment analysis.
     """
 
-    # First Dataset: https://www.kaggle.com/datasets/notlucasp/financial-news-headlines
-    headlines_2017_12_to_2020_7_loader = Adapter1()
-    if not headlines_2017_12_to_2020_7_loader.try_load_preprocessed():
-        headlines_2017_12_to_2020_7_loader.load()
-    headlines_2017_12_to_2020_7_data = headlines_2017_12_to_2020_7_loader.to_standard_format()
-    headlines_2017_12_to_2020_7_data = filter_dataset_by_dates(headlines_2017_12_to_2020_7_data, start_date, end_date)
+    all_dataframes = []
+    for source in datasets:
+        # Instantiate adapter depending on dataset
+        if source == DatasetSources.LUCASPHAM:
+            adapter = Adapter1()
+        elif source == DatasetSources.NIFTY:
+            adapter = NiftyAdapter()
+        else:
+            print(f"⚠️ Unknown dataset: {source}, skipping.")
+            continue
 
-    nifty_adapter = NiftyAdapter()
-    if not nifty_adapter.try_load_preprocessed():
-        nifty_adapter.load()
-    df_nifty = nifty_adapter.to_standard_format()
-    df_nifty = filter_dataset_by_dates(df_nifty, start_date, end_date)
+        df = load_dataset(adapter, start_date, end_date)
+        all_dataframes.append(df)
 
-    df_list = [
-        headlines_2017_12_to_2020_7_data,
-        # df_nifty
-    ]
+    # Concatenate all selected datasets
+    if not all_dataframes:
+        raise Exception("⚠️ No datasets loaded. Check your list.")
 
     sentiment_scored = analyze_sentiment(
-        datasets=df_list,
+        datasets=all_dataframes,
         sentiment_model=sentiment_model,
         granuality_level=granularity_level
     )

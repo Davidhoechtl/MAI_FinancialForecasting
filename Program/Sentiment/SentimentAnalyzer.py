@@ -7,7 +7,6 @@ from Sentiment.Models.SentimentModelBase import SentimentModelBase
 from Utils.pandas_helper import hash_headline_column
 from Utils.sentiment_plots import show_daily_sentiment, plot_sentiment_distribution
 
-
 class SentimentModel(Enum):
     VADER = 1,
     FINBERT = 2
@@ -15,6 +14,10 @@ class SentimentModel(Enum):
 class GranularityLevel(Enum):
     DAILY = 1,
     WEEKLY = 2
+
+class DatasetSources(Enum):
+    NIFTY = 1,
+    LUCASPHAM = 2
 
 def analyze_sentiment(datasets: list[pd.DataFrame], sentiment_model: SentimentModel, granuality_level: GranularityLevel) -> pd.DataFrame:
     """

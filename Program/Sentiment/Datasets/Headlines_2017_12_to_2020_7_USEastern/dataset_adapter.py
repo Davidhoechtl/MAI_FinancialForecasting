@@ -4,6 +4,7 @@ from Sentiment.Datasets.dataset_adapter_base import DatasetAdapterBase
 
 BASE_PATH = "Sentiment/Datasets/Headlines_2017_12_to_2020_7_USEastern/"
 
+# First Dataset: https://www.kaggle.com/datasets/notlucasp/financial-news-headlines
 class Adapter1 (DatasetAdapterBase):
     def __init__(self):
         self.df = pd.DataFrame()  # define df in __init__
