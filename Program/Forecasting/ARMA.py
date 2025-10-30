@@ -79,16 +79,7 @@ class ARMAForecastingModel(ForecastingModelBase):
         # Drop NaNs from returns
         df_model = df.dropna(subset=['Pct_Change'])
 
-        start_lag = 0
-
-        # Create lagged sentiment features
-        for i in range(start_lag, p + start_lag):
-            df_model[f'sentiment_lag{i}'] = df_model['daily_sentiment'].shift(i)
-
-        # Drop rows with NaNs (due to lagging)
-        df_model = df_model.dropna(
-            subset=['Pct_Change'] + [f'sentiment_lag{i}' for i in range(start_lag, p + start_lag)])
-
+        start_lag = 1
         # Define exogenous regressors (last 3 days of sentiment)
         exog_vars = [f'sentiment_lag{i}' for i in range(start_lag, p + start_lag)]
 

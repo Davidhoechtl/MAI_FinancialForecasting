@@ -88,7 +88,7 @@ def sentiment_price_plot(df):
 
     # Create second y-axis for sentiment
     ax2 = ax1.twinx()
-    ax2.plot(df['Date'], df['daily_sentiment'], color='red', alpha=0.7, label='Daily Sentiment')
+    ax2.plot(df['Date'], df['sentiment_lag0'], color='red', alpha=0.7, label='Daily Sentiment')
     ax2.set_ylabel('Daily Sentiment', color='red')
     ax2.tick_params(axis='y', labelcolor='red')
 
@@ -102,7 +102,6 @@ def sentiment_price_plot(df):
 
 def plot_price_change_sentiment_scatter(df, lag):
     df_copy = df.copy()
-    df_copy[f'sentiment_lag{lag}'] = df_copy['daily_sentiment'].shift(lag)
 
     plt.figure(figsize=(10, 6))
     sns.regplot(x=df_copy[f'sentiment_lag{lag}'], y=df['Pct_Change'], line_kws={"color": "red"})

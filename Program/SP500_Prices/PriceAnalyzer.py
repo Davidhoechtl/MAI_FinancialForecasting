@@ -1,5 +1,6 @@
 import pandas as pd
 from enum import Enum
+import numpy as np
 
 class TechnicalIndicators(Enum):
     VOLUME = "Volume",
@@ -44,10 +45,10 @@ def get_volatility_feature(df_price: pd.DataFrame, window: int = 30) -> pd.Serie
     log_returns = np.log(df_price["Close"] / df_price["Close"].shift(1))
 
     # Rolling standard deviation (volatility)
-    volatility = log_returns.rolling(window=window, min_periods=window).std()
+    volatility = log_returns.rolling(window=window, min_periods=1).std()
 
-    # Annualize if you want (optional)
-    # volatility *= np.sqrt(252)
+    # Replace NaN (first two values) with 0
+    volatility = volatility.fillna(0.0)
 
     return volatility
 

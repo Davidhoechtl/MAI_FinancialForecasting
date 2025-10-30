@@ -1,4 +1,6 @@
 import pandas as pd
+from fontTools.subset import subset
+
 import SP500_Prices.Sources.InvestPy_UsEastern.scrape as investpy_sp500_scrape
 import Sentiment.SentimentAnalyzer
 import Sentiment.SentimentLoader as sentiment_loader
@@ -6,6 +8,7 @@ from Forecasting.ARMA import ARMAForecastingModel
 import os
 
 import SP500_Prices.PriceAnalyzer as technicals_loader
+from Forecasting.XGBoost import XGBoostForecastingModel
 from SP500_Prices.PriceAnalyzer import TechnicalIndicators
 from Sentiment.SentimentAnalyzer import DatasetSources
 
@@ -31,7 +34,7 @@ def join_sentiment_to_prices(df_prices, df_sentiment):
 
     #df_combined = pd.merge(df_prices, df_sentiment, on='Date', how='left')
     # Fill missing sentiment values with 0
-    df_combined['daily_sentiment'] = df_combined['sentiment'].fillna(0)
+    df_combined['sentiment'] = df_combined['sentiment'].fillna(0)
     return df_combined
 
 start_date = "17/12/2017"
@@ -51,11 +54,16 @@ df_sentiment = sentiment_loader.load(
     end_date=end_date
 )
 # print(df_sentiment.head())
+df_combined = join_sentiment_to_prices(df_technicals, df_sentiment)
+df_combined["sentiment_lag0"] = df_combined["sentiment"].shift(0)
+df_combined["sentiment_lag1"] = df_combined["sentiment"].shift(1).fillna(0)
+df_combined["sentiment_lag2"] = df_combined["sentiment"].shift(2).fillna(0)
+df_combined["sentiment_lag3"] = df_combined["sentiment"].shift(3).fillna(0)
+df_combined.drop(columns=["sentiment"], inplace=True)
+print(df_combined.head(40))
 
-df_combined = join_sentiment_to_prices(df_prices, df_sentiment)
-print(df_combined.head(20))
-
-eval_model = ARMAForecastingModel()
+# eval_model = ARMAForecastingModel()
+eval_model = XGBoostForecastingModel()
 eval_model.evaluate(df_combined)
 eval_model.plot_results()
 
