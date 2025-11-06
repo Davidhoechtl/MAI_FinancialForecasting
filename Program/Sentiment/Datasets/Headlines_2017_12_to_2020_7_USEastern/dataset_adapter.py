@@ -59,6 +59,10 @@ class Adapter1 (DatasetAdapterBase):
         print(f"Number of NA values in Headlines: {headline_nan_count}")
         df = df.dropna(subset=['Headlines'])
 
+        # Clean headline column
+        df["Headlines"] = df["Headlines"].str.replace('\n', ' ').str.replace('\r', ' ')
+        df["Headlines"] = df["Headlines"].str.replace(r'\s+', ' ', regex=True).str.strip()
+
         # Convert 'Time' to datetime and localize to US/Eastern
         df['Date'] = pd.to_datetime(df['Time'], errors='coerce')
         date_nat_count = df['Date'].isna().sum()

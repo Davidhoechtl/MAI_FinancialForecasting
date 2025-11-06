@@ -1,6 +1,4 @@
 import pandas as pd
-from fontTools.subset import subset
-
 import SP500_Prices.Sources.InvestPy_UsEastern.scrape as investpy_sp500_scrape
 import Sentiment.SentimentAnalyzer
 import Sentiment.SentimentLoader as sentiment_loader
