@@ -79,7 +79,7 @@ class ARMAForecastingModel(ForecastingModelBase):
         # Drop NaNs from returns
         df_model = df.dropna(subset=['Pct_Change'])
 
-        start_lag = 1
+        start_lag = 0
         # Define exogenous regressors (last 3 days of sentiment)
         exog_vars = [f'sentiment_lag{i}' for i in range(start_lag, p + start_lag)]
 

@@ -47,8 +47,8 @@ def analyze_sentiment(datasets: list[pd.DataFrame], sentiment_model: SentimentMo
         raise ValueError(f"Unknown sentiment model: {sentiment_model}")
 
     combined["sentiment"] = get_sentiment(combined['headline'], model)
-    show_daily_sentiment(combined)
-    plot_sentiment_distribution(combined)
+    # show_daily_sentiment(combined)
+    # plot_sentiment_distribution(combined)
 
     mapped_to_timeseries = group_by_granularity(combined, granuality_level)
 

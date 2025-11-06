@@ -14,28 +14,27 @@ class XGBoostForecastingModel(ForecastingModelBase):
         super().__init__()
 
     def evaluate(self, feature_matrix):
-        df = feature_matrix.copy()
-
-        # --- Feature matrix ---
-        # Columns: Date, Close, Pct_Change, Volatility, sentiment
-        df = df.dropna(subset=["Pct_Change", "Volatility", "sentiment_lag0", "sentiment_lag1"])
-
-        # --- Target: next day direction ---
-        df["Target"] = (df["Pct_Change"].shift(-1) > 0).astype(int)
-        df = df.dropna(subset=["Target"])
-
         # --- Features ---
-        X1 = ["Pct_Change", "sentiment_lag0"]
-        X2 = ["Pct_Change", "sentiment_lag1"]
-        X3 = ["Pct_Change", "Volatility", "sentiment_lag0"]
-        X4 = ["Pct_Change", "Volatility", "sentiment_lag1"]
-        X5 = ["Pct_Change", "Volatility", "sentiment_lag0", "sentiment_lag1"]
+        X1 = ["sentiment_lag0"]
+        X2 = ["sentiment_lag1"]
+        X3 = ["Volatility", "sentiment_lag0"]
+        X4 = ["Volatility", "sentiment_lag1"]
+        X5 = ["Volatility", "sentiment_lag0", "sentiment_lag1"]
+        # X6 = ["Volume", "sentiment_lag0"]
+        # X7 = ["Volume", "sentiment_lag1"]
+        # X8 = ["Volume", "Volatility", "sentiment_lag0"]
+        # X9 = ["Volume", "Volatility", "sentiment_lag1"]
+        # X10 = ["Volume", "Volatility", "sentiment_lag0", "sentiment_lag1"]
         results = self.train_xgboost_classifier(feature_matrix, X1)
         results = self.train_xgboost_classifier(feature_matrix, X2)
         results = self.train_xgboost_classifier(feature_matrix, X3)
         results = self.train_xgboost_classifier(feature_matrix, X4)
         results = self.train_xgboost_classifier(feature_matrix, X5)
-        pass
+        # results = self.train_xgboost_classifier(feature_matrix, X6 )
+        # results = self.train_xgboost_classifier(feature_matrix, X7 )
+        # results = self.train_xgboost_classifier(feature_matrix, X8 )
+        # results = self.train_xgboost_classifier(feature_matrix, X9 )
+        # results = self.train_xgboost_classifier(feature_matrix, X10 )
 
     def train_xgboost_classifier(self, feature_matrix: pd.DataFrame, feature_cols: list[str], num_round: int = 500,
                                  verbose: bool = True):
