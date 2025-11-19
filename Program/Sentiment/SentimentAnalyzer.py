@@ -1,6 +1,8 @@
 import pandas as pd
 from enum import Enum
 
+from Impact.ImpactScoreAnalyzer import load_impact_score
+from Impact.ImpactScoreAnalyzerEnums import EvaluationMode, ImpactModel
 from Sentiment.Models.FinBERT import FinBERTSentimentModel
 from Sentiment.Models.Vader import VaderSentimentModel
 from Sentiment.Models.SentimentModelBase import SentimentModelBase
@@ -19,13 +21,19 @@ class DatasetSources(Enum):
     NIFTY = 1,
     LUCASPHAM = 2
 
-def analyze_sentiment(datasets: list[pd.DataFrame], sentiment_model: SentimentModel, granuality_level: GranularityLevel) -> pd.DataFrame:
+def analyze_sentiment(
+        datasets: list[pd.DataFrame],
+        sentiment_model: SentimentModel,
+        granuality_level: GranularityLevel,
+        impact_model: ImpactModel = ImpactModel.NONE ) -> pd.DataFrame:
     """
     Analyze sentiment of headlines in the combined DataFrame using the specified sentiment model.
 
     Parameters:
         datasets (list[pd.DataFrame]): List of DataFrames to analyze.
         sentiment_model (SentimentModel): The sentiment analysis model to use.
+        granuality_level (GranularityLevel): The granularity level for grouping results.
+        impact_model (ImpactModel): The impact model to use (default is NONE).
 
     Returns:
         pd.DataFrame: DataFrame with sentiment analysis results.
@@ -49,6 +57,20 @@ def analyze_sentiment(datasets: list[pd.DataFrame], sentiment_model: SentimentMo
     combined["sentiment"] = get_sentiment(combined['headline'], model)
     # show_daily_sentiment(combined)
     # plot_sentiment_distribution(combined)
+
+    if impact_model != ImpactModel.NONE:
+        combined["impact_score"] = get_impact_scores(combined['headline'], impact_model)
+
+        # filtering low impact scores
+        threshold = 0.1 # Example threshold
+        mask = combined["impact_score"] < threshold
+        print(f"Filtering out {mask.sum()} headlines with impact score below {threshold}")
+        combined = combined[~mask]
+
+        # created weighted sentiment feature
+        combined["weighted_sentiment"] = get_weighted_sentiment(combined["sentiment"], combined["impact_score"])
+        # plot_sentiment_distribution(combined, sentiment_col="weighted_sentiment")
+        # show_daily_sentiment(combined, sentiment_col="weighted_sentiment")
 
     mapped_to_timeseries = group_by_granularity(combined, granuality_level)
 
@@ -95,23 +117,42 @@ def group_by_granularity(combined: pd.DataFrame, granularity_level: GranularityL
     # Create a continuous date range with timezone awareness
     full_range = pd.date_range(start=start_date, end=end_date, freq=freq, tz=tz)
 
-    # Group by chosen granularity and compute mean sentiment per period
-    grouped = (
-        combined
-        .groupby(pd.Grouper(key='date', freq=freq))
-        .agg({'sentiment': 'mean'})
-        .reset_index()
-    )
+    if "weighted_sentiment" not in combined.columns:
+        # Group by chosen granularity and compute mean sentiment per period
+        grouped = (
+            combined
+            .groupby(pd.Grouper(key='date', freq=freq))
+            .agg({'sentiment': 'mean'})
+            .reset_index()
+        )
 
-    # Reindex to ensure full coverage of time series
-    grouped = (
-        grouped
-        .set_index('date')
-        .reindex(full_range)
-        .fillna({'sentiment': 0})
-        .rename_axis('date')
-        .reset_index()
-    )
+        # Reindex to ensure full coverage of time series
+        grouped = (
+            grouped
+            .set_index('date')
+            .reindex(full_range)
+            .fillna({'sentiment': 0})
+            .rename_axis('date')
+            .reset_index()
+        )
+    else:
+        # Group by chosen granularity and compute mean sentiment per period
+        grouped = (
+            combined
+            .groupby(pd.Grouper(key='date', freq=freq))
+            .agg({'sentiment': 'mean', 'weighted_sentiment': 'mean'})
+            .reset_index()
+        )
+
+        # Reindex to ensure full coverage of time series
+        grouped = (
+            grouped
+            .set_index('date')
+            .reindex(full_range)
+            .fillna({'sentiment': 0, 'weighted_sentiment': 0})
+            .rename_axis('date')
+            .reset_index()
+        )
 
     # Count how many rows have sentiment == 0
     zero_count = (grouped['sentiment'] == 0).sum()
@@ -181,3 +222,23 @@ def deduplicate(combined: pd.DataFrame) -> pd.DataFrame:
     deduped.reset_index(drop=True, inplace=True)
 
     return deduped
+
+def get_impact_scores(headlines: pd.Series, impact_model: ImpactModel) -> pd.Series:
+    return load_impact_score(headlines, impact_model, evaluation_mode=EvaluationMode.REGRESSION)
+
+def get_weighted_sentiment(sentiment: pd.Series, impact_score: pd.Series) -> pd.Series:
+    """
+    Calculate weighted sentiment by multiplying sentiment scores with impact scores.
+
+    Parameters:
+        sentiment (pd.Series): Series of sentiment scores.
+        impact_score (pd.Series): Series of impact scores.
+
+    Returns:
+        pd.Series: Series of weighted sentiment scores.
+    """
+    if len(sentiment) != len(impact_score):
+        raise ValueError("Sentiment and impact score series must have the same length.")
+
+    weighted_sentiment = sentiment * impact_score
+    return weighted_sentiment

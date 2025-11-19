@@ -15,22 +15,24 @@ class XGBoostForecastingModel(ForecastingModelBase):
 
     def evaluate(self, feature_matrix):
         # --- Features ---
-        X1 = ["sentiment_lag0"]
-        X2 = ["sentiment_lag1"]
-        X3 = ["Volatility", "sentiment_lag0"]
-        X4 = ["Volatility", "sentiment_lag1"]
-        X5 = ["Volatility", "sentiment_lag0", "sentiment_lag1"]
+        # X1 = ["Pct_Change", "sentiment_lag0"]
+        X2 = ["Pct_Change", "sentiment_lag0"]
+        X3 = ["Pct_Change"]
+        X4 = ["Pct_Change", "Volatility", "sentiment_lag0"]
+        X5 = ["Pct_Change", "Volatility", "Volume", "sentiment_lag0"]
+        X6 = ["Pct_Change", "Volatility", "Volume"]
+        # X5 = ["Pct_Change", "Volatility", "sentiment_lag0", "sentiment_lag1"]
         # X6 = ["Volume", "sentiment_lag0"]
         # X7 = ["Volume", "sentiment_lag1"]
         # X8 = ["Volume", "Volatility", "sentiment_lag0"]
         # X9 = ["Volume", "Volatility", "sentiment_lag1"]
         # X10 = ["Volume", "Volatility", "sentiment_lag0", "sentiment_lag1"]
-        results = self.train_xgboost_classifier(feature_matrix, X1)
+        # results = self.train_xgboost_classifier(feature_matrix, X1)
         results = self.train_xgboost_classifier(feature_matrix, X2)
         results = self.train_xgboost_classifier(feature_matrix, X3)
         results = self.train_xgboost_classifier(feature_matrix, X4)
         results = self.train_xgboost_classifier(feature_matrix, X5)
-        # results = self.train_xgboost_classifier(feature_matrix, X6 )
+        results = self.train_xgboost_classifier(feature_matrix, X6 )
         # results = self.train_xgboost_classifier(feature_matrix, X7 )
         # results = self.train_xgboost_classifier(feature_matrix, X8 )
         # results = self.train_xgboost_classifier(feature_matrix, X9 )

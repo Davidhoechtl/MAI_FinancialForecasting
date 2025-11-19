@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def plot_sentiment_distribution(df: pd.DataFrame, sentiment_col: str = "sentiment", show_pie: bool = True):
+def plot_sentiment_distribution(df: pd.DataFrame, sentiment_col: str = "sentiment"):
     """
     Plots the distribution of positive, neutral, and negative sentiments.
 
@@ -11,14 +11,19 @@ def plot_sentiment_distribution(df: pd.DataFrame, sentiment_col: str = "sentimen
         DataFrame containing a sentiment column.
     sentiment_col : str, optional
         Name of the sentiment column (default = 'sentiment').
-    show_pie : bool, optional
-        Whether to also show a pie chart (default = True).
     """
     if sentiment_col not in df.columns:
         raise KeyError(f"Column '{sentiment_col}' not found in DataFrame.")
 
+    # --- Map continuous scores to -1 / 0 / 1 ---
+    raw_sent = df[sentiment_col]
+
+    categorized = raw_sent.apply(
+        lambda x: -1 if x < 0 else (1 if x > 0 else 0)
+    )
+
     # --- Count each sentiment ---
-    sentiment_counts = df[sentiment_col].value_counts().sort_index()
+    sentiment_counts = categorized.value_counts().sort_index()
 
     # Map to readable labels
     sentiment_labels = {-1: "Negative", 0: "Neutral", 1: "Positive"}
@@ -34,23 +39,26 @@ def plot_sentiment_distribution(df: pd.DataFrame, sentiment_col: str = "sentimen
     plt.tight_layout()
     plt.show()
 
-def show_daily_sentiment(df):
+def show_daily_sentiment(df, sentiment_col: str = "sentiment"):
     df = df.copy()
+
+    if sentiment_col not in df.columns:
+        raise KeyError(f"Column '{sentiment_col}' not found in DataFrame.")
 
     # Assume `combined` has columns: ['date', 'headline', 'sentiment']
     # Ensure date is proper datetime
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
 
     # Drop rows without valid date/sentiment
-    df = df.dropna(subset=['date', 'sentiment'])
+    df = df.dropna(subset=['date', sentiment_col])
 
     # --- 1️⃣ Group by day and compute average sentiment ---
     daily_sentiment = (
         df
-        .groupby(df['date'].dt.date)['sentiment']
+        .groupby(df['date'].dt.date)[sentiment_col]
         .mean()
         .reset_index()
-        .rename(columns={'date': 'Date', 'sentiment': 'Daily_Sentiment'})
+        .rename(columns={'date': 'Date', sentiment_col: 'Daily_Sentiment'})
     )
 
     # --- 2️⃣ Plot the daily average sentiment ---

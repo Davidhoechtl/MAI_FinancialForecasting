@@ -1,8 +1,9 @@
 from Sentiment.Datasets.Headlines_2017_12_to_2020_7_USEastern.dataset_adapter import Adapter1
 from Sentiment.Datasets.NIFTY.nifty_adapter import NiftyAdapter
 from Sentiment.Datasets.dataset_adapter_base import DatasetAdapterBase
-from Sentiment.SentimentAnalyzer import analyze_sentiment, SentimentModel, GranularityLevel, DatasetSources
+from Sentiment.SentimentAnalyzer import analyze_sentiment, SentimentModel, GranularityLevel, DatasetSources, ImpactModel
 import pandas as pd
+from Utils.pandas_helper import filter_dataset_by_dates
 
 def load_dataset(dataset_adapter: DatasetAdapterBase, start_date: str, end_date: str) -> pd.DataFrame:
     if not dataset_adapter.try_load_preprocessed():
@@ -11,32 +12,11 @@ def load_dataset(dataset_adapter: DatasetAdapterBase, start_date: str, end_date:
     df = filter_dataset_by_dates(df, start_date, end_date)
     return df
 
-def filter_dataset_by_dates(df: pd.DataFrame, start: str = None, end: str = None) -> pd.DataFrame:
-    """
-    Filters the dataset between start and end date (inclusive).
-    """
-    if 'date' not in df.columns:
-        raise KeyError("Expected column 'date' not found in DataFrame")
-
-    # Ensure datetime dtype
-    df['date'] = pd.to_datetime(df['date'], errors='coerce')
-    df = df.dropna(subset=['date'])
-
-    if start is not None:
-        start = pd.to_datetime(start)
-        start = start.tz_localize("US/Eastern")
-        df = df[df['date'] >= start]
-    if end is not None:
-        end = pd.to_datetime(end)
-        end = end.tz_localize("US/Eastern")
-        df = df[df['date'] <= end]
-
-    return df
-
 def load(
     datasets: list[DatasetSources],
     sentiment_model:SentimentModel,
     granularity_level: GranularityLevel,
+    impact_model: ImpactModel = ImpactModel.NONE,
     start_date: str = None,
     end_date: str = None ):
     """
@@ -64,7 +44,8 @@ def load(
     sentiment_scored = analyze_sentiment(
         datasets=all_dataframes,
         sentiment_model=sentiment_model,
-        granuality_level=granularity_level
+        granuality_level=granularity_level,
+        impact_model=impact_model
     )
 
     return sentiment_scored

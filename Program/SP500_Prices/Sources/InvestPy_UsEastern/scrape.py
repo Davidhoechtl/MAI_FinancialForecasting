@@ -16,12 +16,19 @@ def get_sp500_data(start, end, max_retries=3, verbose=True):
 
     if os.path.exists(CACHE_FILE_PATH):
         try:
-            cached_df = pd.read_csv(CACHE_FILE_PATH, index_col=0, parse_dates=True)
-            # Ensure tz-aware index
-            if cached_df.index.tz is None:
-                cached_df.index = cached_df.index.tz_localize('US/Eastern')
+            start_ts = pd.to_datetime(start).tz_localize("US/Eastern")
+            end_ts = pd.to_datetime(end).tz_localize("US/Eastern")
 
-            result = cached_df[['Close', 'Pct_Change', 'Volume']]
+            cached_df = pd.read_csv(CACHE_FILE_PATH, index_col=0)
+
+            # Ensure the index is timezone-aware in US/Eastern
+            cached_df.index = pd.to_datetime(cached_df.index, utc=True, errors='coerce')
+            cached_df.index = cached_df.index.tz_convert('US/Eastern')
+
+            # Slice to requested window
+            df_slice = cached_df.loc[start_ts:end_ts]
+
+            result = df_slice[['Close', 'Pct_Change', 'Volume']]
             return result
         except Exception as exc:
             raise Exception(f"[ERROR]: failed to load cache {CACHE_FILE_PATH}: {exc}")

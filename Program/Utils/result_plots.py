@@ -80,15 +80,19 @@ def prediction_vs_real_priceChange(df, arma_model, arma_sent_model, start_date=N
 def sentiment_price_plot(df):
     fig, ax1 = plt.subplots(figsize=(12, 6))
 
+    copy = df.copy()
+    copy['Close_Next_Day'] = copy['Close'].shift(-1)
+    copy = copy.dropna(subset=['Close_Next_Day', 'sentiment_lag0'])
+
     # Plot price
-    ax1.plot(df['Date'], df['Close'], color='blue', label='Price')
+    ax1.plot(copy['Date'], copy['Close_Next_Day'], color='blue', label='Price')
     ax1.set_xlabel('Date')
     ax1.set_ylabel('Price', color='blue')
     ax1.tick_params(axis='y', labelcolor='blue')
 
     # Create second y-axis for sentiment
     ax2 = ax1.twinx()
-    ax2.plot(df['Date'], df['sentiment_lag0'], color='red', alpha=0.7, label='Daily Sentiment')
+    ax2.plot(copy['Date'], copy['sentiment_lag0'], color='red', alpha=0.7, label='Daily Sentiment')
     ax2.set_ylabel('Daily Sentiment', color='red')
     ax2.tick_params(axis='y', labelcolor='red')
 
@@ -104,7 +108,7 @@ def plot_price_change_sentiment_scatter(df, lag):
     df_copy = df.copy()
 
     plt.figure(figsize=(10, 6))
-    sns.regplot(x=df_copy[f'sentiment_lag{lag}'], y=df['Pct_Change'], line_kws={"color": "red"})
+    sns.regplot(x=df_copy[f'sentiment_lag{lag}'], y=df['Pct_Change_Next_Day'], line_kws={"color": "red"})
     plt.title(f"Daily Sentiment lag{lag} vs Price Change")
     plt.xlabel("Daily Sentiment")
     plt.ylabel("Price Change in %")
