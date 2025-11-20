@@ -198,7 +198,7 @@ def load_impact_score(headline: pd.Series, impact_model: ImpactModel, evaluation
         headlines=headline,
         evaluation_mode=evaluation_mode,
         impact_map=impact_map,
-        verbose=True
+        verbose=False
     )
 
     # Save updated cache

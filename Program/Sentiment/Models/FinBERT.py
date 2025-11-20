@@ -1,48 +1,25 @@
+import hashlib
+
 import pandas as pd
+
+from Sentiment.Models.SentimentMapUtils import load_sentiment_map, save_sentiment_map
 from Sentiment.Models.SentimentModelBase import SentimentModelBase
 from pathlib import Path
 from typing import Optional
 import re
-import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 import torch
-from Utils.pandas_helper import hash_headline_column
+
 
 # Always relative to this script (analyze.py)
 BASE_PATH = Path(__file__).resolve().parent
+CACHE_FILE_PATH = BASE_PATH / "FinBERT_sentiment_map.csv"
 
 MAX_TOKEN_LENGTH = 512
 MODEL_NAME = "yiyanghkust/finbert-tone"
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
 class FinBERTSentimentModel(SentimentModelBase):
-    def __init__(self):
-        super().__init__()
-
-    def try_load_preprocessed(self, headline_column_hash: str) -> bool:
-        file = BASE_PATH / f"FinBERT_{str(headline_column_hash)}.csv"
-        if not file.exists():
-            return False
-
-        try:
-            df = pd.read_csv(file)
-
-            # Assume there's a 'sentiment' column (adapt if different)
-            if "sentiment" not in df.columns:
-                print(f"[WARN] 'sentiment' column missing in {file}")
-                return False
-
-            # Save the sentiment column as Series
-            self.sentiment = df["sentiment"].astype(float)
-
-            print(f"[INFO] Loaded {len(self.sentiment)} sentiment values from {file}")
-            return True
-
-        except Exception as e:
-            print(f"[ERROR] Failed to load preprocessed file: {e}")
-            return False
-        pass
-
     def preprocess(self, headlines: pd.Series) -> pd.Series:
         """
         Light normalization for FinBERT input:
@@ -64,13 +41,7 @@ class FinBERTSentimentModel(SentimentModelBase):
 
         return headlines
 
-    def analyze(self, headlines: pd.Series):
-        """
-        Analyze headlines using FinBERT and save results to file.
-        :param headlines: preprocessed headlines
-        :return: Series of sentiment scores (-1=negative, 0=neutral, 1=positive)
-        """
-
+    def compute(self, headlines: pd.Series):
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"[INFO] FinBERT running on {device}")
 
@@ -129,15 +100,53 @@ class FinBERTSentimentModel(SentimentModelBase):
         # === Ergebnisse zuordnen ===
         sentiment_mapping = {'Positive': 1, 'Negative': -1, 'Neutral': 0}
         labels = [r['label'] for r in results]
-        self.sentiment = pd.Series(labels).map(sentiment_mapping)
+        sentiment = pd.Series(labels).map(sentiment_mapping)
 
-        # === Save to cache ===
-        output_path = BASE_PATH / f"FinBERT_{hash_headline_column(headlines)}.csv"
-        try:
-            df = pd.DataFrame({"headlines": headlines, "sentiment": self.sentiment})
-            df.to_csv(output_path, index=False)
-            print(f"[INFO] Saved {len(df)} sentiment values to {output_path}")
-        except Exception as e:
-            print(f"[ERROR] Could not save sentiment file: {e}")
+        return sentiment
 
-        return self.sentiment
+    def analyze(self, headlines: pd.Series):
+        """
+        Analyze headlines using FinBERT and save results to file.
+        :param headlines: preprocessed headlines
+        :return: Series of sentiment scores (-1=negative, 0=neutral, 1=positive)
+        """
+
+        # 1) load map
+        sentiment_map = load_sentiment_map(CACHE_FILE_PATH) or {}
+
+        # 2) collect missing headlines
+        missing_idx = []
+        missing_texts = []
+        for idx, h in headlines.items():
+            text = "" if pd.isna(h) else str(h)
+            h_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
+            if h_hash not in sentiment_map:
+                missing_idx.append(idx)
+                missing_texts.append(text)
+
+        # 3) compute missing via model
+        if missing_texts:
+            missing_series = pd.Series(missing_texts, index=missing_idx)
+            computed = self.compute(missing_series)  # should return Series aligned to missing_series.index
+
+            # 4) update map with computed values
+            for idx, val in computed.items():
+                text = missing_series.at[idx]
+                h_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
+                sentiment_map[h_hash] = {"headline": missing_series.at[idx], "sentiment": float(val)}
+
+            # save updated map
+            save_sentiment_map(sentiment_map, CACHE_FILE_PATH)
+
+        # 5) build full result Series from map
+        result = pd.Series([float("nan")] * len(headlines), index=headlines.index, dtype=float)
+        for idx, h in headlines.items():
+            text = "" if pd.isna(h) else str(h)
+            h_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
+            entry = sentiment_map.get(h_hash)
+            if entry is not None:
+                result.at[idx] = float(entry.get("sentiment"))
+            else:
+                raise Exception("Sentiment entry missing after computation")
+
+        return result

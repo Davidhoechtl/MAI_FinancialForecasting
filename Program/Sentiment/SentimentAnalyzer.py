@@ -6,7 +6,6 @@ from Impact.ImpactScoreAnalyzerEnums import EvaluationMode, ImpactModel
 from Sentiment.Models.FinBERT import FinBERTSentimentModel
 from Sentiment.Models.Vader import VaderSentimentModel
 from Sentiment.Models.SentimentModelBase import SentimentModelBase
-from Utils.pandas_helper import hash_headline_column
 from Utils.sentiment_plots import show_daily_sentiment, plot_sentiment_distribution
 
 class SentimentModel(Enum):
@@ -164,15 +163,14 @@ def get_sentiment( headlines: pd.Series, sentiment_model: SentimentModelBase) ->
     # could not load from file -> analyze and write to file
     headlines = sentiment_model.preprocess(headlines)
 
-    if not sentiment_model.try_load_preprocessed(hash_headline_column(headlines)):
-        sentiment_model.analyze(headlines)
+    sentiment = sentiment_model.analyze(headlines)
 
     # sanity check sentiment must have the same size as headlines
-    if len(headlines) != len(sentiment_model.sentiment):
+    if len(headlines) != len(sentiment):
         raise Exception("The retrieved sentiment series length mismatches with the headline series")
 
     # return the sentiment pd.Series, that was either loaded or analyzed
-    return sentiment_model.sentiment
+    return sentiment
 
 def preprocess(combined: pd.DataFrame, sentiment_model: SentimentModel) -> pd.DataFrame:
     """

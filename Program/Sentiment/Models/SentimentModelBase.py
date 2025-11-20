@@ -2,18 +2,6 @@ from abc import ABC, abstractmethod
 import pandas as pd
 
 class SentimentModelBase(ABC):
-    def __init__(self):
-        self.sentiment = pd.Series(dtype="float64")  # define df series in __init__
-
-    @abstractmethod
-    def try_load_preprocessed(self, headline_column_hash: str) -> bool:
-        """
-        Sentiment was already analyzed. Try to load pd.Series from file
-        :param headline_column_hash: hash that checks order and content of headline column
-        :return: True if the pd.Series could be loaded successfully
-        """
-        pass
-
     @abstractmethod
     def preprocess(self, headlines: pd.Series) -> pd.Series:
         """
