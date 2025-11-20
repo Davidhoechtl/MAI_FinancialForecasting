@@ -82,7 +82,7 @@ def sentiment_price_plot(df):
 
     copy = df.copy()
     copy['Close_Next_Day'] = copy['Close'].shift(-1)
-    copy = copy.dropna(subset=['Close_Next_Day', 'sentiment_lag0'])
+    copy = copy.dropna(subset=['Close_Next_Day', 'sentiment'])
 
     # Plot price
     ax1.plot(copy['Date'], copy['Close_Next_Day'], color='blue', label='Price')
@@ -92,7 +92,7 @@ def sentiment_price_plot(df):
 
     # Create second y-axis for sentiment
     ax2 = ax1.twinx()
-    ax2.plot(copy['Date'], copy['sentiment_lag0'], color='red', alpha=0.7, label='Daily Sentiment')
+    ax2.plot(copy['Date'], copy['sentiment'], color='red', alpha=0.7, label='Daily Sentiment')
     ax2.set_ylabel('Daily Sentiment', color='red')
     ax2.tick_params(axis='y', labelcolor='red')
 
@@ -104,12 +104,12 @@ def sentiment_price_plot(df):
     plt.tight_layout()
     plt.show()
 
-def plot_price_change_sentiment_scatter(df, lag):
+def plot_price_change_sentiment_scatter(df):
     df_copy = df.copy()
 
     plt.figure(figsize=(10, 6))
-    sns.regplot(x=df_copy[f'sentiment_lag{lag}'], y=df['Pct_Change_Next_Day'], line_kws={"color": "red"})
-    plt.title(f"Daily Sentiment lag{lag} vs Price Change")
+    sns.regplot(x=df_copy[f'sentiment'], y=df_copy['Pct_Change_next'], line_kws={"color": "red"})
+    plt.title(f"Daily Sentiment vs Price Change")
     plt.xlabel("Daily Sentiment")
     plt.ylabel("Price Change in %")
     plt.grid(alpha=0.3)

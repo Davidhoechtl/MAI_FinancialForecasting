@@ -13,7 +13,7 @@ class XGBoostForecastingModel(ForecastingModelBase):
         self.result_with_sentiment = []
         super().__init__()
 
-    def evaluate(self, feature_matrix):
+    def evaluate(self, feature_matrix, target_col: str, predictor_cols: list[str]):
         # --- Features ---
         # X1 = ["Pct_Change", "sentiment_lag0"]
         X2 = ["Pct_Change", "sentiment_lag0"]
@@ -28,17 +28,9 @@ class XGBoostForecastingModel(ForecastingModelBase):
         # X9 = ["Volume", "Volatility", "sentiment_lag1"]
         # X10 = ["Volume", "Volatility", "sentiment_lag0", "sentiment_lag1"]
         # results = self.train_xgboost_classifier(feature_matrix, X1)
-        results = self.train_xgboost_classifier(feature_matrix, X2)
-        results = self.train_xgboost_classifier(feature_matrix, X3)
-        results = self.train_xgboost_classifier(feature_matrix, X4)
-        results = self.train_xgboost_classifier(feature_matrix, X5)
-        results = self.train_xgboost_classifier(feature_matrix, X6 )
-        # results = self.train_xgboost_classifier(feature_matrix, X7 )
-        # results = self.train_xgboost_classifier(feature_matrix, X8 )
-        # results = self.train_xgboost_classifier(feature_matrix, X9 )
-        # results = self.train_xgboost_classifier(feature_matrix, X10 )
+        results = self.train_xgboost_classifier(feature_matrix, target_col, predictor_cols)
 
-    def train_xgboost_classifier(self, feature_matrix: pd.DataFrame, feature_cols: list[str], num_round: int = 500,
+    def train_xgboost_classifier(self, feature_matrix: pd.DataFrame, target_col:str, feature_cols: list[str], num_round: int = 500,
                                  verbose: bool = True):
         """
         Train an XGBoost binary classifier on the given feature matrix.
@@ -56,16 +48,9 @@ class XGBoostForecastingModel(ForecastingModelBase):
         # --- Copy to avoid mutating original ---
         df = feature_matrix.copy()
 
-        # --- Drop missing core features ---
-        df = df.dropna(subset=feature_cols + ["Pct_Change"])
-
-        # --- Create target (next-day direction) ---
-        df["Target"] = (df["Pct_Change"].shift(-1) > 0).astype(int)
-        df = df.dropna(subset=["Target"])
-
         # --- Features & target ---
         X = df[feature_cols]
-        y = df["Target"]
+        y = df[target_col]
 
         # --- Train/test split (time-based) ---
         split_idx = int(len(df) * 0.8)

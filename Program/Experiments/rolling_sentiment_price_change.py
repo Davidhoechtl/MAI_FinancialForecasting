@@ -1,12 +1,8 @@
 import pandas as pd
 import numpy as np
-import SP500_Prices.Sources.InvestPy_UsEastern.scrape as investpy_sp500_scrape
 import Sentiment.SentimentAnalyzer
-import Sentiment.SentimentLoader as sentiment_loader
-import SP500_Prices.PriceAnalyzer as technicals_loader
 from FeatureMatrixPipeline import get_feature_matrix
 from SP500_Prices.PriceAnalyzer import TechnicalIndicators
-from Sentiment.SentimentAnalyzer import DatasetSources
 import os
 
 from Utils.eda_plots import plot_rolling_sentiment_correlations, add_rolling_sentiment, plot_sentiment_histograms
