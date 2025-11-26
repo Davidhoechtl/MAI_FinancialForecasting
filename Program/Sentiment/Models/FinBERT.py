@@ -129,11 +129,14 @@ class FinBERTSentimentModel(SentimentModelBase):
             missing_series = pd.Series(missing_texts, index=missing_idx)
             computed = self.compute(missing_series)  # should return Series aligned to missing_series.index
 
+            # SAFETY CHECK: Ensure lengths match
+            if len(computed) != len(missing_texts):
+                raise ValueError(f"Mismatch! Input: {len(missing_texts)}, Output: {len(computed)}")
+
             # 4) update map with computed values
-            for idx, val in computed.items():
-                text = missing_series.at[idx]
+            for text, score in zip(missing_texts, computed):
                 h_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
-                sentiment_map[h_hash] = {"headline": missing_series.at[idx], "sentiment": float(val)}
+                sentiment_map[h_hash] = {"headline": text, "sentiment": float(score)}
 
             # save updated map
             save_sentiment_map(sentiment_map, CACHE_FILE_PATH)

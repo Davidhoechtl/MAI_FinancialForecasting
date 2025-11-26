@@ -46,7 +46,7 @@ class ARMAForecastingModel(ForecastingModelBase):
                 model = self.eval_on_arma_with_sentiment(feature_matrix, target_col, predictor_cols, p, q)
                 self.result_arima_with_sentiment.append({'p': p, 'q': q, 'AIC': model.aic, 'BIC': model.bic})
                 print(f"ARMA with sentiment ({p},{q}) AIC: {model.aic}, BIC: {model.bic}")
-                print(model.summary())
+                # print(model.summary())
                 print("-----------------------------------")
                 if model.aic < best_sentiment_aic:
                     best_sentiment_aic = model.aic

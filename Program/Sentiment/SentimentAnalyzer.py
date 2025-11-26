@@ -18,7 +18,8 @@ class GranularityLevel(Enum):
 
 class DatasetSources(Enum):
     NIFTY = 1,
-    LUCASPHAM = 2
+    LUCASPHAM = 2,
+    FNSPID = 3
 
 def analyze_sentiment(
         datasets: list[pd.DataFrame],
@@ -54,8 +55,8 @@ def analyze_sentiment(
         raise ValueError(f"Unknown sentiment model: {sentiment_model}")
 
     combined["sentiment"] = get_sentiment(combined['headline'], model)
-    # show_daily_sentiment(combined)
-    # plot_sentiment_distribution(combined)
+    show_daily_sentiment(combined)
+    plot_sentiment_distribution(combined)
 
     if impact_model != ImpactModel.NONE:
         combined["impact_score"] = get_impact_scores(combined['headline'], impact_model)

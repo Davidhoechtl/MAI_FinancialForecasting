@@ -1,3 +1,4 @@
+from Sentiment.Datasets.FNSPID.FnspidAdapter import FnspidAdapter
 from Sentiment.Datasets.Headlines_2017_12_to_2020_7_USEastern.dataset_adapter import Adapter1
 from Sentiment.Datasets.NIFTY.nifty_adapter import NiftyAdapter
 from Sentiment.Datasets.dataset_adapter_base import DatasetAdapterBase
@@ -30,6 +31,8 @@ def load(
             adapter = Adapter1()
         elif source == DatasetSources.NIFTY:
             adapter = NiftyAdapter()
+        elif source == DatasetSources.FNSPID:
+            adapter = FnspidAdapter()
         else:
             print(f"⚠️ Unknown dataset: {source}, skipping.")
             continue

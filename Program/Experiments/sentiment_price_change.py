@@ -17,17 +17,20 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 
 start_date = "17/12/2017"
-end_date = "18/07/2020"
-impact_model = ImpactModel.LLAMA_3_1_Instruct
+end_date = "06/11/2020"
+# end_date = "18/07/2020"
+impact_model = ImpactModel.NONE
 df_combined = get_feature_matrix(
     start_date=start_date,
     end_date=end_date,
     impact_model=impact_model,
     tech_indicators=[TechnicalIndicators.VOLATILITY],
-    sentiment_sources=[DatasetSources.LUCASPHAM],
+    sentiment_sources=[DatasetSources.FNSPID],
     sentiment_model=SentimentModel.FINBERT,
     granularity_level=GranularityLevel.DAILY
 )
+
+print(df_combined.tail(10))
 
 from Utils import result_plots as rp
 rp.plot_price_change_sentiment_scatter(df_combined)

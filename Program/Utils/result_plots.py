@@ -108,6 +108,14 @@ def plot_price_change_sentiment_scatter(df):
     df_copy = df.copy()
 
     plt.figure(figsize=(10, 6))
+    sns.regplot(x=df_copy[f'sentiment'], y=df_copy['Pct_Change'], line_kws={"color": "red"})
+    plt.title(f"Daily Sentiment vs Price Change")
+    plt.xlabel("Daily Sentiment")
+    plt.ylabel("Price Change in %")
+    plt.grid(alpha=0.3)
+    plt.show()
+
+    plt.figure(figsize=(10, 6))
     sns.regplot(x=df_copy[f'sentiment'], y=df_copy['Pct_Change_next'], line_kws={"color": "red"})
     plt.title(f"Daily Sentiment vs Price Change")
     plt.xlabel("Daily Sentiment")

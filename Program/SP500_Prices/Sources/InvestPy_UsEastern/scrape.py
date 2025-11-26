@@ -1,6 +1,6 @@
 import pandas as pd
 import investpy
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 import time
 
