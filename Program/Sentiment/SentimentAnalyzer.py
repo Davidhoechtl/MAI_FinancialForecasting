@@ -55,8 +55,8 @@ def analyze_sentiment(
         raise ValueError(f"Unknown sentiment model: {sentiment_model}")
 
     combined["sentiment"] = get_sentiment(combined['headline'], model)
-    show_daily_sentiment(combined)
-    plot_sentiment_distribution(combined)
+    # show_daily_sentiment(combined)
+    # plot_sentiment_distribution(combined)
 
     if impact_model != ImpactModel.NONE:
         combined["impact_score"] = get_impact_scores(combined['headline'], impact_model)
