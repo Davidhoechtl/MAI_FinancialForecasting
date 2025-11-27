@@ -45,10 +45,19 @@ class FnspidAdapter (DatasetAdapterBase):
         # 3. Rename columns to your requirements
         df.columns = ['Date', 'Headline', 'Source']
 
-        df['Date'] = pd.to_datetime(df['Date'], utc=True, errors='coerce')
+        df['Date'] = pd.to_datetime(df['Date'], errors='coerce') # the dataset has utc dates that have the timestamp truncated. We may not convert to us/eastern and treat it as naive
         date_nat_count = df['Date'].isna().sum()
         print(f"Number of NA values in Date after conversion: {date_nat_count}")
         df = df.dropna(subset=['Date'])
+        # 3. Normalize (Truncate time to 00:00:00) and Localize
+        # .dt.normalize() sets the time to midnight, effectively "truncating" the time part
+        # .dt.tz_localize(None) ensures we start with a naive timestamp (strips existing TZ if any)
+        # .dt.tz_localize('US/Eastern') applies the Eastern timezone
+        df['Date'] = (df['Date']
+                      .dt.normalize()
+                      .dt.tz_localize(None)
+                      .dt.tz_localize('US/Eastern', ambiguous='NaT', nonexistent='shift_forward')
+                      )
 
         # 4. Filter Date: Keep only years 2000 to 2020 (inclusive)
         #    Note: "outside of 2000-2020 away" means keep inside.
@@ -79,9 +88,6 @@ class FnspidAdapter (DatasetAdapterBase):
 
         df['Source'] = df['Source'].fillna('unknown')
         df['Headline'] = df['Headline'].str.replace(r'["\,]', '', regex=True)
-
-        # 6. Convert 'Time' to datetime and localize to US/Eastern
-        df['Date'] = df['Date'].apply(lambda ts: ts.tz_convert('US/Eastern'))
 
         # Sort df by 'Date' in ascending order
         df = df.sort_values(by='Date')
