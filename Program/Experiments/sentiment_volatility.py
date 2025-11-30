@@ -24,7 +24,7 @@ df_combined = get_feature_matrix(
     end_date=end_date,
     impact_model=impact_model,
     tech_indicators=[TechnicalIndicators.VOLATILITY],
-    sentiment_sources=[DatasetSources.LUCASPHAM],
+    sentiment_sources=[DatasetSources.NIFTY],
     sentiment_model=SentimentModel.FINBERT,
     granularity_level=GranularityLevel.DAILY
 )
@@ -82,5 +82,44 @@ plt.grid(True, alpha=0.3)
 
 plt.tight_layout()
 plt.show()
-
-print(df_combined.head(20))
+#
+# # 1. Calculate Correlation Matrix
+# df_combined["Volatility_next"] = df_combined["Volatility"].shift(-1)
+# df_combined.dropna(subset=["Volatility_next"], inplace=True)
+# cols_to_analyze = ['Volatility_next', 'sentiment', 'weighted_sentiment']
+# corr_matrix = df_combined[cols_to_analyze].corr()
+#
+# print("Correlation Coefficients:")
+# print(corr_matrix)
+#
+# # 2. Create Visualization
+# plt.figure(figsize=(18, 5))
+#
+# # --- Plot A: Heatmap ---
+# plt.subplot(1, 3, 1)
+# sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1, center=0)
+# plt.title('Correlation Matrix')
+#
+# # --- Plot B: Scatter Plot ---
+# plt.subplot(1, 3, 2)
+# sns.regplot(data=df_combined, x='sentiment', y='Volatility_next',
+#             scatter_kws={'alpha':0.3, 's':15}, line_kws={'color':'red'})
+# plt.title('Sentiment vs. Volatility_next')
+# plt.grid(True, alpha=0.3)
+#
+# # --- Plot C: Rolling Correlation (60-day window) ---
+# # Adjust window size (e.g., 30 or 90) based on your preference
+# rolling_corr = df_combined['sentiment'].rolling(window=60).corr(df_combined['Volatility_next'])
+#
+# plt.subplot(1, 3, 3)
+# plt.plot(df_combined['Date'], rolling_corr, color='#2c3e50', linewidth=1.5)
+# plt.axhline(0, color='red', linestyle='--', linewidth=1)
+# plt.title('60-Day Rolling Correlation\n(Sentiment vs. Volatility_next)')
+# plt.ylabel('Correlation Coefficient')
+# plt.xticks(rotation=45)
+# plt.grid(True, alpha=0.3)
+#
+# plt.tight_layout()
+# plt.show()
+#
+# print(df_combined.head(20))

@@ -3,8 +3,8 @@ import statsmodels.api as sm
 import pandas as pd
 from Utils import result_plots as rp
 
-P_RANGE = range(1, 4)
-Q_RANGE = range(1, 4)
+P_RANGE = range(1, 2)
+Q_RANGE = range(1, 2)
 
 class ARMAForecastingModel(ForecastingModelBase):
     def __init__(self):
