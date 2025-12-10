@@ -2,13 +2,13 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.stats import spearmanr, pearsonr
 
-def plot_sentiment_histograms(df, best_days, best_threshold=None):
+def plot_sentiment_histograms(df, best_days, best_threshold=None, target_col="Pct_Change_next"):
     df_tmp = df.copy()
 
     col_name = f"rolling_sentiment_{best_days}"
-    df_tmp = df_tmp.dropna(subset=["Pct_Change_next", col_name])
+    df_tmp = df_tmp.dropna(subset=[target_col, col_name])
     # Ground truth: did the next day go up or down?
-    df_tmp["up"] = (df_tmp["Pct_Change_next"] > 0).astype(int)
+    df_tmp["up"] = (df_tmp[target_col] > 0).astype(int)
 
     sent_up = df_tmp.loc[df_tmp["up"] == 1, col_name]
     sent_down = df_tmp.loc[df_tmp["up"] == 0, col_name]
@@ -33,7 +33,7 @@ def plot_sentiment_histograms(df, best_days, best_threshold=None):
     plt.show()
 
 
-def calc_pearson_corr(df: pd.DataFrame, days: int):
+def calc_pearson_corr(df: pd.DataFrame, days: int, target_col: str = "Pct_Change_next"):
     """
     Calculate the Pearson (linear) correlation between Pct_Change_next and rolling_sentiment_{days}.
 
@@ -54,12 +54,12 @@ def calc_pearson_corr(df: pd.DataFrame, days: int):
         raise ValueError(f"Column '{col_name}' not found. Make sure to add it first.")
 
     # Drop NaN values for valid correlation computation
-    df_valid = df.dropna(subset=["Pct_Change_next", col_name])
+    df_valid = df.dropna(subset=[target_col, col_name])
 
-    corr, p_value = pearsonr(df_valid["Pct_Change_next"], df_valid[col_name])
+    corr, p_value = pearsonr(df_valid[target_col], df_valid[col_name])
     return corr, p_value
 
-def calc_spearman_corr(df: pd.DataFrame, days: int):
+def calc_spearman_corr(df: pd.DataFrame, days: int, target_col: str = "Pct_Change_next"):
     """
     Calculate the Spearman correlation between Pct_Change and rolling_sentiment_{days}.
 
@@ -83,9 +83,9 @@ def calc_spearman_corr(df: pd.DataFrame, days: int):
     df_valid = df.copy()
 
     # Drop NaNs from both columns before computing correlation
-    df_valid = df_valid.dropna(subset=["Pct_Change_next", col_name])
+    df_valid = df_valid.dropna(subset=[target_col, col_name])
 
-    corr, p_value = spearmanr(df_valid["Pct_Change_next"], df_valid[col_name])
+    corr, p_value = spearmanr(df_valid[target_col], df_valid[col_name])
     return corr, p_value
 
 
@@ -110,13 +110,13 @@ def add_rolling_sentiment(df: pd.DataFrame, days: int, sentiment_col: str) -> pd
     df_sorted[col_name] = df_sorted[sentiment_col].rolling(window=days, min_periods=1).mean()
     return df_sorted
 
-def plot_rolling_sentiment_correlations(df: pd.DataFrame, sentiment_col: str) -> pd.DataFrame:
+def plot_rolling_sentiment_correlations(df: pd.DataFrame, sentiment_col: str, target_col: str = "Pct_Change_next") -> pd.DataFrame:
     # === Run correlations for windows 1–30 ===
     results = []
     for days in range(1, 31):
         df_temp = add_rolling_sentiment(df, days, sentiment_col)
-        spearman_corr, spearman_p = calc_spearman_corr(df_temp, days)
-        pearson_corr, pearson_p = calc_pearson_corr(df_temp, days)
+        spearman_corr, spearman_p = calc_spearman_corr(df_temp, days, target_col)
+        pearson_corr, pearson_p = calc_pearson_corr(df_temp, days, target_col)
 
         results.append({
             "days": days,
@@ -143,7 +143,7 @@ def plot_rolling_sentiment_correlations(df: pd.DataFrame, sentiment_col: str) ->
     plt.axhline(0, color="gray", linestyle="--", alpha=0.7)
     plt.title("Spearman Correlation vs. Rolling Sentiment Window (Significance Highlighted)")
     plt.xlabel("Rolling Window Size (days)")
-    plt.ylabel("Spearman Correlation (Pct_Change vs Rolling Sentiment)")
+    plt.ylabel(f"Spearman Correlation ({target_col} vs Rolling Sentiment)")
     plt.legend()
     plt.grid(True, linestyle="--", alpha=0.6)
     plt.show()
