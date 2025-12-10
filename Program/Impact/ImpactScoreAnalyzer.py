@@ -21,30 +21,23 @@ factories = [
 ]
 
 def format_prompt_llama(system_prompt: str, user_prompt: str) -> str:
-    return f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+    return f"""<|start_header_id|>system<|end_header_id|>
     {system_prompt}<|eot_id|><|start_header_id|>user<|end_header_id|>
     {user_prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
     """
 
-def _predict_impact_single_classification(llm:Llama, headline: str, max_retries: int = 3):
+def _predict_impact_single_classification(llm:Llama, headline: str, max_retries: int = 2):
     """Call the LLM for a single headline, retry if no number is found."""
-    system_prompt = """You are an expert financial analyst specializing in the US Economy. 
-Analyze the news headline and determine its relevance to the 'US Economy'.
-
-Scoring Rules (yes or no):
-- Yes: Direct US Macro impact (Fed rates, US Inflation, US GDP, Major US regulations).
-- Yes: Significant US Corporate News (Mergers of US firms, Antitrust involving US firms like Nvidia/Google, US Labor strikes).
-- Yes: Global news with indirect US impact (Oil prices, Global supply chains).
-- No: Irrelevant (Foreign domestic news, UK/EU specific with no US spillover, Sports, Quizzes, localized crimes).
-
-Crucial Relationships to Spot:
-- 'Fed' / 'Federal Reserve' -> High Relevance.
-- '£' or 'Euro' symbols often imply UK/EU context -> Low Relevance (unless global).
-- 'Nvidia', 'Apple', 'Tesla' are US companies -> Moderate/High Relevance.
-- 'Protests in Peru', 'UK Inflation' -> Low Relevance.
-
-Output ONLY the word 'Yes' or 'No'.
-"""
+    system_prompt = """    
+    Act as a Senior US Economic Strategist with. Classify the news headline's relevance to the US Economy using these four categories:
+    
+    A (Critical US Macro): Direct US economic indicators only (Fed news, US Inflation, US GDP, US Jobs, US Treasury Yields).
+    B (Major US Corporate): Events moving US large companies or sectors (big Deals, Antitrust, Major M&A, product launches).
+    C (Global Spillover): International events with secondary US effects (Oil/OPEC, Global Supply Chains, Major Geopolitics, foreign investments).
+    D (Noise/Irrelevant): Foreign domestic news (UK/EU/China specific politics or economy), small-caps, sports, local crime.
+    
+    Output format: ONLY valid JSON: {"score": <class>}
+    """
     user_prompt = f"Headline: {headline}"
 
     if llm.metadata['general.architecture'] == 'llama':
@@ -55,17 +48,40 @@ Output ONLY the word 'Yes' or 'No'.
     for attempt in range(1, max_retries + 1):
         output = llm(
             prompt,
-            max_tokens=6,  # Hard limit: Generate only the number (e.g., "0.7")
+            max_tokens=128,  # Hard limit: Generate only the number (e.g., "0.7")
             stop=["<|eot_id|>", "\n"],  # Stop immediately after the number
-            temperature=0.0,  # Deterministic (0.0 is faster/safer for classification)
+            temperature=0.005,  # Deterministic (0.0 is faster/safer for classification)
             echo=False,
         )
-        text = output["choices"][0]["text"].strip().lower()
-        # Extract yes/no
-        if "yes" in text:
-            return 1.0
-        elif "no" in text:
-            return 0.0
+
+        import json
+
+        try:
+            # 1. Get text and find JSON structure
+            text_response = output['choices'][0]['text'].strip()
+            match = re.search(r'\{.*\}', text_response, re.DOTALL)
+
+            if match:
+                # Use json.loads for better safety than eval()
+                data = json.loads(match.group())
+
+                # 2. Extract the letter (Checking 'class' first, then 'score')
+                # The prompt asks for "score", but your request mentioned "class"
+                letter = data.get("score").upper()
+
+                # 3. Map to numerical weight
+                mapping = {
+                    "A": 1.0,
+                    "B": 0.66,
+                    "C": 0.33,
+                    "D": 0.0
+                }
+
+                # Check if we got a valid letter, otherwise retry
+                if letter in mapping:
+                    return mapping[letter]
+        except Exception as e:
+            print(f"⚠️ Attempt {attempt} failed parsing: {e} | Output: {text_response[:50]}...")
 
     return None
 
@@ -222,7 +238,7 @@ if __name__ == "__main__":
     df = adapter1.to_standard_format()
     df = pandas_helper.filter_dataset_by_dates(df, start_date, end_date)
 
-    df["impact"] = load_impact_score(df["headline"], ImpactModel.LLAMA_3_1_Instruct, EvaluationMode.REGRESSION)
+    df["impact"] = load_impact_score(df["headline"], ImpactModel.LLAMA_3_1_Instruct, EvaluationMode.CLASSIFICATION)
 
     import matplotlib.pyplot as plt
     # Assuming df["impact"] contains the numeric impact scores (0–1)

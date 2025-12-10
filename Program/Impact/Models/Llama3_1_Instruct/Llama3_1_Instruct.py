@@ -37,7 +37,7 @@ class LlamaInstruct(ImpactModelFactoryBase):
         return llm
 
     def format_prompt(self, system_prompt:str, user_prompt:str) -> str:
-        return f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+        return f"""<|start_header_id|>system<|end_header_id|>
         {system_prompt}<|eot_id|><|start_header_id|>user<|end_header_id|>
         {user_prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
         """

@@ -223,7 +223,7 @@ def deduplicate(combined: pd.DataFrame) -> pd.DataFrame:
     return deduped
 
 def get_impact_scores(headlines: pd.Series, impact_model: ImpactModel) -> pd.Series:
-    return load_impact_score(headlines, impact_model, evaluation_mode=EvaluationMode.REGRESSION)
+    return load_impact_score(headlines, impact_model, evaluation_mode=EvaluationMode.CLASSIFICATION)
 
 def get_weighted_sentiment(sentiment: pd.Series, impact_score: pd.Series) -> pd.Series:
     """
