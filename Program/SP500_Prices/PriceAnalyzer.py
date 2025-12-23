@@ -3,9 +3,9 @@ from enum import Enum
 import numpy as np
 
 class TechnicalIndicators(Enum):
-    VOLUME = "Volume",
-    VOLATILITY = "Volatility",
-    MOVING_AVERAGE_30 = "Moving_Average_30",
+    VOLUME_NORMED = "Volume_Normed"
+    VOLATILITY = "Volatility"
+    MOVING_AVERAGE_30 = "Moving_Average_30"
     MOVING_AVERAGE_60 = "Moving_Average_60"
 
 def analyze_price(df_price: pd.DataFrame, indicators: list[TechnicalIndicators]) -> pd.DataFrame:
@@ -21,8 +21,8 @@ def analyze_price(df_price: pd.DataFrame, indicators: list[TechnicalIndicators])
 
     df_enriched = df_price.copy()
     for indicator in indicators:
-        if indicator == TechnicalIndicators.VOLUME:
-            df_enriched[indicator.value] = get_volume_feature(df_price)
+        if indicator == TechnicalIndicators.VOLUME_NORMED:
+            df_enriched[indicator.value] = get_volume_normed_feature(df_price)
         elif indicator == TechnicalIndicators.VOLATILITY:
             df_enriched[indicator.value] = get_volatility_feature(df_price)
         elif indicator == TechnicalIndicators.MOVING_AVERAGE_30:
@@ -75,7 +75,7 @@ def get_moving_average_feature(df_price: pd.DataFrame, window: int = 30, column:
 # --------------------------------------------------
 # 💡 Feature: Volume (normalized or simple)
 # --------------------------------------------------
-def get_volume_feature(df_price: pd.DataFrame, window: int = 30) -> pd.Series:
+def get_volume_normed_feature(df_price: pd.DataFrame, window: int = 30) -> pd.Series:
     """
     Compute normalized volume (z-score within rolling window)
     :param df_price: DataFrame with 'Volume'
@@ -86,8 +86,8 @@ def get_volume_feature(df_price: pd.DataFrame, window: int = 30) -> pd.Series:
         raise ValueError("DataFrame must contain 'Volume' column for volume calculation.")
 
     # Rolling z-score normalization: (x - mean) / std
-    rolling_mean = df_price["Volume"].rolling(window=window, min_periods=window).mean()
-    rolling_std = df_price["Volume"].rolling(window=window, min_periods=window).std()
+    rolling_mean = df_price["Volume"].rolling(window=window, min_periods=1).mean()
+    rolling_std = df_price["Volume"].rolling(window=window, min_periods=1).std()
     zscore_volume = (df_price["Volume"] - rolling_mean) / rolling_std
 
     return zscore_volume
