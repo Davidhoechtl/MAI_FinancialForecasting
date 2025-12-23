@@ -4,7 +4,9 @@ import numpy as np
 
 class TechnicalIndicators(Enum):
     VOLUME = "Volume",
-    VOLATILITY = "Volatility"
+    VOLATILITY = "Volatility",
+    MOVING_AVERAGE_30 = "Moving_Average_30",
+    MOVING_AVERAGE_60 = "Moving_Average_60"
 
 def analyze_price(df_price: pd.DataFrame, indicators: list[TechnicalIndicators]) -> pd.DataFrame:
     """
@@ -23,6 +25,10 @@ def analyze_price(df_price: pd.DataFrame, indicators: list[TechnicalIndicators])
             df_enriched[indicator.value] = get_volume_feature(df_price)
         elif indicator == TechnicalIndicators.VOLATILITY:
             df_enriched[indicator.value] = get_volatility_feature(df_price)
+        elif indicator == TechnicalIndicators.MOVING_AVERAGE_30:
+            df_enriched[indicator.value] = get_moving_average_feature(df_price, window=30)
+        elif indicator == TechnicalIndicators.MOVING_AVERAGE_60:
+            df_enriched[indicator.value] = get_moving_average_feature(df_price, window=60)
         else:
             print(f"[WARN]: The technical indicator {indicator.value} is unknown and will not be included.")
 
@@ -51,6 +57,20 @@ def get_volatility_feature(df_price: pd.DataFrame, window: int = 30) -> pd.Serie
     volatility = volatility.fillna(0.0)
 
     return volatility
+
+def get_moving_average_feature(df_price: pd.DataFrame, window: int = 30, column: str = "Close") -> pd.Series:
+    """
+    Compute rolling moving average with min_periods=1.
+    :param df_price: DataFrame with the target column (default 'Close')
+    :param window: Rolling window size (default 30)
+    :param column: Column to compute the moving average on
+    :return: pd.Series with rolling mean (min_periods=1)
+    """
+    if column not in df_price.columns:
+        raise ValueError(f"DataFrame must contain '{column}' column for moving average calculation.")
+
+    moving_avg = df_price[column].rolling(window=window, min_periods=1).mean()
+    return moving_avg
 
 # --------------------------------------------------
 # 💡 Feature: Volume (normalized or simple)
