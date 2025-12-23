@@ -30,7 +30,8 @@ df_combined = get_feature_matrix(
     tech_indicators=[TechnicalIndicators.VOLATILITY],
     sentiment_sources=[Sentiment.SentimentAnalyzer.DatasetSources.LUCASPHAM],
     sentiment_model=Sentiment.SentimentAnalyzer.SentimentModel.FINBERT,
-    granularity_level=Sentiment.SentimentAnalyzer.GranularityLevel.DAILY
+    granularity_level=Sentiment.SentimentAnalyzer.GranularityLevel.DAILY,
+    impact_model_evaluation_mode=Sentiment.SentimentAnalyzer.EvaluationMode.CLASSIFICATION
 )
 
 # tries 1-30 days of rolling sentiment and plot the spearman and pearson correlations (checks if covariance is significant)

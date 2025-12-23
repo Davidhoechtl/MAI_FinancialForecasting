@@ -89,7 +89,7 @@ end_date = "18/07/2020"
 impact_model = Sentiment.SentimentAnalyzer.ImpactModel.LLAMA_3_1_Instruct
 sentiment_col = "weighted_sentiment" if impact_model != Sentiment.SentimentAnalyzer.ImpactModel.NONE else "sentiment"
 
-start_date = "17/12/2017"
+start_date = "17/12/2015"
 end_date = "18/07/2020"
 df_combined = get_feature_matrix(
     start_date=start_date,
@@ -98,12 +98,13 @@ df_combined = get_feature_matrix(
     tech_indicators=[TechnicalIndicators.VOLATILITY],
     sentiment_sources=[Sentiment.SentimentAnalyzer.DatasetSources.LUCASPHAM, Sentiment.SentimentAnalyzer.DatasetSources.NIFTY],
     sentiment_model=Sentiment.SentimentAnalyzer.SentimentModel.FINBERT,
-    granularity_level=Sentiment.SentimentAnalyzer.GranularityLevel.DAILY
+    granularity_level=Sentiment.SentimentAnalyzer.GranularityLevel.DAILY,
+    impact_model_evaluation_mode=Sentiment.SentimentAnalyzer.EvaluationMode.CLASSIFICATION
 )
 
 best_day_correlations = {}
 
-for i in range(1,100):
+for i in range(1,101):
     print("Target: next ", i, "days price change percentage")
     target_col = f'Target_{i}'
 
@@ -116,7 +117,7 @@ for i in range(1,100):
 
     # === Run correlations for windows 1–30 ===
     results = []
-    for days in range(1, 61):
+    for days in range(1, 31):
         df_temp = add_rolling_sentiment(df_epoch, days, sentiment_col)
         spearman_corr, spearman_p = calc_spearman_corr(df_temp, days, target_col)
         pearson_corr, pearson_p = calc_pearson_corr(df_temp, days, target_col)

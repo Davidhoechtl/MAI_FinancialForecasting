@@ -1,3 +1,4 @@
+from Impact.ImpactScoreAnalyzerEnums import EvaluationMode
 from Sentiment.Datasets.FNSPID.FnspidAdapter import FnspidAdapter
 from Sentiment.Datasets.Headlines_2017_12_to_2020_7_USEastern.dataset_adapter import Adapter1
 from Sentiment.Datasets.NIFTY.nifty_adapter import NiftyAdapter
@@ -18,6 +19,7 @@ def load(
     sentiment_model:SentimentModel,
     granularity_level: GranularityLevel,
     impact_model: ImpactModel = ImpactModel.NONE,
+    impact_model_evaluation_mode: EvaluationMode = EvaluationMode.CLASSIFICATION,
     start_date: str = None,
     end_date: str = None ):
     """
@@ -48,7 +50,8 @@ def load(
         datasets=all_dataframes,
         sentiment_model=sentiment_model,
         granuality_level=granularity_level,
-        impact_model=impact_model
+        impact_model=impact_model,
+        impact_model_evaluation_mode=impact_model_evaluation_mode
     )
 
     return sentiment_scored

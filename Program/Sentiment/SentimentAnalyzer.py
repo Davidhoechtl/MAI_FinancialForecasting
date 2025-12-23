@@ -25,7 +25,8 @@ def analyze_sentiment(
         datasets: list[pd.DataFrame],
         sentiment_model: SentimentModel,
         granuality_level: GranularityLevel,
-        impact_model: ImpactModel = ImpactModel.NONE ) -> pd.DataFrame:
+        impact_model: ImpactModel = ImpactModel.NONE,
+        impact_model_evaluation_mode: EvaluationMode = EvaluationMode.CLASSIFICATION ) -> pd.DataFrame:
     """
     Analyze sentiment of headlines in the combined DataFrame using the specified sentiment model.
 
@@ -34,6 +35,7 @@ def analyze_sentiment(
         sentiment_model (SentimentModel): The sentiment analysis model to use.
         granuality_level (GranularityLevel): The granularity level for grouping results.
         impact_model (ImpactModel): The impact model to use (default is NONE).
+        impact_model_evaluation_mode (Impact Model Evaluation Mode): The impact models evaluation function (prompt to use).
 
     Returns:
         pd.DataFrame: DataFrame with sentiment analysis results.
@@ -59,7 +61,7 @@ def analyze_sentiment(
     # plot_sentiment_distribution(combined)
 
     if impact_model != ImpactModel.NONE:
-        combined["impact_score"] = get_impact_scores(combined['headline'], impact_model)
+        combined["impact_score"] = get_impact_scores(combined['headline'], impact_model, impact_model_evaluation_mode)
 
         # filtering low impact scores
         threshold = 0.1 # Example threshold
@@ -222,8 +224,8 @@ def deduplicate(combined: pd.DataFrame) -> pd.DataFrame:
 
     return deduped
 
-def get_impact_scores(headlines: pd.Series, impact_model: ImpactModel) -> pd.Series:
-    return load_impact_score(headlines, impact_model, evaluation_mode=EvaluationMode.CLASSIFICATION)
+def get_impact_scores(headlines: pd.Series, impact_model: ImpactModel, impact_model_evaluation_mode: EvaluationMode) -> pd.Series:
+    return load_impact_score(headlines, impact_model, evaluation_mode=impact_model_evaluation_mode)
 
 def get_weighted_sentiment(sentiment: pd.Series, impact_score: pd.Series) -> pd.Series:
     """

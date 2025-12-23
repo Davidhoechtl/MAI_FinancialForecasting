@@ -4,6 +4,7 @@ import SP500_Prices.Sources.InvestPy_UsEastern.scrape as investpy_sp500_scrape
 import Sentiment.SentimentAnalyzer
 import Sentiment.SentimentLoader as sentiment_loader
 import SP500_Prices.PriceAnalyzer as technicals_loader
+from Impact.ImpactScoreAnalyzerEnums import EvaluationMode
 from SP500_Prices.PriceAnalyzer import TechnicalIndicators
 from Sentiment.SentimentAnalyzer import DatasetSources
 import os
@@ -44,7 +45,8 @@ def get_feature_matrix(
         tech_indicators: list[TechnicalIndicators],
         sentiment_sources: list[DatasetSources],
         sentiment_model: Sentiment.SentimentAnalyzer.SentimentModel,
-        granularity_level: Sentiment.SentimentAnalyzer.GranularityLevel
+        granularity_level: Sentiment.SentimentAnalyzer.GranularityLevel,
+        impact_model_evaluation_mode: EvaluationMode = EvaluationMode.CLASSIFICATION
 ):
     df_prices = investpy_sp500_scrape.get_sp500_data(start_date, end_date)
     df_prices = df_prices.reset_index()
@@ -58,6 +60,7 @@ def get_feature_matrix(
         sentiment_model= sentiment_model,
         granularity_level = granularity_level,
         impact_model=impact_model,
+        impact_model_evaluation_mode=impact_model_evaluation_mode,
         start_date=start_date,
         end_date=end_date
     )
