@@ -1,15 +1,55 @@
 import pandas as pd
 from Forecasting.EvaluationModelBase import ForecastingModelBase
 
-def evaluate_model_on_classification(model : ForecastingModelBase, feature_matrix: pd.DataFrame, predictor_cols: list[str], target_col: str):
+def evaluate_model_on_classification(model : ForecastingModelBase, feature_matrix: pd.DataFrame, predictor_cols: list[str], target_col: str, target_horizon_in_days: int):
     # Todo: implement classification evaluation here
+    splits = train_test_split_expanding_window(
+        feature_matrix,
+        predictor_cols,
+        target_col,
+        initial_train_size=300,
+        test_size=100,
+        padding=target_horizon_in_days
+    )
+
+    for split in splits:
+        train_X, train_y, test_X, test_y = split
+        model.train(train_X, train_y)
+        predictions = model.predict(test_X)
+
+
     # return should be confusion matrix: accuracy, precision, recall, f1-score
     return None
 
-def evaluate_model_on_regression(model : ForecastingModelBase, feature_matrix: pd.DataFrame, predictor_cols: list[str], target_col: str):
+def evaluate_model_on_regression(model : ForecastingModelBase, feature_matrix: pd.DataFrame, predictor_cols: list[str], target_col: str, target_horizon_in_days: int):
     #Todo: implement regression evaluation here
     # return should be: MSE, RMSE
-    return None
+
+    splits = train_test_split_expanding_window(
+        feature_matrix,
+        predictor_cols,
+        target_col,
+        initial_train_size=300,
+        test_size=100,
+        padding=target_horizon_in_days
+    )
+
+    results = {}
+    for split in splits:
+        train_X, train_y, test_X, test_y = split
+        model.train(train_X, train_y)
+        predictions = model.predict(test_X)
+
+        mse = ((predictions - test_y) ** 2).mean()
+        rmse = mse ** 0.5
+
+        results[len(results)] = {'MSE': mse, 'RMSE': rmse}
+
+    final_mse = sum([res['MSE'] for res in results.values()]) / len(results)
+    final_rmse = sum([res['RMSE'] for res in results.values()])
+
+    print(f"Model: {model.name}, Final MSE: {final_mse}, Final RMSE: {final_rmse}")
+    return {'MSE': final_mse, 'RMSE': final_rmse}
 
 def train_test_split_expanding_window(
         feature_matrix: pd.DataFrame,
