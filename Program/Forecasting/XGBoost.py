@@ -3,17 +3,44 @@ from Utils import result_plots as rp
 import pandas as pd
 import xgboost as xgb
 import numpy as np
-
 from Utils.eval_helper import evaluate_classification
 
+# --- XGBoost parameters ---
+params = {
+    "objective": "binary:logistic",
+    "eval_metric": "logloss",
+    "eta": 0.05,
+    "max_depth": 4,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "seed": 42,
+    "num_boost_round": 500
+}
 
 class XGBoostForecastingModel(ForecastingModelBase):
     def __init__(self):
         self.result= []
         self.result_with_sentiment = []
+
+        self.model = None
         super().__init__()
 
-    def evaluate(self, feature_matrix, target_col: str, predictor_cols: list[str]):
+    def train(self, x_train: pd.DataFrame, y_train: pd.Series):
+        dtrain = xgb.DMatrix(x_train, label=y_train)
+        bst = xgb.train(params, dtrain, num_boost_round=params["num_boost_round"])
+        self.model = bst
+        pass
+
+    def predict(self, x_test: pd.DataFrame) -> pd.Series:
+        if self.model is None:
+            raise ValueError("Model has not been trained yet.")
+
+        y_pred_prob = self.model.predict(x_test)
+        yhat = (y_pred_prob > 0.5).astype(int)
+
+        return yhat
+
+    def experiment(self, feature_matrix, target_col: str, predictor_cols: list[str]):
         # --- Features ---
         # X1 = ["Pct_Change", "sentiment_lag0"]
         X2 = ["Pct_Change", "sentiment_lag0"]

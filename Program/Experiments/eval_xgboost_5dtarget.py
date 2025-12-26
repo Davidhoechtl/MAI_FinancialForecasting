@@ -43,27 +43,27 @@ df_combined.dropna(subset=['Target_3d_Return', 'Target_5d_Return', 'Target_20d_R
 
 # is weighted sentiment benefitial
 eval_model = XGBoostForecastingModel()
-eval_model.evaluate(df_combined, target_col="Target", predictor_cols=['Pct_Change'])
+eval_model.experiment(df_combined, target_col="Target", predictor_cols=['Pct_Change'])
 eval_model.plot_results()
 eval_model = XGBoostForecastingModel()
-eval_model.evaluate(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'sentiment'])
+eval_model.experiment(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'sentiment'])
 eval_model.plot_results()
 eval_model = XGBoostForecastingModel()
-eval_model.evaluate(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'weighted_sentiment'])
+eval_model.experiment(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'weighted_sentiment'])
 eval_model.plot_results()
 
 # is volatility and sentiment in combination benefitial
 eval_model = XGBoostForecastingModel()
-eval_model.evaluate(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'Volatility'])
+eval_model.experiment(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'Volatility'])
 eval_model.plot_results()
 eval_model = XGBoostForecastingModel()
-eval_model.evaluate(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'sentiment', 'Volatility'])
+eval_model.experiment(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'sentiment', 'Volatility'])
 eval_model.plot_results()
 
 # is rolling sentiment benefitial
 eval_model = XGBoostForecastingModel()
-eval_model.evaluate(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'sentiment', 'Volatility', 'Volume'])
+eval_model.experiment(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'sentiment', 'Volatility', 'Volume'])
 eval_model.plot_results()
 eval_model = XGBoostForecastingModel()
-eval_model.evaluate(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'rolling_sentiment_3', 'Volatility', 'Volume'])
+eval_model.experiment(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'rolling_sentiment_3', 'Volatility', 'Volume'])
 eval_model.plot_results()

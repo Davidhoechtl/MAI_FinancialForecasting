@@ -10,9 +10,53 @@ class ARMAForecastingModel(ForecastingModelBase):
     def __init__(self):
         self.result_arima = []
         self.result_arima_with_sentiment = []
+
+        self.model = None
         super().__init__()
 
-    def evaluate(self, feature_matrix: pd.DataFrame, predictor_cols: list[str], target_col: str):
+    def train(self, x_train: pd.DataFrame, y_train: pd.Series):
+        self.model = self._get_best_ARMA_model(x_train, y_train)
+        pass
+
+    def predict(self, x_test: pd.DataFrame) -> pd.Series:
+        if self.model is None:
+            raise ValueError("Model has not been trained yet.")
+        yhat = self.model.forecast(steps=1, exog=x_test)[0]
+        return yhat
+
+    def _get_best_ARMA_model(self, x_train: pd.DataFrame, y_train: pd.Series):
+        # Grid search for best p and q - normal ARMA
+        best_aic = float('inf')
+        best_bic = float('inf')
+        best_p = 0
+        best_q = 0
+        best_model = None
+        for p in P_RANGE:
+            for q in Q_RANGE:
+                print(f"Evaluating ARMA({p},{q})")
+                model = self._eval_arma_exog(x_train, y_train, p, q)
+                self.result_arima.append({'p': p, 'q': q, 'AIC': model.aic, 'BIC': model.bic})
+                print(f"ARMA({p},{q}) AIC: {model.aic}, BIC: {model.bic}")
+                print("-----------------------------------")
+                if model.aic < best_aic:
+                    best_aic = model.aic
+                    best_bic = model.bic
+                    best_model = model
+                    best_p = p
+                    best_q = q
+        print(f"Best ARMA({best_p},{best_q}) AIC: {best_aic}, BIC: {best_bic}")
+        print(best_model.summary())
+        return best_model
+
+    def _eval_arma_exog(self, predictors, targets, p=3, q=1):
+        # Drop NaNs from returns
+        targets = targets.dropna()
+
+        armax_model = sm.tsa.ARIMA(targets, order=(p, 0, q), exog=predictors).fit()
+
+        return armax_model
+
+    def experiment(self, feature_matrix: pd.DataFrame, predictor_cols: list[str], target_col: str):
         # Grid search for best p and q - normal ARMA
         best_aic = float('inf')
         best_bic = float('inf')
@@ -83,3 +127,4 @@ class ARMAForecastingModel(ForecastingModelBase):
         armax_model = sm.tsa.ARIMA(df_model[target_col], order=(p, 0, q), exog=df_model[predictors]).fit()
 
         return armax_model
+

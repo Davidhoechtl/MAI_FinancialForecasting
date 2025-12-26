@@ -87,17 +87,17 @@ plt.tight_layout()
 plt.show()
 
 eval_model = ARMAForecastingModel()
-eval_model.evaluate(df_combined, target_col="Target_3d_Return", predictor_cols=['sentiment'])
+eval_model.experiment(df_combined, target_col="Target_3d_Return", predictor_cols=['sentiment'])
 eval_model.plot_results()
 
 eval_model = ARMAForecastingModel()
-eval_model.evaluate(df_combined, target_col="Target_5d_Return", predictor_cols=['sentiment'])
+eval_model.experiment(df_combined, target_col="Target_5d_Return", predictor_cols=['sentiment'])
 eval_model.plot_results()
 
 eval_model = XGBoostForecastingModel()
-eval_model.evaluate(df_combined, target_col="Target_5d_Return_binary", predictor_cols=['sentiment'])
+eval_model.experiment(df_combined, target_col="Target_5d_Return_binary", predictor_cols=['sentiment'])
 eval_model.plot_results()
 
 eval_model = ARMAForecastingModel()
-eval_model.evaluate(df_combined, target_col="Target_20d_Return", predictor_cols=['sentiment'])
+eval_model.experiment(df_combined, target_col="Target_20d_Return", predictor_cols=['sentiment'])
 eval_model.plot_results()

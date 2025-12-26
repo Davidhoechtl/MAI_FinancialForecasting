@@ -33,7 +33,7 @@ df_combined = get_feature_matrix(
 # df_combined['rolling_sentiment_3'] = df_combined['weighted_sentiment'].rolling(window=3, min_periods=1).mean()
 
 eval_model = ARMAForecastingModel()
-eval_model.evaluate(df_combined, target_col="Pct_Change", predictor_cols=['sentiment'])
+eval_model.experiment(df_combined, target_col="Pct_Change", predictor_cols=['sentiment'])
 eval_model.plot_results()
 
 # eval_model = ARMAForecastingModel()
@@ -41,5 +41,5 @@ eval_model.plot_results()
 # eval_model.plot_results()
 
 eval_model = ARMAForecastingModel()
-eval_model.evaluate(df_combined, target_col="Pct_Change_next", predictor_cols=['rolling_sentiment_3'])
+eval_model.experiment(df_combined, target_col="Pct_Change_next", predictor_cols=['rolling_sentiment_3'])
 eval_model.plot_results()
