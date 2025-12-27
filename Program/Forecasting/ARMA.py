@@ -14,15 +14,26 @@ class ARMAForecastingModel(ForecastingModelBase):
         self.model = None
         super().__init__()
 
-    def train(self, x_train: pd.DataFrame, y_train: pd.Series):
+    def train(self, x_train: pd.DataFrame, y_train: pd.Series) -> None:
         self.model = self._get_best_ARMA_model(x_train, y_train)
         pass
 
-    def predict(self, x_test: pd.DataFrame) -> pd.Series:
+    def predict(self, x_test: pd.DataFrame, x_gap: pd.DataFrame) -> pd.Series:
+        raise ValueError("use arma specific predict method with train test gap handling")
+
+    def predict_arma(self, x_test: pd.DataFrame, y_test: pd.Series, x_gap: pd.DataFrame, y_gap: pd.Series) -> pd.Series:
         if self.model is None:
             raise ValueError("Model has not been trained yet.")
-        yhat = self.model.forecast(steps=1, exog=x_test)[0]
-        return yhat
+
+        history_endog = pd.concat([y_gap, y_test])
+        history_exog = pd.concat([x_gap, x_test])
+        # Add evaluation data to the model without re-fitting
+        bridge_results = self.model.apply(history_endog, exog=history_exog)
+
+        full_predictions = bridge_results.predict(dynamic=False)
+        valid_predictions = full_predictions[len(y_gap):] #exclude gap predictions
+
+        return valid_predictions
 
     def _get_best_ARMA_model(self, x_train: pd.DataFrame, y_train: pd.Series):
         # Grid search for best p and q - normal ARMA

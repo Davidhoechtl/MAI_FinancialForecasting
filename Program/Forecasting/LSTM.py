@@ -1,3 +1,5 @@
+from distutils.command.config import config
+
 import pandas as pd
 import numpy as np
 import torch
@@ -8,15 +10,15 @@ from Forecasting.EvaluationModelBase import ForecastingModelBase
 
 # --- 0. Configuration & Reproducibility ---
 CONFIG = {
-    'seq_length': 30,
+    'seq_length': 7,
     'batch_size': 32,
     'hidden_size': 64,  # 128 might be overkill for only 4 features
     'num_layers': 2,
     'dropout': 0.2,
     'learning_rate': 0.001,
     'weight_decay': 0,   # L2 Regularization (Crucial new addition)
-    'epochs': 1000,  # High number, controlled by Early Stopping
-    'patience': 1000000,  # Stop if validation loss doesn't improve for 10 epochs
+    'epochs': 250,  # High number, controlled by Early Stopping
+    'patience': 100000,  # Stop if validation loss doesn't improve for 10 epochs
     'model_path': 'lstm_model.pth',
     'scaler_path': 'scalers.pkl'
 }
@@ -59,13 +61,13 @@ class LSTMForecastingModel(ForecastingModelBase):
 
         # create validation split from train data
         split_idx = int(len(x_train) * 0.8)
-        x_val = x_train.iloc[split_idx:].copy()
+        X_val = x_train.iloc[split_idx:].copy()
         y_val = y_train.iloc[split_idx:].copy()
         x_train = x_train.iloc[:split_idx].copy()
         y_train = y_train.iloc[:split_idx].copy()
 
         X_train, y_train = self._create_sequences( x_train, y_train, CONFIG['seq_length'])
-        X_val, y_val = self._create_sequences(x_val, y_val, CONFIG['seq_length'])
+        X_val, y_val = self._create_sequences(X_val, y_val, CONFIG['seq_length'])
 
         # Convert to Tensors
         # X_train is already (Samples, Seq_Len, Features).
@@ -133,7 +135,7 @@ class LSTMForecastingModel(ForecastingModelBase):
         self.model = model
         pass
 
-    def predict(self, x_test: pd.DataFrame) -> pd.Series:
+    def predict(self, x_test: pd.DataFrame, x_gap : pd.DataFrame) -> pd.Series:
         if self.model is None:
             raise ValueError("Model has not been trained yet.")
 
@@ -143,12 +145,20 @@ class LSTMForecastingModel(ForecastingModelBase):
         print(f"Using device: {device}")
 
         xs = []
-        # Use len(data_features) correctly
-        for i in range(len(x_test) - CONFIG['seq_length']):
-            x = x_test[i:(i + CONFIG['seq_length'])]
+        # Create a sequence for each x_test data point
+        for i in range(len(x_test)):
+            # The sequence ends at gap_len + i (inclusive), so we take seq_length before that
+            start_idx = i - CONFIG['seq_length'] + 1
+            end_idx = i + 1
+
+            if start_idx < 0:
+                # The first few data points won't have enough history for a full sequence
+                continue
+
+            x = x_test.iloc[start_idx:end_idx]
             xs.append(x)
 
-        x_test_tensor = torch.FloatTensor(np.array(xs)).unsqueeze(1).to(device)  # Target needs (Batch, 1)
+        x_test_tensor = torch.FloatTensor(np.array(xs)).to(device)  # Target needs (Batch, 1)
         with torch.no_grad():
             y_pred_scaled = self.model(x_test_tensor).cpu().numpy()
 
@@ -159,8 +169,8 @@ class LSTMForecastingModel(ForecastingModelBase):
         xs, ys = [], []
         # Use len(data_features) correctly
         for i in range(len(data_features) - seq_length):
-            x = data_features[i:(i + seq_length)]
-            y = data_target[i + seq_length]
+            x = data_features.iloc[i:(i + seq_length)]
+            y = data_target.iloc[i + seq_length]
             xs.append(x)
             ys.append(y)
         return np.array(xs), np.array(ys)
@@ -204,9 +214,20 @@ class LSTMForecastingModel(ForecastingModelBase):
 
         print(train_df.head(10))
 
-        X_train, y_train = self._create_sequences(train_df[feature_cols].values, train_df[target_col].values,
+        # Todo: remove this hack
+        def test(train, test, seq_length):
+            xs, ys = [], []
+            # Use len(data_features) correctly
+            for i in range(len(train) - seq_length):
+                x = train[i:(i + seq_length)]
+                y = test[i + seq_length]
+                xs.append(x)
+                ys.append(y)
+            return np.array(xs), np.array(ys)
+
+        X_train, y_train = test(train_df[feature_cols].values, train_df[target_col].values,
                                             CONFIG['seq_length'])
-        X_test, y_test = self._create_sequences(test_df[feature_cols].values, test_df[target_col].values,
+        X_test, y_test = test(test_df[feature_cols].values, test_df[target_col].values,
                                           CONFIG['seq_length'])
 
         # Convert to Tensors

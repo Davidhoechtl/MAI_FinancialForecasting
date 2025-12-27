@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 
 import pandas as pd
+from pandas import DataFrame
+
 
 class ForecastingModelBase(ABC):
     def __init__(self):
@@ -12,7 +14,7 @@ class ForecastingModelBase(ABC):
         pass
 
     @abstractmethod
-    def predict(self, x_test : pd.DataFrame) -> pd.Series:
+    def predict(self, x_test : pd.DataFrame, x_gap : DataFrame) -> pd.Series:
         pass
 
     @abstractmethod

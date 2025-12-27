@@ -1,11 +1,12 @@
 import os
 from distutils.command.config import config
 
-import numpy as np
 import pandas as pd
-from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
+
+import EvaluationPipeline
 from FeatureMatrixPipeline import get_feature_matrix
+from Forecasting.ARMA import ARMAForecastingModel
 from Forecasting.LSTM import LSTMForecastingModel
 from Impact.ImpactScoreAnalyzerEnums import ImpactModel
 from SP500_Prices.PriceAnalyzer import TechnicalIndicators
@@ -35,38 +36,28 @@ df_combined = get_feature_matrix(
 print(df_combined.head(20))
 print(df_combined.info())
 
+arima_model = ARMAForecastingModel()
 lstm_model = LSTMForecastingModel()
+
 feature_cols = ['Pct_Change', 'sentiment']
 target_col = 'Pct_Change_next'
-# lstm_model.experiment(df_combined, feature_cols, target_col)
 
-# FIX: Handle NaNs upfront in the DataFrame before splitting
-df_combined = df_combined.fillna(0.0)
+arima_results = EvaluationPipeline.evaluate_model_on_regression(
+    model=arima_model,
+    feature_matrix=df_combined,
+    predictor_cols=feature_cols,
+    target_col=target_col,
+    target_horizon_in_days=1
+)
 
-# FIX: Split Data into Train/Test BEFORE Scaling to prevent Data Leakage
-split_idx = int(len(df_combined) * 0.8)
-train_df = df_combined.iloc[:split_idx].copy()
-test_df = df_combined.iloc[split_idx:].copy()
+lstm_model_results = EvaluationPipeline.evaluate_model_on_regression(
+    model=lstm_model,
+    feature_matrix=df_combined,
+    predictor_cols=feature_cols,
+    target_col=target_col,
+    target_horizon_in_days=1
+)
 
-# --- 2. Scaling ---
-# # # Initialize scalers
-# scaler_x = MinMaxScaler(feature_range=(-1, 1))
-# scaler_y = MinMaxScaler(feature_range=(-1, 1))
-# #
-# # # FIX: Fit ONLY on Training data
-# scaler_x.fit(train_df[feature_cols])
-# scaler_y.fit(train_df[[target_col]])
-#
-# # Transform both Train and Test using the Train-fitted scalers
-# train_df[feature_cols] = scaler_x.transform(train_df[feature_cols])
-# train_df[target_col] = scaler_y.transform(train_df[[target_col]])
-#
-# test_df[feature_cols] = scaler_x.transform(test_df[feature_cols])
-# test_df[target_col] = scaler_y.transform(test_df[[target_col]])
-
-lstm_model.train(train_df[feature_cols], train_df[target_col])
-preds = lstm_model.predict(test_df[feature_cols], x_gap=pd.DataFrame())
-
-# Calculate Metrics
-mse = mean_squared_error(test_df[target_col][6:], preds)
-rmse = np.sqrt(mse)
+# plot the results
+print("ARIMA Results:", arima_results)
+print("LSTM Results:", lstm_model_results)
