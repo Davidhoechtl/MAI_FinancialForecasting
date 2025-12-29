@@ -1,5 +1,5 @@
-from distutils.command.config import config
-
+import os
+import random
 import pandas as pd
 import numpy as np
 import torch
@@ -7,6 +7,23 @@ import torch.nn as nn
 from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import DataLoader, TensorDataset
 from Forecasting.EvaluationModelBase import ForecastingModelBase
+
+def set_seed(seed=42):
+    # 1. Python & OS
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+
+    # 2. NumPy
+    np.random.seed(seed)
+
+    # 3. PyTorch
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)  # for multi-GPU
+
+    # 4. Deterministic algorithms (Crucial for reproducibility)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 # --- 0. Configuration & Reproducibility ---
 CONFIG = {
@@ -54,6 +71,8 @@ class LSTMForecastingModel(ForecastingModelBase):
         super().__init__()
 
     def train(self, x_train: pd.DataFrame, y_train: pd.Series):
+        set_seed(42)
+
         # Set device (GPU/MPS/CPU)
         device = torch.device(
             "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
@@ -136,6 +155,7 @@ class LSTMForecastingModel(ForecastingModelBase):
         pass
 
     def predict(self, x_test: pd.DataFrame, x_gap : pd.DataFrame) -> pd.Series:
+        set_seed(42)
         if self.model is None:
             raise ValueError("Model has not been trained yet.")
 
@@ -144,21 +164,9 @@ class LSTMForecastingModel(ForecastingModelBase):
             "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
         print(f"Using device: {device}")
 
-        xs = []
-        # Create a sequence for each x_test data point
-        for i in range(len(x_test)):
-            # The sequence ends at gap_len + i (inclusive), so we take seq_length before that
-            start_idx = i - CONFIG['seq_length'] + 1
-            end_idx = i + 1
+        xs = self._create_sequences_predict(x_test, CONFIG['seq_length'])
 
-            if start_idx < 0:
-                # The first few data points won't have enough history for a full sequence
-                continue
-
-            x = x_test.iloc[start_idx:end_idx]
-            xs.append(x)
-
-        x_test_tensor = torch.FloatTensor(np.array(xs)).to(device)  # Target needs (Batch, 1)
+        x_test_tensor = torch.FloatTensor(xs).to(device)
         with torch.no_grad():
             y_pred_scaled = self.model(x_test_tensor).cpu().numpy()
 
@@ -166,17 +174,34 @@ class LSTMForecastingModel(ForecastingModelBase):
 
     # --- 3. Sequence Creation ---
     def _create_sequences(self, data_features, data_target, seq_length):
+        # convert to numpy arrays
+        data_features_np = data_features.values
+        data_target_np = data_target.values
+
         xs, ys = [], []
         # Use len(data_features) correctly
-        for i in range(len(data_features) - seq_length):
-            x = data_features.iloc[i:(i + seq_length)]
-            y = data_target.iloc[i + seq_length]
+        for i in range(len(data_features_np) - seq_length):
+            x = data_features_np[i:(i + seq_length)]
+            y = data_target_np[i + seq_length]
             xs.append(x)
             ys.append(y)
+
         return np.array(xs), np.array(ys)
 
-    def experiment(self, feature_matrix: pd.DataFrame, predictor_cols: list[str], target_col: str):
+    def _create_sequences_predict(self, data_features, seq_length):
+        # convert to numpy arrays
+        data_features_np = data_features.values
 
+        xs = []
+        # Use len(data_features) correctly
+        for i in range(len(data_features_np) - seq_length):
+            x = data_features_np[i:(i + seq_length)]
+            xs.append(x)
+
+        return np.array(xs)
+
+    def experiment(self, feature_matrix: pd.DataFrame, predictor_cols: list[str], target_col: str):
+        set_seed(42)
         # Set device (GPU/MPS/CPU)
         device = torch.device(
             "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
@@ -196,6 +221,9 @@ class LSTMForecastingModel(ForecastingModelBase):
         train_df = df_combined.iloc[:split_idx].copy()
         test_df = df_combined.iloc[split_idx:].copy()
 
+        print("train set: ", train_df.shape)
+        print("test set: ", test_df.shape)
+
         # --- 2. Scaling ---
         # Initialize scalers
         scaler_x = MinMaxScaler(feature_range=(-1, 1))
@@ -214,21 +242,8 @@ class LSTMForecastingModel(ForecastingModelBase):
 
         print(train_df.head(10))
 
-        # Todo: remove this hack
-        def test(train, test, seq_length):
-            xs, ys = [], []
-            # Use len(data_features) correctly
-            for i in range(len(train) - seq_length):
-                x = train[i:(i + seq_length)]
-                y = test[i + seq_length]
-                xs.append(x)
-                ys.append(y)
-            return np.array(xs), np.array(ys)
-
-        X_train, y_train = test(train_df[feature_cols].values, train_df[target_col].values,
-                                            CONFIG['seq_length'])
-        X_test, y_test = test(test_df[feature_cols].values, test_df[target_col].values,
-                                          CONFIG['seq_length'])
+        X_train, y_train = self._create_sequences(train_df[feature_cols], train_df[target_col], CONFIG['seq_length'])
+        X_test, y_test = self._create_sequences(test_df[feature_cols], test_df[target_col], CONFIG['seq_length'])
 
         # Convert to Tensors
         # FIX: Removed .unsqueeze(1). LSTM expects (Batch, Seq_Len, Features).
