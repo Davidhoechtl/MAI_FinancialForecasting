@@ -47,7 +47,7 @@ def evaluate_model_on_classification(
     for split in splits:
         train_X, train_y, gap_X, gap_y, test_X, test_y = split
         model.train(train_X, train_y)
-        predictions = model.predict(test_X)
+        predictions = model.predict(test_X, gap_X)
 
         # Calculate metrics using sklearn (handles zero division automatically)
         accuracy = accuracy_score(test_y, predictions)
@@ -96,7 +96,7 @@ def evaluate_model_on_regression(
         predictor_cols,
         target_col,
         initial_train_size=200,
-        test_size=100,
+        test_size=50,
         padding=target_horizon_in_days
     )
 
@@ -122,7 +122,7 @@ def evaluate_model_on_regression(
 
         # Calculate Metrics
         if isinstance(model, LSTMForecastingModel) is True:
-            # LSTM model needs to skip first 6 predictions due to sequence length
+            # LSTM model needs to skip first 7 predictions due to sequence length
             # Todo: Refactor LSTM to avoid this hack
             mse = mean_squared_error(test_y[7:], predictions)
             rmse = np.sqrt(mse)
@@ -130,6 +130,7 @@ def evaluate_model_on_regression(
             mse = mean_squared_error(test_y, predictions)
             rmse = np.sqrt(mse)
 
+        print(f"Split MSE: {mse:.4f}, RMSE: {rmse:.4f}")
         scores.append({'MSE': mse, 'RMSE': rmse})
 
     # Aggregation
