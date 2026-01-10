@@ -6,6 +6,7 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 from FeatureMatrixPipeline import get_feature_matrix
+from Forecasting.GRU import GRUForecastingModel
 from Forecasting.LSTM import LSTMForecastingModel
 from Impact.ImpactScoreAnalyzerEnums import ImpactModel
 from SP500_Prices.PriceAnalyzer import TechnicalIndicators
@@ -20,14 +21,14 @@ pd.set_option('display.max_colwidth', None)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 
-start_date = "17/12/2017"
+start_date = "17/12/2010"
 end_date = "18/07/2019"
 impact_model = ImpactModel.NONE
 df_combined = get_feature_matrix(
     start_date=start_date,
     end_date=end_date,
     impact_model=impact_model,
-    tech_indicators=[TechnicalIndicators.VOLATILITY],
+    tech_indicators=[TechnicalIndicators.VOLATILITY, TechnicalIndicators.MOVING_AVERAGE_30],
     sentiment_sources=[DatasetSources.LUCASPHAM, DatasetSources.NIFTY],
     sentiment_model=SentimentModel.FINBERT,
     granularity_level=GranularityLevel.DAILY
@@ -35,8 +36,8 @@ df_combined = get_feature_matrix(
 print(df_combined.head(20))
 print(df_combined.info())
 
-lstm_model = LSTMForecastingModel()
-feature_cols = ['Pct_Change', 'sentiment']
+gru_model = GRUForecastingModel()
+feature_cols = ['Pct_Change', 'sentiment', 'Volatility', 'Volume']
 target_col = 'Pct_Change_next'
 # lstm_model.experiment(df_combined, feature_cols, target_col)
 
@@ -69,15 +70,11 @@ test_df_copy = test_df.copy()
 # Experiment 1
 print("train set: ", train_df.shape)
 print("test set: ", test_df.shape)
-lstm_model.train(train_df[feature_cols], train_df[target_col])
-preds = lstm_model.predict(test_df[feature_cols], x_gap=pd.DataFrame())
+gru_model.train(train_df[feature_cols], train_df[target_col])
+preds = gru_model.predict(test_df[feature_cols], x_gap=pd.DataFrame())
 
 # Calculate Metrics
 mse = mean_squared_error(test_df[target_col][7:], preds)
 rmse = np.sqrt(mse)
-
-concatenated = pd.concat([train_df_copy, test_df_copy], ignore_index=True)
-
-# Experiment 2
-lstm_model.experiment(concatenated, feature_cols, target_col)
+print(f"GRU Model - MSE: {mse:.4f}, RMSE: {rmse:.4f}")
 

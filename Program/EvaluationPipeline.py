@@ -124,7 +124,7 @@ def evaluate_model_on_regression(
         if isinstance(model, LSTMForecastingModel) is True:
             # LSTM model needs to skip first 6 predictions due to sequence length
             # Todo: Refactor LSTM to avoid this hack
-            mse = mean_squared_error(test_y[:-6], predictions)
+            mse = mean_squared_error(test_y[7:], predictions)
             rmse = np.sqrt(mse)
         else:
             mse = mean_squared_error(test_y, predictions)

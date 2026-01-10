@@ -151,7 +151,9 @@ class LSTMForecastingModel(ForecastingModelBase):
                     print(f"Early stopping triggered at epoch {epoch + 1}")
                     break
 
+        # Load best model weights before exiting train
         self.model = model
+        self.model.load_state_dict(torch.load(CONFIG['model_path']))
         pass
 
     def predict(self, x_test: pd.DataFrame, x_gap : pd.DataFrame) -> pd.Series:

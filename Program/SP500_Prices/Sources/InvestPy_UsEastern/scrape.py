@@ -174,6 +174,7 @@ def scrape_all(start, end, chunk_days=365, verbose=True, max_retries=3, stop_on_
         print(f"Saved {len(df_all)} rows to {CACHE_FILE_PATH}")
 
     return df_all
+
 def fetch_sp500_data(start_date, end_date):
     df = investpy.etfs.get_etf_historical_data(
         etf='SPDR S&P 500',
