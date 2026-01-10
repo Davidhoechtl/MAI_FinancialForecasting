@@ -13,8 +13,7 @@ params = {
     "max_depth": 4,
     "subsample": 0.8,
     "colsample_bytree": 0.8,
-    "seed": 42,
-    "num_boost_round": 500
+    "seed": 42
 }
 
 class XGBoostForecastingModel(ForecastingModelBase):
@@ -27,15 +26,17 @@ class XGBoostForecastingModel(ForecastingModelBase):
 
     def train(self, x_train: pd.DataFrame, y_train: pd.Series):
         dtrain = xgb.DMatrix(x_train, label=y_train)
-        bst = xgb.train(params, dtrain, num_boost_round=params["num_boost_round"])
+        bst = xgb.train(params, dtrain, num_boost_round=500)
         self.model = bst
         pass
 
-    def predict(self, x_test: pd.DataFrame) -> pd.Series:
+    def predict(self, x_test: pd.DataFrame, x_gap: pd.DataFrame) -> pd.Series:
         if self.model is None:
             raise ValueError("Model has not been trained yet.")
 
-        y_pred_prob = self.model.predict(x_test)
+        #convert to d matrix
+        dtest = xgb.DMatrix(x_test)
+        y_pred_prob = self.model.predict(dtest)
         yhat = (y_pred_prob > 0.5).astype(int)
 
         return yhat

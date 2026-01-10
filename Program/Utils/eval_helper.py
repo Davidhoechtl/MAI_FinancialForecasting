@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
 
 def evaluate_classification(y_true: np.ndarray, y_pred: np.ndarray, verbose: bool = True):
     """
@@ -27,10 +29,10 @@ def evaluate_classification(y_true: np.ndarray, y_pred: np.ndarray, verbose: boo
                                  [fn, tp]])
 
     # Metrics
-    accuracy = (tp + tn) / (tp + tn + fp + fn)
-    precision = tp / (tp + fp) if (tp + fp) > 0 else np.nan
-    recall = tp / (tp + fn) if (tp + fn) > 0 else np.nan
-    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else np.nan
+    accuracy = accuracy_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred, zero_division=0)
+    recall = recall_score(y_true, y_pred, zero_division=0)
+    f1 = f1_score(y_true, y_pred, zero_division=0)
 
     # Assemble results
     results = {

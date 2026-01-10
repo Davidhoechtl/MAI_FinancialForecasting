@@ -1,7 +1,6 @@
 import os
-import matplotlib.pyplot as plt
-import seaborn as sns
 import pandas as pd
+import EvaluationPipeline
 from FeatureMatrixPipeline import get_feature_matrix
 from Forecasting.ARMA import ARMAForecastingModel
 from Forecasting.XGBoost import XGBoostForecastingModel
@@ -18,15 +17,15 @@ pd.set_option('display.max_colwidth', None)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 
-start_date = "17/12/2017"
+start_date = "17/12/2010"
 end_date = "18/07/2020"
-impact_model = ImpactModel.LLAMA_3_1_Instruct
+impact_model = ImpactModel.NONE
 df_combined = get_feature_matrix(
     start_date=start_date,
     end_date=end_date,
     impact_model=impact_model,
     tech_indicators=[TechnicalIndicators.VOLATILITY],
-    sentiment_sources=[DatasetSources.LUCASPHAM],
+    sentiment_sources=[DatasetSources.LUCASPHAM, DatasetSources.NIFTY],
     sentiment_model=SentimentModel.FINBERT,
     granularity_level=GranularityLevel.DAILY
 )
@@ -45,8 +44,28 @@ eval_model.plot_results()
 # eval_model.evaluate(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'sentiment'])
 # eval_model.plot_results()
 eval_model = XGBoostForecastingModel()
-eval_model.experiment(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'weighted_sentiment'])
+eval_model.experiment(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'sentiment'])
 eval_model.plot_results()
+
+# train test split
+EvaluationPipeline.evaluate_model_on_classification(
+    model=eval_model,
+    feature_matrix=df_combined,
+    predictor_cols=['Pct_Change', 'sentiment'],
+    target_col='Target',
+    target_horizon_in_days=1
+)
+
+# train test split
+eval_model = XGBoostForecastingModel()
+EvaluationPipeline.evaluate_model_on_classification(
+    model=eval_model,
+    feature_matrix=df_combined,
+    predictor_cols=['Pct_Change', 'sentiment', 'Volatility'],
+    target_col='Target',
+    target_horizon_in_days=1
+)
+
 
 # is volatility and sentiment in combination benefitial
 eval_model = XGBoostForecastingModel()
@@ -56,7 +75,7 @@ eval_model.plot_results()
 # eval_model.evaluate(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'sentiment', 'Volatility'])
 # eval_model.plot_results()
 eval_model = XGBoostForecastingModel()
-eval_model.experiment(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'weighted_sentiment', 'Volatility'])
+eval_model.experiment(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'sentiment', 'Volatility'])
 eval_model.plot_results()
 
 # is rolling sentiment benefitial
@@ -67,7 +86,7 @@ eval_model = XGBoostForecastingModel()
 eval_model.experiment(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'Volatility', 'Volume'])
 eval_model.plot_results()
 eval_model = XGBoostForecastingModel()
-eval_model.experiment(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'weighted_sentiment', 'Volatility', 'Volume'])
+eval_model.experiment(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'sentiment', 'Volatility', 'Volume'])
 eval_model.plot_results()
 # eval_model = XGBoostForecastingModel()
 # eval_model.evaluate(df_combined, target_col="Target", predictor_cols=['Pct_Change', 'rolling_sentiment_3', 'Volatility', 'Volume'])

@@ -7,6 +7,7 @@ from sklearn.metrics import mean_squared_error, root_mean_squared_error
 import numpy as np
 import pandas as pd
 
+from Forecasting.GRU import GRUForecastingModel
 from Forecasting.LSTM import LSTMForecastingModel
 
 
@@ -34,13 +35,16 @@ def evaluate_model_on_classification(
         predictor_cols,
         target_col,
         initial_train_size=200,
-        test_size=50,
+        test_size=100,
         padding=target_horizon_in_days
     )
 
     if not splits:
         print("No splits generated. Check data size.")
         return None
+
+    print("Evaluating Model: ", model.name)
+    print_split_info(splits)
 
     scores = []
 
@@ -54,6 +58,8 @@ def evaluate_model_on_classification(
         precision = precision_score(test_y, predictions, zero_division=0)
         recall = recall_score(test_y, predictions, zero_division=0)
         f1 = f1_score(test_y, predictions, zero_division=0)
+
+        print(f"Split Accuracy: {accuracy:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}, F1-Score: {f1:.4f}")
 
         scores.append({
             'accuracy': accuracy,
@@ -96,7 +102,7 @@ def evaluate_model_on_regression(
         predictor_cols,
         target_col,
         initial_train_size=200,
-        test_size=50,
+        test_size=100,
         padding=target_horizon_in_days
     )
 
@@ -104,6 +110,9 @@ def evaluate_model_on_regression(
     if not splits:
         print("No splits generated. Check data size.")
         return None
+
+    print("Evaluating Model: ", model.name)
+    print_split_info(splits)
 
     scores = []
 
@@ -121,7 +130,8 @@ def evaluate_model_on_regression(
         # assert len(predictions) == len(test_y), "Prediction and ground truth lengths do not match."
 
         # Calculate Metrics
-        if isinstance(model, LSTMForecastingModel) is True:
+        if (isinstance(model, LSTMForecastingModel) or
+            isinstance(model, GRUForecastingModel)) is True:
             # LSTM model needs to skip first 7 predictions due to sequence length
             # Todo: Refactor LSTM to avoid this hack
             mse = mean_squared_error(test_y[7:], predictions)
@@ -184,3 +194,12 @@ def train_test_split_expanding_window(
         start_test += test_size  # Move the window forward
 
     return splits
+
+def print_split_info(splits: list[tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]]):
+    print("Number of splits generated: ", len(splits))
+    for i, split in enumerate(splits):
+        train_X, train_y, gap_X, gap_y, test_X, test_y = split
+        print(f"Split {i+1}:")
+        print(f"  Train size: {len(train_X)}")
+        print(f"  Gap size: {len(gap_X)}")
+        print(f"  Test size: {len(test_X)}")
