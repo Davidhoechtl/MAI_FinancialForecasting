@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
+
+import EvaluationPipeline
 from FeatureMatrixPipeline import get_feature_matrix
 from Forecasting.LSTM import LSTMForecastingModel
 from Impact.ImpactScoreAnalyzerEnums import ImpactModel
@@ -35,10 +37,22 @@ df_combined = get_feature_matrix(
 print(df_combined.head(20))
 print(df_combined.info())
 
+# with lookahead bias
+df_combined['sentiment_tomorrow'] = df_combined['sentiment'].shift(-1)
+df_combined.dropna(subset=['sentiment_tomorrow'], inplace=True)
+
 lstm_model = LSTMForecastingModel()
-feature_cols = ['Pct_Change', 'sentiment']
+feature_cols = ['sentiment_tomorrow']
 target_col = 'Pct_Change_next'
 # lstm_model.experiment(df_combined, feature_cols, target_col)
+
+lstm_model_results = EvaluationPipeline.evaluate_model_on_regression(
+    model=lstm_model,
+    feature_matrix=df_combined,
+    predictor_cols=feature_cols,
+    target_col=target_col,
+    target_horizon_in_days=1
+)
 
 # FIX: Handle NaNs upfront in the DataFrame before splitting
 df_combined = df_combined.fillna(0.0)
@@ -73,7 +87,7 @@ lstm_model.train(train_df[feature_cols], train_df[target_col])
 preds = lstm_model.predict(test_df[feature_cols], x_gap=pd.DataFrame())
 
 # Calculate Metrics
-mse = mean_squared_error(test_df[target_col][7:], preds)
+mse = mean_squared_error(test_df[target_col][6:], preds)
 rmse = np.sqrt(mse)
 
 concatenated = pd.concat([train_df_copy, test_df_copy], ignore_index=True)

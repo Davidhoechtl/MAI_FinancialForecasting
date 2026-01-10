@@ -28,7 +28,7 @@ def set_seed(seed=42):
 # --- 0. Configuration & Reproducibility ---
 CONFIG = {
     'seq_length': 7,
-    'batch_size': 32,
+    'batch_size': 64,
     'hidden_size': 64,  # 128 might be overkill for only 4 features
     'num_layers': 2,
     'dropout': 0.2,
@@ -98,7 +98,7 @@ class LSTMForecastingModel(ForecastingModelBase):
 
         # Dataloader
         train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
-        train_loader = DataLoader(train_dataset, batch_size=CONFIG['batch_size'], shuffle=False)
+        train_loader = DataLoader(train_dataset, batch_size=CONFIG['batch_size'], shuffle=True)
 
         model = LSTMRegressor(
             input_size=len(x_train.columns),
@@ -184,7 +184,7 @@ class LSTMForecastingModel(ForecastingModelBase):
         # Use len(data_features) correctly
         for i in range(len(data_features_np) - seq_length):
             x = data_features_np[i:(i + seq_length)]
-            y = data_target_np[i + seq_length]
+            y = data_target_np[i + seq_length - 1] # target is in the same row as the features
             xs.append(x)
             ys.append(y)
 
@@ -196,7 +196,7 @@ class LSTMForecastingModel(ForecastingModelBase):
 
         xs = []
         # Use len(data_features) correctly
-        for i in range(len(data_features_np) - seq_length):
+        for i in range(len(data_features_np) - seq_length + 1):
             x = data_features_np[i:(i + seq_length)]
             xs.append(x)
 

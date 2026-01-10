@@ -1,5 +1,7 @@
 import os
 import random
+from distutils.command.config import config
+
 import pandas as pd
 import numpy as np
 import torch
@@ -189,7 +191,7 @@ class GRUForecastingModel(ForecastingModelBase):
         # Use len(data_features) correctly
         for i in range(len(data_features_np) - seq_length):
             x = data_features_np[i:(i + seq_length)]
-            y = data_target_np[i + seq_length]
+            y = data_target_np[i + seq_length - 1] # target value is in the same data row as feature
             xs.append(x)
             ys.append(y)
 
@@ -201,7 +203,7 @@ class GRUForecastingModel(ForecastingModelBase):
 
         xs = []
         # Use len(data_features) correctly
-        for i in range(len(data_features_np) - seq_length):
+        for i in range(len(data_features_np) - seq_length + 1):
             x = data_features_np[i:(i + seq_length)]
             xs.append(x)
 

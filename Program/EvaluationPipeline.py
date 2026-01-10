@@ -134,7 +134,7 @@ def evaluate_model_on_regression(
             isinstance(model, GRUForecastingModel)) is True:
             # LSTM model needs to skip first 7 predictions due to sequence length
             # Todo: Refactor LSTM to avoid this hack
-            mse = mean_squared_error(test_y[7:], predictions)
+            mse = mean_squared_error(test_y[6:], predictions)
             rmse = np.sqrt(mse)
         else:
             mse = mean_squared_error(test_y, predictions)
@@ -182,7 +182,7 @@ def train_test_split_expanding_window(
         train_data = feature_matrix.iloc[:end_of_train]
         test_data = feature_matrix.iloc[start_test:start_test + test_size]
 
-        gap_x = feature_matrix.iloc[end_of_train:start_test][predictor_cols]
+        gap_X = feature_matrix.iloc[end_of_train:start_test][predictor_cols]
         gap_y = feature_matrix.iloc[end_of_train:start_test][target_col]
 
         train_X = train_data[predictor_cols]
@@ -190,7 +190,16 @@ def train_test_split_expanding_window(
         test_X = test_data[predictor_cols]
         test_y = test_data[target_col]
 
-        splits.append((train_X, train_y, gap_x, gap_y, test_X, test_y))
+        # Normalize features
+        # train_X_normalized = normalize_features(train_X, predictor_cols)
+        # test_X_normalized = normalize_features(test_X, predictor_cols)
+        # gap_X_normalized = normalize_features(gap_X, predictor_cols)
+        # gap_y_normalized = normalize_features(gap_y.to_frame(), [target_col])[target_col]
+        # train_y_normalized = normalize_features(train_y.to_frame(), [target_col])[target_col]
+        # test_y_normalized = normalize_features(test_y.to_frame(), [target_col])[target_col]
+
+        splits.append((train_X, train_y, gap_X, gap_y, test_X, test_y))
+        # splits.append((train_X_normalized, train_y_normalized, gap_X_normalized, gap_y_normalized, test_X_normalized, test_y_normalized))
         start_test += test_size  # Move the window forward
 
     return splits
@@ -203,3 +212,24 @@ def print_split_info(splits: list[tuple[pd.DataFrame, pd.Series, pd.DataFrame, p
         print(f"  Train size: {len(train_X)}")
         print(f"  Gap size: {len(gap_X)}")
         print(f"  Test size: {len(test_X)}")
+
+def normalize_features(df: pd.DataFrame, feature_cols: list[str]) -> pd.DataFrame:
+    """
+    Normalizes the specified feature columns in the DataFrame using Min-Max scaling to the range [0, 1].
+
+    Parameters:
+        df (pd.DataFrame): The input DataFrame containing features to be normalized.
+        feature_cols (list[str]): List of column names to normalize.
+
+    Returns:
+        pd.DataFrame: A new DataFrame with normalized feature columns.
+    """
+    df_normalized = df.copy()
+    for col in feature_cols:
+        min_val = df_normalized[col].min()
+        max_val = df_normalized[col].max()
+        if max_val - min_val != 0:
+            df_normalized[col] = (df_normalized[col] - min_val) / (max_val - min_val)
+        else:
+            df_normalized[col] = 0.0  # If all values are the same, set to 0.0
+    return df_normalized

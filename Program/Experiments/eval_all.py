@@ -38,7 +38,11 @@ print(df_combined.info())
 
 print("count of sentiment 0s:", (df_combined['weighted_sentiment'] == 0).sum())
 
-feature_cols = ['Pct_Change', 'weighted_sentiment', 'Volatility']
+# with lookahead bias
+df_combined['sentiment_tomorrow'] = df_combined['sentiment'].shift(-1)
+df_combined.dropna(subset=['sentiment_tomorrow'], inplace=True)
+
+feature_cols = ['sentiment_tomorrow']
 target_col = 'Pct_Change_next'
 
 arima_model = ARMAForecastingModel()

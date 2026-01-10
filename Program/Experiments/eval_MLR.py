@@ -35,6 +35,8 @@ df_combined = get_feature_matrix(
 
 # df_combined['rolling_sentiment_3'] = df_combined['weighted_sentiment'].rolling(window=3, min_periods=1).mean()
 feature_cols = ['Pct_Change', 'sentiment', 'Volume', 'Volatility', 'Moving_Average_30']
+
+feature_cols = ['sentiment']
 target_col = 'Pct_Change_next'
 
 eval_model = MLRForecastingModel()
