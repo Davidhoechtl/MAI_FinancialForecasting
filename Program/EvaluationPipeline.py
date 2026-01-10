@@ -34,7 +34,7 @@ def evaluate_model_on_classification(
         predictor_cols,
         target_col,
         initial_train_size=200,
-        test_size=100,
+        test_size=50,
         padding=target_horizon_in_days
     )
 
