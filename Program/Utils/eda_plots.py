@@ -141,7 +141,7 @@ def plot_rolling_sentiment_correlations(df: pd.DataFrame, sentiment_col: str, ta
     plt.scatter(sig_points_pearson["days"], sig_points_pearson["pearson_corr"], color="red", label="p < 0.05", zorder=5)
 
     plt.axhline(0, color="gray", linestyle="--", alpha=0.7)
-    plt.title("Spearman Correlation vs. Rolling Sentiment Window (Significance Highlighted)")
+    plt.title("Spearman/Pearson Correlation: Rolling Sentiment vs Pct_Ch (Significance Highlighted)")
     plt.xlabel("Rolling Window Size (days)")
     plt.ylabel(f"Spearman Correlation ({target_col} vs Rolling Sentiment)")
     plt.legend()

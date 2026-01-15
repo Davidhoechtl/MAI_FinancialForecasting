@@ -18,10 +18,10 @@ pd.set_option('display.width', None)
 
 start_date = "17/12/2017"
 end_date = "18/07/2020"
-impact_model = Sentiment.SentimentAnalyzer.ImpactModel.LLAMA_3_1_Instruct
+impact_model = Sentiment.SentimentAnalyzer.ImpactModel.NONE
 sentiment_col = "weighted_sentiment" if impact_model != Sentiment.SentimentAnalyzer.ImpactModel.NONE else "sentiment"
 
-start_date = "17/12/2017"
+start_date = "17/12/2010"
 end_date = "18/07/2020"
 df_combined = get_feature_matrix(
     start_date=start_date,

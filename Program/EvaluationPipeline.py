@@ -2,7 +2,8 @@ import pandas as pd
 
 from Forecasting.ARMA import ARMAForecastingModel
 from Forecasting.EvaluationModelBase import ForecastingModelBase
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, mean_absolute_percentage_error, \
+    mean_absolute_error
 from sklearn.metrics import mean_squared_error, root_mean_squared_error
 import numpy as np
 import pandas as pd
@@ -136,12 +137,14 @@ def evaluate_model_on_regression(
             # Todo: Refactor LSTM to avoid this hack
             mse = mean_squared_error(test_y[6:], predictions)
             rmse = np.sqrt(mse)
+            mae = mean_absolute_error(test_y[6:], predictions)
         else:
             mse = mean_squared_error(test_y, predictions)
             rmse = np.sqrt(mse)
+            mae = mean_absolute_error(test_y, predictions)
 
-        print(f"Split MSE: {mse:.4f}, RMSE: {rmse:.4f}")
-        scores.append({'MSE': mse, 'RMSE': rmse})
+        print(f"Split MSE: {mse:.4f}, RMSE: {rmse:.4f}, MAPE: {mae:.4f}")
+        scores.append({'MSE': mse, 'RMSE': rmse, 'MAPE': mae})
 
     # Aggregation
     avg_scores = pd.DataFrame(scores).mean()

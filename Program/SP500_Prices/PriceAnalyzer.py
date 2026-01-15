@@ -2,19 +2,27 @@ import pandas as pd
 from enum import Enum
 import numpy as np
 
+from SP500_Prices.Sources.InvestPy_UsEastern.scrape_VIX import get_vix_data
+
+
 class TechnicalIndicators(Enum):
     VOLUME_NORMED = "Volume_Normed"
     VOLATILITY = "Volatility"
+    VIX = "VIX"
     MOVING_AVERAGE_30 = "Moving_Average_30"
     MOVING_AVERAGE_60 = "Moving_Average_60"
 
-def analyze_price(df_price: pd.DataFrame, indicators: list[TechnicalIndicators]) -> pd.DataFrame:
+def analyze_price(df_price: pd.DataFrame, indicators: list[TechnicalIndicators], start_date: str, end_date: str) -> pd.DataFrame:
     """
     Analyse the time series of prices and calculate technical indicators
     :param df_price:
         dataframe with the minimum format: date, price, volume
     :param indicators:
         indicators that should be analysed
+    :param start_date:
+        start date for analysis (YYYY-MM-DD)
+    :param end_date:
+        end date for analysis (YYYY-MM-DD)
     :return:
         dataframe with price and technical indicators
     """
@@ -29,10 +37,24 @@ def analyze_price(df_price: pd.DataFrame, indicators: list[TechnicalIndicators])
             df_enriched[indicator.value] = get_moving_average_feature(df_price, window=30)
         elif indicator == TechnicalIndicators.MOVING_AVERAGE_60:
             df_enriched[indicator.value] = get_moving_average_feature(df_price, window=60)
+        elif indicator == TechnicalIndicators.VIX:
+            df_enriched[indicator.value] = get_vix_feature(df_price, start_date, end_date)
         else:
             print(f"[WARN]: The technical indicator {indicator.value} is unknown and will not be included.")
 
     return df_enriched
+
+# --------------------------------------------------
+# 💡 Feature: VIX Index (Volatility Index)
+# --------------------------------------------------
+def get_vix_feature(df_price: pd.DataFrame, start_date:str, end_date:str) -> pd.Series:
+    df_vix = get_vix_data(start_date, end_date)
+    price_dates = pd.to_datetime(df_price['Date'])
+    vix_feature = df_vix.reindex(price_dates)
+    vix_feature = vix_feature.fillna(0.0)
+    vix_feature.index = df_price.index
+
+    return vix_feature
 
 # --------------------------------------------------
 # 💡 Feature: Volatility (Rolling standard deviation)

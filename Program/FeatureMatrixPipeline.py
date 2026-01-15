@@ -52,7 +52,9 @@ def get_feature_matrix(
     df_prices = df_prices.reset_index()
     df_technicals = technicals_loader.analyze_price(
         df_price=df_prices,
-        indicators=tech_indicators
+        indicators=tech_indicators,
+        start_date = start_date,
+        end_date = end_date
     )
 
     df_sentiment = sentiment_loader.load(

@@ -89,14 +89,14 @@ end_date = "18/07/2020"
 impact_model = Sentiment.SentimentAnalyzer.ImpactModel.LLAMA_3_1_Instruct
 sentiment_col = "weighted_sentiment" if impact_model != Sentiment.SentimentAnalyzer.ImpactModel.NONE else "sentiment"
 
-start_date = "17/12/2015"
+start_date = "17/12/2017"
 end_date = "18/07/2020"
 df_combined = get_feature_matrix(
     start_date=start_date,
     end_date=end_date,
     impact_model=impact_model,
     tech_indicators=[TechnicalIndicators.VOLATILITY],
-    sentiment_sources=[Sentiment.SentimentAnalyzer.DatasetSources.LUCASPHAM, Sentiment.SentimentAnalyzer.DatasetSources.NIFTY],
+    sentiment_sources=[Sentiment.SentimentAnalyzer.DatasetSources.LUCASPHAM],
     sentiment_model=Sentiment.SentimentAnalyzer.SentimentModel.FINBERT,
     granularity_level=Sentiment.SentimentAnalyzer.GranularityLevel.DAILY,
     impact_model_evaluation_mode=Sentiment.SentimentAnalyzer.EvaluationMode.CLASSIFICATION

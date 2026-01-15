@@ -107,7 +107,7 @@ class LSTMForecastingModel(ForecastingModelBase):
             dropout_prob=CONFIG['dropout']
         ).to(device)
 
-        criterion = nn.MSELoss()
+        criterion = nn.L1Loss()
         optimizer = torch.optim.Adam(model.parameters(), lr=CONFIG['learning_rate'],
                                      weight_decay=CONFIG['weight_decay'])
 

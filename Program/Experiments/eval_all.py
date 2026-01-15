@@ -7,6 +7,7 @@ from Forecasting.GRU import GRUForecastingModel
 from Forecasting.LSTM import LSTMForecastingModel
 from Forecasting.MLR import MLRForecastingModel
 from Forecasting.MLogR import MLogRForecastingModel
+from Forecasting.RandomWalk import RandomWalkForecastingModel
 from Forecasting.XGBoost import XGBoostForecastingModel
 from Impact.ImpactScoreAnalyzerEnums import ImpactModel
 from SP500_Prices.PriceAnalyzer import TechnicalIndicators
@@ -28,8 +29,8 @@ df_combined = get_feature_matrix(
     start_date=start_date,
     end_date=end_date,
     impact_model=impact_model,
-    tech_indicators=[TechnicalIndicators.VOLATILITY, TechnicalIndicators.MOVING_AVERAGE_30],
-    sentiment_sources=[DatasetSources.LUCASPHAM, DatasetSources.NIFTY],
+    tech_indicators=[TechnicalIndicators.VOLATILITY, TechnicalIndicators.VIX, TechnicalIndicators.MOVING_AVERAGE_30],
+    sentiment_sources=[DatasetSources.LUCASPHAM],
     sentiment_model=SentimentModel.FINBERT,
     granularity_level=GranularityLevel.DAILY
 )
@@ -39,11 +40,30 @@ print(df_combined.info())
 print("count of sentiment 0s:", (df_combined['weighted_sentiment'] == 0).sum())
 
 # with lookahead bias
-df_combined['sentiment_tomorrow'] = df_combined['sentiment'].shift(-1)
-df_combined.dropna(subset=['sentiment_tomorrow'], inplace=True)
+# df_combined['sentiment_tomorrow'] = df_combined['sentiment'].shift(-1)
+# df_combined.dropna(subset=['sentiment_tomorrow'], inplace=True)
+#
+# df_combined['rolling_sentiment_30day'] = df_combined['weighted_sentiment'].rolling(window=30, min_periods=1).mean()
+# df_combined['Target_60d_Return'] = df_combined['Close'].pct_change(periods=60).shift(-60)
+# df_combined.dropna(subset=['Target_60d_Return'], inplace=True)
 
-feature_cols = ['sentiment_tomorrow']
+# feature_cols = ['rolling_weighted_sentiment_3day']
+feature_cols = ['weighted_sentiment']
+# feature_cols = ['weighted_sentiment', 'VIX']
+# feature_cols = ['Pct_Change', 'VIX', 'Volume', 'moving_average_30']
+# feature_cols = ['weighted_sentiment', 'VIX', 'Volume', 'moving_average_30']
+# feature_cols = ['Pct_Change_next']
+# feature_cols = ['rolling_sentiment_30day']
 target_col = 'Pct_Change_next'
+
+random_model = RandomWalkForecastingModel()
+random_results = EvaluationPipeline.evaluate_model_on_regression(
+    model=random_model,
+    feature_matrix=df_combined,
+    predictor_cols=feature_cols,
+    target_col=target_col,
+    target_horizon_in_days=1
+)
 
 arima_model = ARMAForecastingModel()
 arima_results = EvaluationPipeline.evaluate_model_on_regression(
@@ -109,6 +129,7 @@ print("ARIMA Results:", arima_results)
 print("LSTM Results:", lstm_model_results)
 print("GRU Results:", gru_model_results)
 print("MLR Results:", mlr_model_results)
+print("RandomWalk Results:", random_results)
 
 print("-----------------------CLASSIFICATION RESULTS-----------------------")
 print("XGBoost Results:", xGBoost_model_results)
