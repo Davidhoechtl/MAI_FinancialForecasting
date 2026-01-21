@@ -3,7 +3,7 @@ import pandas as pd
 from Forecasting.ARMA import ARMAForecastingModel
 from Forecasting.EvaluationModelBase import ForecastingModelBase
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, mean_absolute_percentage_error, \
-    mean_absolute_error
+    mean_absolute_error, r2_score
 from sklearn.metrics import mean_squared_error, root_mean_squared_error
 import numpy as np
 import pandas as pd
@@ -72,6 +72,9 @@ def evaluate_model_on_classification(
     # Aggregation
     avg_scores = pd.DataFrame(scores).mean()
 
+    #round the final scores
+    avg_scores = avg_scores.round(6)
+
     print(f"Model: {model.name}")
     print(f"Final Accuracy: {avg_scores['accuracy']:.4f}")
     print(f"Final Precision: {avg_scores['precision']:.4f}")
@@ -138,19 +141,30 @@ def evaluate_model_on_regression(
             mse = mean_squared_error(test_y[6:], predictions)
             rmse = np.sqrt(mse)
             mae = mean_absolute_error(test_y[6:], predictions)
+            r2 = r2_score(test_y[6:], predictions)
         else:
             mse = mean_squared_error(test_y, predictions)
             rmse = np.sqrt(mse)
             mae = mean_absolute_error(test_y, predictions)
+            r2 = r2_score(test_y, predictions)
 
-        print(f"Split MSE: {mse:.4f}, RMSE: {rmse:.4f}, MAPE: {mae:.4f}")
-        scores.append({'MSE': mse, 'RMSE': rmse, 'MAPE': mae})
+        print(f"Split MSE: {mse:.4f}, RMSE: {rmse:.4f}, MAE: {mae:.4f}, R2: {r2:.4f}")
+
+        scores.append({
+            # 'MSE': mse,
+            'RMSE': rmse,
+            'MAE': mae,
+            # 'R2': r2_rounded
+        })
 
     # Aggregation
     avg_scores = pd.DataFrame(scores).mean()
 
+    #round the final scores
+    avg_scores = avg_scores.round(6)
+
     print(f"Model: {model.name}")
-    print(f"Final MSE: {avg_scores['MSE']:.4f}")
+    # print(f"Final MSE: {avg_scores['MSE']:.4f}")
     print(f"Final RMSE: {avg_scores['RMSE']:.4f}")
 
     return avg_scores.to_dict()

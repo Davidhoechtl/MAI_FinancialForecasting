@@ -4,7 +4,9 @@ from sklearn.linear_model import LinearRegression
 from Forecasting.EvaluationModelBase import ForecastingModelBase
 import numpy as np
 
-class RandomWalkForecastingModel(ForecastingModelBase):
+# Besseres Baseline model (Momentum model) yt = yt-1
+# Random walk. pt+1 = pt + e, e ~ N(0, y_train.std())
+class MeanForecastingModel(ForecastingModelBase):
     def __init__(self):
         super().__init__()
         self.model = None
@@ -22,8 +24,13 @@ class RandomWalkForecastingModel(ForecastingModelBase):
             raise ValueError("Model has not been trained yet.")
 
         # sample from normal distribution with mean and std
+        # predictions = pd.Series(
+        #     np.random.normal(loc=self.mean, scale=self.std, size=len(x_test)),
+        #     index=x_test.index
+        # )
+
         predictions = pd.Series(
-            np.random.normal(loc=self.mean, scale=self.std, size=len(x_test)),
+            self.mean,
             index=x_test.index
         )
 
