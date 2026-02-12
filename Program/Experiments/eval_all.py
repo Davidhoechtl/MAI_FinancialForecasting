@@ -56,7 +56,8 @@ df_combined['rolling_weighted_sentiment_3day'] = df_combined['weighted_sentiment
 # fill series with random values
 # df_combined['noise'] = np.random.uniform(-0.05, 0.05, size=len(df_combined))
 
-feature_cols = ['Pct_Change_next']
+# feature_cols = ['Pct_Change']
+feature_cols = ['Pct_Change', 'weighted_sentiment']
 # feature_cols = ['weighted_sentiment']
 # feature_cols = ['weighted_sentiment', 'VIX']
 # feature_cols = ['Pct_Change', 'VIX', 'Volume', 'Moving_Average_30']
