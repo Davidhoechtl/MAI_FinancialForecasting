@@ -46,7 +46,8 @@ def get_feature_matrix(
         sentiment_sources: list[DatasetSources],
         sentiment_model: Sentiment.SentimentAnalyzer.SentimentModel,
         granularity_level: Sentiment.SentimentAnalyzer.GranularityLevel,
-        impact_model_evaluation_mode: EvaluationMode = EvaluationMode.CLASSIFICATION
+        impact_model_evaluation_mode: EvaluationMode = EvaluationMode.CLASSIFICATION,
+        aggregation_function: Sentiment.SentimentAnalyzer.AggregationMethod = Sentiment.SentimentAnalyzer.AggregationMethod.MEAN
 ):
     df_prices = investpy_sp500_scrape.get_sp500_data(start_date, end_date)
     df_prices = df_prices.reset_index()
@@ -63,6 +64,7 @@ def get_feature_matrix(
         granularity_level = granularity_level,
         impact_model=impact_model,
         impact_model_evaluation_mode=impact_model_evaluation_mode,
+        aggregation_function=aggregation_function,
         start_date=start_date,
         end_date=end_date
     )
