@@ -17,9 +17,9 @@ pd.set_option('display.max_colwidth', None)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 
-start_date = "17/12/2019"
+start_date = "17/12/2017"
 end_date = "18/07/2020"
-impact_model = ImpactModel.GPT_OSS_20B
+impact_model = ImpactModel.LLAMA_3_1_Instruct
 df_combined = get_feature_matrix(
     start_date=start_date,
     end_date=end_date,

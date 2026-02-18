@@ -61,6 +61,12 @@ class FinBERTSentimentModel(SentimentModelBase):
 
         print(f"[INFO] Evaluating {len(headlines)} headlines with FinBERT (batch size={batch_size})...")
 
+        # 1. Safely map the labels to their actual indices, ignoring case (e.g., 'Positive' vs 'positive')
+        label2id = {k.lower(): v for k, v in model.config.label2id.items()}
+        pos_idx = label2id['positive']
+        neg_idx = label2id['negative']
+        neu_idx = label2id['neutral']
+
         with torch.no_grad():
             total = len(headlines)
             for i in range(0, len(headlines), batch_size):
@@ -85,15 +91,28 @@ class FinBERTSentimentModel(SentimentModelBase):
                 probs = F.softmax(logits, dim=-1).cpu().numpy()  # shape: (batch_size, 3)
 
                 # FinBERT order: [positive, neutral, negative]
-                for p_pos, p_neu, p_neg in probs:
+                for prob in probs:
+                    p_pos = prob[pos_idx]
+                    p_neg = prob[neg_idx]
+                    p_neu = prob[neu_idx]
+
                     score = (p_pos - p_neg) * (1 - p_neu)  # continuous ∈ [-1, 1]
-                    # score = (p_pos - p_neg) # continuous ∈ [-1, 1]
+                    #score = (p_pos - p_neg) # continuous ∈ [-1, 1]
+
+                    # Identify which probability is the highest
+                    # if p_pos >= p_neu and p_pos >= p_neg:
+                    #     score = 1
+                    # elif p_neu >= p_pos and p_neu >= p_neg:
+                    #     score = 0
+                    # else:
+                    #     score = -1
+
                     sentiments.append(score)
 
         # Store results
         sentiment = pd.Series(sentiments, index=headlines.index)
 
-        # # === Sentiment berechnen ===
+        # === Sentiment berechnen ===
         # print("Analysiere Sentiment ...")
         # nlp = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer, device=device)
         # results = nlp(headlines.tolist(), batch_size=batch_size)

@@ -28,28 +28,28 @@ pd.set_option('display.max_colwidth', None)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 
-start_date = "17/12/2017"
+start_date = "17/12/2010"
 end_date = "06/11/2020"
-impact_model = ImpactModel.LLAMA_3_1_Instruct
+impact_model = ImpactModel.NONE
 df_combined = get_feature_matrix(
     start_date=start_date,
     end_date=end_date,
     impact_model=impact_model,
-    tech_indicators=[TechnicalIndicators.VOLATILITY, TechnicalIndicators.VIX, TechnicalIndicators.MOVING_AVERAGE_30],
-    sentiment_sources=[DatasetSources.LUCASPHAM],
+    tech_indicators=[TechnicalIndicators.VOLATILITY, TechnicalIndicators.VIX, TechnicalIndicators.MOVING_AVERAGE_30, TechnicalIndicators.US1Y_YIELD],
+    sentiment_sources=[DatasetSources.AENLLE],
     sentiment_model=SentimentModel.FINBERT,
     granularity_level=GranularityLevel.DAILY
 )
 print(df_combined.head(20))
 print(df_combined.info())
 
-print("count of sentiment 0s:", (df_combined['weighted_sentiment'] == 0).sum())
-
-# with lookahead bias
+# print("count of sentiment 0s:", (df_combined['weighted_sentiment'] == 0).sum())
+#
+# # with lookahead bias
 df_combined['sentiment_tomorrow'] = df_combined['sentiment'].shift(-1)
 df_combined.dropna(subset=['sentiment_tomorrow'], inplace=True)
-#
-df_combined['rolling_weighted_sentiment_3day'] = df_combined['weighted_sentiment'].rolling(window=3, min_periods=1).mean()
+# #
+# df_combined['rolling_weighted_sentiment_3day'] = df_combined['weighted_sentiment'].rolling(window=3, min_periods=1).mean()
 # df_combined['Target_60d_Return'] = df_combined['Close'].pct_change(periods=60).shift(-60)
 # df_combined.dropna(subset=['Target_60d_Return'], inplace=True)
 
@@ -57,7 +57,7 @@ df_combined['rolling_weighted_sentiment_3day'] = df_combined['weighted_sentiment
 # df_combined['noise'] = np.random.uniform(-0.05, 0.05, size=len(df_combined))
 
 # feature_cols = ['Pct_Change']
-feature_cols = ['Pct_Change', 'weighted_sentiment']
+feature_cols = ['Pct_Change', 'sentiment', 'VIX', 'US1Y_Yield', 'Volume']
 # feature_cols = ['weighted_sentiment']
 # feature_cols = ['weighted_sentiment', 'VIX']
 # feature_cols = ['Pct_Change', 'VIX', 'Volume', 'Moving_Average_30']
