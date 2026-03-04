@@ -1,0 +1,91 @@
+@article{ANBAEEFARIMANI2022108742,
+title = {Investigating the informativeness of technical indicators and news sentiment in financial market price prediction},
+journal = {Knowledge-Based Systems},
+volume = {247},
+pages = {108742},
+year = {2022},
+issn = {0950-7051},
+doi = {https://doi.org/10.1016/j.knosys.2022.108742},
+url = {https://www.sciencedirect.com/science/article/pii/S095070512200346X},
+author = {Saeede {Anbaee Farimani} and Majid {Vafaei Jahan} and Amin {Milani Fard} and Seyed Reza Kamel Tabbakh},
+keywords = {Market prediction, Transformer-based language models, Financial sentiment analysis, Information gain, FinBERT},
+abstract = {Real-time market prediction tool tracking public opinion in specialized newsgroups and informative market data persuades investors of financial markets. Previous works mainly used lexicon-based sentiment analysis for financial markets prediction, while recently proposed transformer-based sentiment analysis promise good results for cross-domain sentiment analysis. This work considers temporal relationships between consecutive snapshots of informative market data and mood time series for market price prediction. We calculate the sentiment mood time series via the probability distribution of news embedding generated through a BERT-based transformer language model fine-tuned for financial domain sentiment analysis. We then use a deep recurrent neural network for feature extraction followed by a dense layer for price regression. We implemented our approach as an open-source API for real-time price regression. We build a corpus of financial news related to currency pairs in foreign exchange and Cryptocurrency markets. We further augment our model with informative technical indicators and news sentiment scores aligned based on news release timestamp. Results of our experiments show significant error reduction compared to the baselines. Our Financial News and Financial Sentiment Analysis RESTFul APIs are available for public use.}
+}
+
+@INPROCEEDINGS{9175549,
+  author={Gupta, Rubi and Chen, Min},
+  booktitle={2020 IEEE Conference on Multimedia Information Processing and Retrieval (MIPR)}, 
+  title={Sentiment Analysis for Stock Price Prediction}, 
+  year={2020},
+  volume={},
+  number={},
+  pages={213-218},
+  keywords={Machine learning;Correlation;Sentiment analysis;Stock markets;Twitter;Companies;Time series analysis;sentiment analysis;stock price prediction;StockTwits;machine learning;tweet processing},
+  doi={10.1109/MIPR49039.2020.00051}}
+
+@ARTICLE{10380556,
+  author={Rizinski, Maryan and Peshov, Hristijan and Mishev, Kostadin and Jovanovik, Milos and Trajanov, Dimitar},
+  journal={IEEE Access}, 
+  title={Sentiment Analysis in Finance: From Transformers Back to eXplainable Lexicons (XLex)}, 
+  year={2024},
+  volume={12},
+  number={},
+  pages={7170-7198},
+  keywords={Sentiment analysis;Transformers;Finance;Dictionaries;Computational modeling;Analytical models;Task analysis;Machine learning;Natural language processing;Text categorization;Machine learning;natural language processing;text classification;sentiment analysis;finance;lexicons;lexicon learning;transformers;SHAP;explainability},
+  doi={10.1109/ACCESS.2024.3349970}}
+
+@misc{LucasPhamFinDataset,
+  author       = {Lucas Pham},
+  title        = {Financial News Headlines Data},
+  year         = {2020},
+  howpublished = {\url{https://www.kaggle.com/datasets/notlucasp/financial-news-headlines}},
+  note         = {Data set, Kaggle}
+}
+
+@article{khan2022stock,
+  title={Stock market prediction using machine learning classifiers and social media, news},
+  author={Khan, Wasiat and Ghazanfar, Mustansar Ali and Azam, Muhammad Awais and Karami, Amin and Alyoubi, Khaled H and Alfakeeh, Ahmed S},
+  journal={Journal of Ambient Intelligence and Humanized Computing},
+  volume={13},
+  number={7},
+  pages={3433--3456},
+  year={2022},
+  publisher={Springer}
+}
+
+@article{CHOI2024121589,
+title = {Stock price momentum modeling using social media data},
+journal = {Expert Systems with Applications},
+volume = {237},
+pages = {121589},
+year = {2024},
+issn = {0957-4174},
+doi = {https://doi.org/10.1016/j.eswa.2023.121589},
+url = {https://www.sciencedirect.com/science/article/pii/S0957417423020912},
+author = {Min Choi and Hye Jin Lee and Soh Hyung Park and Sung Whan Jeon and Sungzoon Cho},
+keywords = {Alternative data, Social media, Online Stock Message boards, Keyword extraction, Stock market forecasting, Stock price momentum}
+}
+
+@misc{WikipediaARIMA,
+  author       = {{Wikipedia contributors}},
+  title        = {Autoregressive integrated moving average},
+  year         = 2025,
+  url          = {https://en.wikipedia.org/wiki/Autoregressive_integrated_moving_average},
+  note         = {Accessed: 2025-10-09}
+}
+
+// looks kaggle dataset and use sentiment analysis with vader, textblob and finBERT. Comparse models like adaboost, xgboost, stacking
+@Article{jrfm18080412,
+AUTHOR = {Davidovic, Milivoje and McCleary, Jacqueline},
+TITLE = {News Sentiment and Stock Market Dynamics: A Machine Learning Investigation},
+JOURNAL = {Journal of Risk and Financial Management},
+VOLUME = {18},
+YEAR = {2025},
+NUMBER = {8},
+ARTICLE-NUMBER = {412},
+URL = {https://www.mdpi.com/1911-8074/18/8/412},
+ISSN = {1911-8074},
+ABSTRACT = {The study relies on an extensive dataset (≈1.86 million news headlines) to investigate the heterogeneity and predictive power of explicit sentiment signals (TextBlob, VADER, and FinBERT) and implied sentiment (VIX) for stock market trends. We find that news content predominantly consists of objective or neutral information, with only a small portion carrying subjective or emotive weight. There is a structural market bias toward upswings (bullish market states). Market behavior appears anticipatory rather than reactive: forward-looking implied sentiment captures a substantial share (≈45–50%) of the variation in stock returns. By contrast, sentiment scores, even when disaggregated into firm- and non-firm-specific subscores, lack robust predictive power. However, weekend and holiday sentiment contains modest yet valuable market signals. Algorithm-wise, Gradient Boosting Machine (GBM) stands out in both classification (bullish vs. bearish) and regression tasks. Neither FinBERT news sentiment, historical returns, nor implied volatility offer a consistently exploitable edge over market efficiency. Thus, our findings lend empirical support to both the weak-form and semi-strong forms of the Efficient Market Hypothesis. In the realm of exploitable trading strategies, markets remain an enigma against systematic alpha.},
+DOI = {10.3390/jrfm18080412}
+}
+

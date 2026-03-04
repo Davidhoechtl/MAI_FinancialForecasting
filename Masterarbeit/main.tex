@@ -1,0 +1,75 @@
+\documentclass[Master,english,IEEE]{twbook}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+% bitte setzen Sie hier den Studiengang
+\degreecourse{Master AI Engineering}
+
+\addbibresource{Literatur.bib}
+%% Definieren Sie hier bei Bedarf weitere Literaturdatenbanken
+
+% Die nachfolgenden Pakete stellen sonst nicht benötigte Features zur Verfügung
+\usepackage{blindtext}
+\usepackage{parskip}  % automatically removes indent and adds vertical space
+\usepackage{float}         % für [H], optional
+\usepackage{subcaption}
+%
+%
+% Einträge für Deckblatt, Kurzfassung, etc.
+%
+\title{Enhancing financial forecasting by sentiment analysis}
+\author{David Höchtl BSc.}
+\studentnumber{2410585053}
+
+\supervisor{Dr. rer. nat. Sharwin Rezagholi, MSc.}
+
+\place{Wien}
+\outline{\blindtext}
+\keywords{Keyword1, Keyword2, Keyword3, Keyword4}
+%\acknowledgements{\blindtext}
+
+\begin{document}
+
+\maketitle
+
+\chapter{Introduction}
+Financial markets are highly complex systems that are influenced by human behaviours and economic events. For decades, data scientists and economists have attempted to predict and explain financial time series, but it still remains a big challenge. Traditionally, autoregressive models or technical indicators were used to achieve this goal. While this approach created a mathematical and statistical foundation, it falls short when confronted with unstructured data like news headlines or investor sentiment.
+
+With the rapid advances in artificial intelligence (AI), especially in natural language processing (NLP), new ways for understanding those unstructured texts have been found. For example, transformer models can extract semantic information from text. This information could be used to engineer new features that help explain variance in the movement of stock market indices like the S\&P500 or the MSCI World. 
+
+The goal of this master thesis, therefore, is to investigate if a stochastic forecasting approach can be improved by adding sentiment-based features extracted from news headlines and/or social media posts. This feature can be understood as an indicator (usually ranged between -1 and 1), that tries to reflect the emotions of investors towards the current economy. In the scope of a single headline it captures how optimistic (bullish) or pessimistic (bearish) the context appears.
+
+As a proof of concept (PoC), the work will analyse an ARMA model with and without sentiment integration. Later, more complex AI models – ranging from XGBoost to recurrent neural networks (RNNs), long short-term memory networks (LSTMs), and state-of-the-art transformer models like GPT – 5 may be evaluated and benchmarked. To analyse performance, metrics such as Mean Percentage Error (MPE), Accuracy, and F1-Score will be used.
+
+This investigation contributes to an ongoing debate about the efficient market hypothesis, which states that new information is integrated into prices almost instantly, rendering the information useless for predicting future movements.
+
+\chapter{Motivation}
+Despite decades-long research in terms of stock predictions, the forecasting of short-term movements remains a challenge. Traditional methods depend solely on previous price movements and technical indicators. However, the influential factors that move the market go far beyond this information. News, Social Media, politics, macro-economic events are examples that could contribute to changes in the stock market as well.
+
+Current studies \cite{ANBAEEFARIMANI2022108742} increasingly work with the analysis of media texts to achieve additional prediction-accuracy, though, the quantitative value of these features is debated. Additionally, the interaction between technical indicators and sentiment features — and their impact on model performance across different AI architectures — remains an open question.
+
+\chapter{Literature Review}
+The idea of combining market sentiment with stochastic and technical indicators is not new. Many studies have already done research on it \cite{ANBAEEFARIMANI2022108742} \cite{10380556} \cite{9175549}. The combination of sentiment and well known indicators like ADI (divergences between the price and the volume), volume, EMA (weighted moving average) are used in \cite{ANBAEEFARIMANI2022108742} to predict the price changes in Forex (Foreign exchange markets), with good performance. Similarly \cite{9175549} tried using daily aggregated sentiment and stock-data (isn´t further explained) to predict price changes of certain companies like Apple, Amazon or Microsoft. Both works have proven a correlation between stock price and sentiment, which led to increased model performance. Also notable is that \cite{ANBAEEFARIMANI2022108742} stated that specifically combining both technical indicators and sentiment led to the most performant model, hinting possible feature synergies or complementations.
+
+However, newspaper headlines are not the only reliable source, social media posts (e.g. twitter or social hubs) can also be utilized to create sentiment features. For example \cite{CHOI2024121589} used properties like views, likes, dislikes, and keywords to predict price momentum (up, down). Other studies like \cite{khan2022stock} even go a step further by combining both news paper headlines with social media content to create more robust accuracy.
+
+In comparison to others this study will focus not on single companies or foreign exchange markets but broad stock indices. One might argue that sentiment analysis is more effective for indices because it reflects more macroeconomic factors. However, the opposite could also be true. Headlines related to a specific company (not included by the index) may introduce noise into the aggregated sentiment score, potentially reducing predictive power. Comparing the outcome of this study with the related ones may give new insights on this topic.
+
+\chapter{Methodology}
+\section{Sentiment Models}
+\section{Datasets}
+\section{Impact Scoring}
+\section{Pipeline}
+\section{Evaluation Models}
+\section{Validation}
+
+\chapter{Results}
+\section{Correlations}
+\section{Rolling Sentiment}
+\section{Different Target Horinzons}
+\section{Impact Score}
+\section{Sentiment vs No-Sentiment Models}
+\chapter{Discussion}
+
+\chapter{Conclusion}
+\end{document}
