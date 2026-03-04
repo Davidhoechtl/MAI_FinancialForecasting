@@ -75,6 +75,21 @@ $$P(y|x) = \text{softmax}(W \cdot h_{\text{[CLS]}} + b)$$
 
 Where P(y|x) stands for the conditional probability, $h_{\text{[CLS]}}$ for the CLS Token (compressed representation vector of the sentence) and W, b for the learned parameters of the classification layer.
 \section{Datasets}
+The data for the news sentiment score is joined by a datapipeline that combine, preprocess and align multiple datasets into one corpus of headlines. The aggregation of multiple news sources over a broader time horizon increases data coverage and diversity. Therefore reducing potential biases coming from a specific news portal or timeframe. Resulting in a more generalized and reliable sentiment signal.
+
+Following datasets are included in the pipeline:
+
+% TODO: Descripe datasets with more important information
+\begin{itemize}
+    \item \textbf{Financial News Headlines Data} (Pham, \cite{pham_financial_news}): A Kaggle-hosted collection of financial news headlines, suitable for sentiment analysis and headline-based classification tasks.
+    
+    \item \textbf{Daily Financial News for 6000+ Stocks} (Aenlle, \cite{aenlle_financial_news}): A large-scale compilation of stock market news data scraped from Benzinga, covering the period from 2009 to 2020.
+    
+    \item \textbf{FNSPID: Financial News Dataset in Time Series} (Dong et al., \cite{dong2024fnspid}): A comprehensive dataset specifically engineered for time-series analysis, integrating stock price movements with aligned financial news records.
+    
+    \item \textbf{NIFTY: News-Informed Financial Trend Yield} (Saqur, \cite{raeidsaqur2024NiftyLM}): A dataset designed for aligning Large Language Models (LLMs) with financial market data, providing news context and associated stock trend labels.
+\end{itemize}
+
 \section{Impact Scoring}
 \section{Pipeline}
 \section{Evaluation Models}
