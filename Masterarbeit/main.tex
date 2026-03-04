@@ -81,13 +81,14 @@ Following datasets are included in the pipeline:
 
 % TODO: Descripe datasets with more important information
 \begin{itemize}
-    \item \textbf{Financial News Headlines Data} (Pham, \cite{pham_financial_news}): A Kaggle-hosted collection of financial news headlines, suitable for sentiment analysis and headline-based classification tasks.
+    \item \textbf{Financial News Headlines Data} (Pham, \cite{pham_financial_news}): Kaggle hosted dataset that spans from December 2017 to July 2020. It contains about 53330 Headlines scraped from CNBC, the Guardian, and Reuters official websites.
     
-    \item \textbf{Daily Financial News for 6000+ Stocks} (Aenlle, \cite{aenlle_financial_news}): A large-scale compilation of stock market news data scraped from Benzinga, covering the period from 2009 to 2020.
+    \item \textbf{Daily Financial News for 6000+ Stocks} (Aenlle, \cite{aenlle_financial_news}): Kaggle hosted dataset that covers 1.85 million news from 2009-2020. Covers many news portals like Seeking Alpha, Zacks, GuruFocus. The Timestamps are localized as UTC-4 (US/Eastern).
     
-    \item \textbf{FNSPID: Financial News Dataset in Time Series} (Dong et al., \cite{dong2024fnspid}): A comprehensive dataset specifically engineered for time-series analysis, integrating stock price movements with aligned financial news records.
+    % maybe move the potential error explanation into the appendix
+    \item \textbf{FNSPID: Financial News Dataset in Time Series} (Dong et al., \cite{dong2024fnspid}): This dataset aggregates ~15.7 million news headlines from Nasdaq. The corpus offers a datapoints from 1999 through 2023. Allthough promissing, it appears to have wrong time convertions on some entries. For example Benzinga sourced headlines are localized as UTC-4, the corresponding timestamp in the dataset is localized as UTC-0 but converted in the wrong direction. This leads to potential data leakage if the article was published after 8 pm.
     
-    \item \textbf{NIFTY: News-Informed Financial Trend Yield} (Saqur, \cite{raeidsaqur2024NiftyLM}): A dataset designed for aligning Large Language Models (LLMs) with financial market data, providing news context and associated stock trend labels.
+    \item \textbf{NIFTY: News-Informed Financial Trend Yield} (Saqur, \cite{raeidsaqur2024NiftyLM}): Originally a dataset designed for aligning Large Language Models (LLMs) with financial market data. Contains headlines that are mostly about the indian/asian economy. In the context of this study, it is included as a benchmark to determine if there are performance variations compared to other datasets.
 \end{itemize}
 
 \section{Impact Scoring}
