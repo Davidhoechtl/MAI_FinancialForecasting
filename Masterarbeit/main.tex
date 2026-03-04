@@ -57,6 +57,23 @@ In comparison to others this study will focus not on single companies or foreign
 
 \chapter{Methodology}
 \section{Sentiment Models}
+For the sentiment classifcation task two different models are used and compared. FinBERT and VADER. The reason for this decision is to compare which of the models performs better in sentiment analysis. Doing so will show how important contextual understanding of transformers are when it comes to sentiment classification of short texts like news headlines.
+
+\subsection{VADER}
+Vader is a traditional lexicon and rule based sentiment model \cite{hutto2014vader}. It was developed to analyse short sentences like social media posts, product reviews, or short editorials in news papers. It assignes each word a predefined polarity score and adjusts the values based on heuristical rules. Negations, Intensifiers (extremly, marginally, ...), Capitalisation are some examples for those rules. They are used to get more contextual understanding. 
+
+The final output of the model is called Compound-Score and is calculated by summing all polarity values and normalize:
+
+$$s_{compound} = \frac{\sum v_i}{\sqrt{\left(\sum v_i\right)^2 + \alpha}}$$
+
+Where $v_i$ are the adjusted polarity scores and $\alpha$ a normalization constant (default value $\alpha = 15$), which acts as sensitivity dial. As final output this formula guarantees a value between -1 (negative sentiment) and 1 (positive sentiment).
+
+\subsection{FinBERT}
+FinBERT is a state of the art sentiment model which in contrast uses a transformer architecture instead of a lexicon approach \cite{araci2019finbert}. It is a fine tuned version of the famous BERT model from Google \cite{devlin2019bert} and was trained on a large corpus of financial text. Because of its architecture and fine tuning it exceeds in the task of understanding semantic texts in the financial domain. At the end of the model architecture a dense layer for classification was added. The output is passed through a softmax function to obtain the probability distribution of the three senitment labels (positive, negative, neutral).
+
+$$P(y|x) = \text{softmax}(W \cdot h_{\text{[CLS]}} + b)$$
+
+Where P(y|x) stands for the conditional probability, $h_{\text{[CLS]}}$ for the CLS Token (compressed representation vector of the sentence) and W, b for the learned parameters of the classification layer.
 \section{Datasets}
 \section{Impact Scoring}
 \section{Pipeline}
@@ -65,11 +82,27 @@ In comparison to others this study will focus not on single companies or foreign
 
 \chapter{Results}
 \section{Correlations}
+\section{Sentiment vs No-Sentiment Models}
+\section{FinBERT vs VADER}
+\section{Impact Score}
 \section{Rolling Sentiment}
 \section{Different Target Horinzons}
-\section{Impact Score}
-\section{Sentiment vs No-Sentiment Models}
 \chapter{Discussion}
 
 \chapter{Conclusion}
+
+%
+% Hier beginnen die Verzeichnisse.
+%
+\clearpage
+\printbibliography
+\clearpage
+
+% Das Abbildungsverzeichnis
+\listoffigures
+\clearpage
+
+% Das Tabellenverzeichnis
+\listoftables
+\clearpage
 \end{document}
