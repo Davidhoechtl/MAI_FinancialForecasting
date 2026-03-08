@@ -79,7 +79,6 @@ The data for the news sentiment score is joined by a datapipeline that combine, 
 
 Following datasets are included in the pipeline:
 
-% TODO: Descripe datasets with more important information
 \begin{itemize}
     \item \textbf{Financial News Headlines Data} (Pham, \cite{pham_financial_news}): Kaggle hosted dataset that spans from December 2017 to July 2020. It contains about 53330 Headlines scraped from CNBC, the Guardian, and Reuters official websites.
     
@@ -92,6 +91,27 @@ Following datasets are included in the pipeline:
 \end{itemize}
 
 \section{Impact Scoring}
+Financial markets generate a great volume of textual data. However, the distribution of important information is highly skewed. Most headlines are "noise" (repetitive updates, foreign news, minor price fluctuations), which can dilute the predictive power of sentiment analysis. Therefore this research introduces a novel denoising method that uses large language models (LLMs) to differntiate between important headlines and noise.
+
+The main component of this filtering process is Llama 3.1 Instruct (8B). To increase the throughput and memory efficiency the model was implemented using a 6-bit quantization (.gguf format). The resulting memory foodprint is approximatly 6.85 GB, which enables local interference on consumer-grade hardware. Because this model is not finetuned a prompt had to be engineered. A self annotated dataset of ~70 classified headlines served as benchmark to compare different prompts. This is the final version that is used in further experiments:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{PICs/Impact_Scoring_Classification_Prompt.png}
+    \caption{Llama 3.1 Instruct (8B) prompt to classify news headlines}
+    \label{fig:myimag13}
+\end{figure}
+
+Headlines are categorized in four classes (A,B,C,D) based on their predictive power on future S\&P500 returns. These labels are then transformed into a numerical number (A->1, B-> 0.66, C->0.33, D->0) called impact score.
+
+The final output of this procedure is a denoised weighted sentiment score. Rather than treating every sentiment score equally, we apply the Impact Score as an additional transformation. This ensures that a positive sentiment on a minor headline (Category C) contributes less to the overall trend than a positive sentiment on a major headline (Category A). The calculation is defined as:
+
+$$S_{w} = S \times I$$
+
+Where:$S_w$ is the final weighted sentiment.
+$S$ is the raw sentiment score (ranging from -1 to 1).
+$I$ is the LLM-derived impact score (0 to 1).
+
 \section{Pipeline}
 \section{Evaluation Models}
 \section{Validation}
@@ -101,6 +121,7 @@ Following datasets are included in the pipeline:
 \section{Sentiment vs No-Sentiment Models}
 \section{FinBERT vs VADER}
 \section{Impact Score}
+% also mention the experiment with impact score classification vs regression
 \section{Rolling Sentiment}
 \section{Different Target Horinzons}
 \chapter{Discussion}
