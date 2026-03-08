@@ -57,7 +57,7 @@ In comparison to others this study will focus not on single companies or foreign
 
 \chapter{Methodology}
 \section{Sentiment Models}
-For the sentiment classifcation task two different models are used and compared. FinBERT and VADER. The reason for this decision is to compare which of the models performs better in sentiment analysis. Doing so will show how important contextual understanding of transformers are when it comes to sentiment classification of short texts like news headlines.
+For the sentiment classification task two different models are used and compared: FinBERT and VADER. The reason for this decision is to compare which of the models performs better in sentiment analysis. Doing so will show how important contextual understanding of transformers are when it comes to sentiment classification of short texts like news headlines.
 
 \subsection{VADER}
 Vader is a traditional lexicon and rule based sentiment model \cite{hutto2014vader}. It was developed to analyse short sentences like social media posts, product reviews, or short editorials in news papers. It assignes each word a predefined polarity score and adjusts the values based on heuristical rules. Negations, Intensifiers (extremly, marginally, ...), Capitalisation are some examples for those rules. They are used to get more contextual understanding. 
@@ -82,18 +82,18 @@ Following datasets are included in the pipeline:
 \begin{itemize}
     \item \textbf{Financial News Headlines Data} (Pham, \cite{pham_financial_news}): Kaggle hosted dataset that spans from December 2017 to July 2020. It contains about 53330 Headlines scraped from CNBC, the Guardian, and Reuters official websites.
     
-    \item \textbf{Daily Financial News for 6000+ Stocks} (Aenlle, \cite{aenlle_financial_news}): Kaggle hosted dataset that covers 1.85 million news from 2009-2020. Covers many news portals like Seeking Alpha, Zacks, GuruFocus. The Timestamps are localized as UTC-4 (US/Eastern).
+    \item \textbf{Daily Financial News for 6000+ Stocks} (Aenlle, \cite{aenlle_financial_news}): Kaggle hosted dataset that covers 1.85 million news from 2009-2020. Covers many news portals like Seeking Alpha, Zacks, GuruFocus. The timestamps are localized as UTC-4 (US/Eastern).
     
     % maybe move the potential error explanation into the appendix
-    \item \textbf{FNSPID: Financial News Dataset in Time Series} (Dong et al., \cite{dong2024fnspid}): This dataset aggregates ~15.7 million news headlines from Nasdaq. The corpus offers a datapoints from 1999 through 2023. Allthough promissing, it appears to have wrong time convertions on some entries. For example Benzinga sourced headlines are localized as UTC-4, the corresponding timestamp in the dataset is localized as UTC-0 but converted in the wrong direction. This leads to potential data leakage if the article was published after 8 pm.
+    \item \textbf{FNSPID: Financial News Dataset in Time Series} (Dong et al., \cite{dong2024fnspid}): This dataset aggregates ~15.7 million news headlines from Nasdaq. The corpus offers datapoints from 1999 through 2023. Although promising, it appears to have wrong time conversions on some entries. For example, Benzinga-sourced headlines are localized as UTC-4, the corresponding timestamp in the dataset is localized as UTC-0 but converted in the wrong direction. This leads to potential data leakage if the article was published after 8 pm.
     
-    \item \textbf{NIFTY: News-Informed Financial Trend Yield} (Saqur, \cite{raeidsaqur2024NiftyLM}): Originally a dataset designed for aligning Large Language Models (LLMs) with financial market data. Contains headlines that are mostly about the indian/asian economy. In the context of this study, it is included as a benchmark to determine if there are performance variations compared to other datasets.
+    \item \textbf{NIFTY: News-Informed Financial Trend Yield} (Saqur, \cite{raeidsaqur2024NiftyLM}): Originally a dataset designed for aligning Large Language Models (LLMs) with financial market data. Contains headlines that are mostly about the Indian/Asian economy. In the context of this study, it is included as a benchmark to determine if there are performance variations compared to other datasets.
 \end{itemize}
 
 \section{Impact Scoring}
-Financial markets generate a great volume of textual data. However, the distribution of important information is highly skewed. Most headlines are "noise" (repetitive updates, foreign news, minor price fluctuations), which can dilute the predictive power of sentiment analysis. Therefore this research introduces a novel denoising method that uses large language models (LLMs) to differntiate between important headlines and noise.
+Financial markets create a great volume of textual data. However, the distribution of important information is highly skewed. Most headlines are "noise" (repetitive updates, foreign news, minor price fluctuations), which can dilute the predictive power of the sentiment score. For this reason, a novel denoising method that uses large language models (LLMs) to differentiate between important headlines and noise is introduced.
 
-The main component of this filtering process is Llama 3.1 Instruct (8B). To increase the throughput and memory efficiency the model was implemented using a 6-bit quantization (.gguf format). The resulting memory foodprint is approximatly 6.85 GB, which enables local interference on consumer-grade hardware. Because this model is not finetuned a prompt had to be engineered. A self annotated dataset of ~70 classified headlines served as benchmark to compare different prompts. This is the final version that is used in further experiments:
+The main component of this filtering process is Llama 3.1 Instruct (8B). To increase the throughput and memory efficiency, the model was implemented using a 6-bit quantization (.gguf format). The resulting memory footprint is approximately 6.85 GB, which enables local inference on consumer-grade hardware. Because this model is not fine-tuned a prompt had to be engineered. A self-annotated dataset of ~70 classified headlines served as a benchmark to compare different prompts. This is the final version that is used in further experiments:
 
 \begin{figure}[H]
     \centering
