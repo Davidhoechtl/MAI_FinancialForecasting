@@ -113,6 +113,25 @@ $S$ is the raw sentiment score (ranging from -1 to 1).
 $I$ is the LLM-derived impact score (0 to 1).
 
 \section{Pipeline}
+Because this research is featuring multiple datasets and sentiment models a data and evaluation pipeline was implemented to easily conduct multiple experiments with different settings. The top level architecture is designed as:
+
+% image of the pipeline top level architecture
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{PICs/PipelineTopLevelArchitecture.png}
+    \caption{Pipeline - Top level architecture}
+    \label{fig:myimag14}
+\end{figure}
+
+\begin{itemize}
+  \item Datasets and Adapters: To support multiple Datasets in the same pipeline we need to standardize the features in each Dataset. This is puprose of the adpaters. Each dataset has its own adapter implemented. It converts timestamps into the correct UTC-format, extracts headlines and normalize feature names. This gives enough flexibility to combine a abritairy number of datasets while keeping complexity and cost per dataset low.
+  \item Sentiment Analyzer: This is the main component of the data pipeline. The first step of this component is to concatenate every dataset to one big data frame. Because different datasets can contain similar to identical headlines a deduplication step is performed. After that every headline is analyzed by the sentiment model, calculating each polarity score. After combining it with the impact score each datapoint is aggregated daily by using the mean. The output of this step is an enriched dataset containing the daily aggregated (weighted) sentiment score.
+  \item Impact Analyzer:
+  \item Price Analyzer:
+  \item Final Dataset:
+  \item Experiments:
+\end{itemize}
+
 \section{Evaluation Models}
 \section{Validation}
 
