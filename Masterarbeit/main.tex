@@ -124,15 +124,57 @@ Because this research is featuring multiple datasets and sentiment models a data
 \end{figure}
 
 \begin{itemize}
-  \item Datasets and Adapters: To support multiple Datasets in the same pipeline we need to standardize the features in each Dataset. This is puprose of the adpaters. Each dataset has its own adapter implemented. It converts timestamps into the correct UTC-format, extracts headlines and normalize feature names. This gives enough flexibility to combine a abritairy number of datasets while keeping complexity and cost per dataset low.
-  \item Sentiment Analyzer: This is the main component of the data pipeline. The first step of this component is to concatenate every dataset to one big data frame. Because different datasets can contain similar to identical headlines a deduplication step is performed. After that every headline is analyzed by the sentiment model, calculating each polarity score. After combining it with the impact score each datapoint is aggregated daily by using the mean. The output of this step is an enriched dataset containing the daily aggregated (weighted) sentiment score.
-  \item Impact Analyzer: Here headlines are classified by an LLM on how important they are compared to their possible impact on future returns of the SP500 index. First the .gguf file is eownloaded from huggingface and after that the corresponding tokenizer is used to transform the input sequence. It is also important to use the correct prompt layout. For example using Llama 3.1 Instruct the prompt components need to be annotated with special tokens (start\_header\_id, end\_header\_id) \cite{meta_llama31_2024}. Also for the non-determenistic nature of LLMs a retry system was implemented. If the output does not contain a valid format for the class label, it will retry to a maximum of three times until skipping the headline (resulting in a NaN score).
-  \item Price Analyzer: To enrich the Dataset with technical indicators, price information needed to be scraped from the web. Here multiple python packages like yfinance, investpy or commercial APIs like alpha vantage can be used. While yfinance and investpy are limited to daily granularity, free to use source for hourly data is hard to find. Investpy proved to be a sufficient APIs for the experiments of this research. Specifically, following endpoints where used: investpy.etfs for price data (SPDR S\&P 500), investpy.bonds for U.S. 1-Year Treasury (U.S. 1Y) and investpy.indices for the volatility indicators like the VIX (S\&P 500 VIX). %create a table with all possible technical indicators and their source
-  \item Final Dataset:
-  \item Experiments:
+    \item Datasets and Adapters: To support multiple Datasets in the same pipeline we need to standardize the features in each Dataset. This is puprose of the adpaters. Each dataset has its own adapter implemented. It converts timestamps into the correct UTC-format, extracts headlines and normalize feature names. This gives enough flexibility to combine a abritairy number of datasets while keeping complexity and cost per dataset low.
+    \item Sentiment Analyzer: This is the main component of the data pipeline. The first step of this component is to concatenate every dataset to one big data frame. Because different datasets can contain similar to identical headlines a deduplication step is performed. After that every headline is analyzed by the sentiment model, calculating each polarity score. After combining it with the impact score each datapoint is aggregated daily by using the mean. The output of this step is an enriched dataset containing the daily aggregated (weighted) sentiment score.
+    \item Impact Analyzer: Here headlines are classified by an LLM on how important they are compared to their possible impact on future returns of the SP500 index. First the .gguf file is eownloaded from huggingface and after that the corresponding tokenizer is used to transform the input sequence. It is also important to use the correct prompt layout. For example using Llama 3.1 Instruct the prompt components need to be annotated with special tokens (start\_header\_id, end\_header\_id) \cite{meta_llama31_2024}. Also for the non-determenistic nature of LLMs a retry system was implemented. If the output does not contain a valid format for the class label, it will retry to a maximum of three times until skipping the headline (resulting in a NaN score).
+    \item Price Analyzer: To enrich the Dataset with technical indicators, price information needed to be scraped from the web. Here multiple python packages like yfinance, investpy or commercial APIs like alpha vantage can be used. While yfinance and investpy are limited to daily granularity, free to use source for hourly data is hard to find. Investpy proved to be a sufficient APIs for the experiments of this research. Specifically, following endpoints where used: investpy.etfs for price data (SPDR S\&P 500), investpy.bonds for U.S. 1-Year Treasury (U.S. 1Y) and investpy.indices for the volatility indicators like the VIX (S\&P 500 VIX). %create a table with all possible technical indicators and their source
+    \item Final Dataset: The output of the data pipeline is the enriched dataset, with the daily aggregated (weighted) sentiment and the technical indicators. In the final dataset there are only entries for business days, reducing the entries for a year from 365 to around 252. Additionally, the pipeline allows to configure the figure matrix by its parameters. 
+    %create a table with all parameters and theire options  
+    \par\vspace{2ex} % Adds clear vertical space between text and table
+    \begin{minipage}{\linewidth}
+        \centering
+        \small
+        \begin{tabularx}{0.98\linewidth}{|l|l|X|}
+        \hline
+        \textbf{Parameter} & \textbf{Type} & \textbf{Description} \\ \hline
+        \texttt{start\_date} & \texttt{str} & Start date for fetching S\&P 500 price data and sentiment records. \\ \hline
+        \texttt{end\_date} & \texttt{str} & End date for fetching price data and sentiment records. \\ \hline
+        \texttt{impact\_model} & \texttt{ImpModel} & The impact model: \texttt{NONE} or \texttt{Llama 3.1 Instruct (8B)}. \\ \hline
+        \texttt{tech\_ind} & \texttt{list[TI]} & List of technical indicators to be included. \\ \hline
+        \texttt{sent\_sources} & \texttt{list[DS]} & Datasets included when calculating sentiment score. \\ \hline
+        \texttt{sent\_model} & \texttt{SentModel} & The sentiment model: \texttt{FinBERT} or \texttt{VADER}. \\ \hline
+        \texttt{granularity} & \texttt{GranLevel} & Granularity of aggregation (\texttt{monthly}, \texttt{daily}). \\ \hline
+        \texttt{agg\_func} & \texttt{AggMeth} & (Opt.) Statistical method to aggregate scores (\texttt{mean}, \texttt{sum}). \\ \hline
+        \end{tabularx}
+        \captionof{table}{Parameters for the \texttt{get\_feature\_matrix} function.}
+        \label{tab:feature_matrix_params}
+    \end{minipage}
+    \par\vspace{1ex}
+
+    \item Model Evaluation: the last component of this system is the evaluation pipeline. Here the final feature matrix can be used to perform experiments on multiple evlaution models. This part of the pipeline is outsourcing the cross validation and result preprocessing/formatting implementations. This allows for a wide varity of experiments with different feature matrix and evaluation models.
 \end{itemize}
 
 \section{Evaluation Models}
+% describe the idea of evaluation (can a sentiment enriched model beat a non sentiment model or a base line model)
+% describe the baseline model (always mean + formular)
+% describe the idea of classification and regression evaluation (why use both)
+\subsection{Regression}
+% problem description (can sentiment improve the forecasting of up and down movements)
+% targets (+ formular)
+% benchmarks (accuracy, precision, recall, f1-score)
+% models
+% ARMA
+% GRU
+% LSTM
+% MLR
+\subsection{Classification}
+% problem description (can sentiment improve the forecasting of up and down movements)
+% targets (+ formular)
+% benchmarks (accuracy, precision, recall, f1-score)
+% models
+% XGBoost
+% MLogR
+
 \section{Validation}
 
 \chapter{Results}
