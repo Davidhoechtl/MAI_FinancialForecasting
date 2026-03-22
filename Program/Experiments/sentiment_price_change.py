@@ -19,13 +19,13 @@ pd.set_option('display.width', None)
 start_date = "17/12/2017"
 end_date = "06/04/2020"
 # end_date = "18/07/2020"
-impact_model = ImpactModel.LLAMA_3_1_Instruct
+impact_model = ImpactModel.NONE
 df_combined = get_feature_matrix(
     start_date=start_date,
     end_date=end_date,
     impact_model=impact_model,
     tech_indicators=[TechnicalIndicators.VOLATILITY],
-    sentiment_sources=[DatasetSources.LUCASPHAM],
+    sentiment_sources=[DatasetSources.AENLLE],
     sentiment_model=SentimentModel.FINBERT,
     granularity_level=GranularityLevel.DAILY
 )

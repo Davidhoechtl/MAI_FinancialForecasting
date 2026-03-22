@@ -28,7 +28,7 @@ pd.set_option('display.max_colwidth', None)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 
-start_date = "17/12/2010"
+start_date = "17/12/2017"
 end_date = "06/11/2020"
 impact_model = ImpactModel.NONE
 df_combined = get_feature_matrix(
@@ -36,7 +36,7 @@ df_combined = get_feature_matrix(
     end_date=end_date,
     impact_model=impact_model,
     tech_indicators=[TechnicalIndicators.VOLATILITY, TechnicalIndicators.VIX, TechnicalIndicators.MOVING_AVERAGE_30, TechnicalIndicators.US1Y_YIELD],
-    sentiment_sources=[DatasetSources.AENLLE],
+    sentiment_sources=[DatasetSources.LUCASPHAM, DatasetSources.AENLLE],
     sentiment_model=SentimentModel.FINBERT,
     granularity_level=GranularityLevel.DAILY
 )
@@ -56,8 +56,8 @@ df_combined.dropna(subset=['sentiment_tomorrow'], inplace=True)
 # fill series with random values
 # df_combined['noise'] = np.random.uniform(-0.05, 0.05, size=len(df_combined))
 
-# feature_cols = ['Pct_Change']
-feature_cols = ['Pct_Change', 'sentiment', 'VIX', 'US1Y_Yield', 'Volume']
+feature_cols = ['Pct_Change']
+#feature_cols = ['Log_Pct_Change', 'sentiment', 'VIX', 'US1Y_Yield', 'Volume']
 # feature_cols = ['weighted_sentiment']
 # feature_cols = ['weighted_sentiment', 'VIX']
 # feature_cols = ['Pct_Change', 'VIX', 'Volume', 'Moving_Average_30']

@@ -71,6 +71,7 @@ def get_feature_matrix(
 
     df_combined = join_sentiment_to_prices(df_technicals, df_sentiment, impact_model)
     df_combined["Pct_Change_next"] = df_combined["Pct_Change"].shift(-1)
+    #df_combined["Pct_Change_next"] = df_combined["Log_Pct_Change"].shift(-1)
     df_combined = df_combined.dropna(subset=['Pct_Change_next'])
 
     return df_combined
