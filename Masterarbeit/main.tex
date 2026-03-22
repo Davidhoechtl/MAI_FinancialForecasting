@@ -128,7 +128,8 @@ Because this research is featuring multiple datasets and sentiment models a data
     \item Sentiment Analyzer: This is the main component of the data pipeline. The first step of this component is to concatenate every dataset to one big data frame. Because different datasets can contain similar to identical headlines a deduplication step is performed. After that every headline is analyzed by the sentiment model, calculating each polarity score. After combining it with the impact score each datapoint is aggregated daily by using the mean. The output of this step is an enriched dataset containing the daily aggregated (weighted) sentiment score.
     \item Impact Analyzer: Here headlines are classified by an LLM on how important they are compared to their possible impact on future returns of the SP500 index. First the .gguf file is eownloaded from huggingface and after that the corresponding tokenizer is used to transform the input sequence. It is also important to use the correct prompt layout. For example using Llama 3.1 Instruct the prompt components need to be annotated with special tokens (start\_header\_id, end\_header\_id) \cite{meta_llama31_2024}. Also for the non-determenistic nature of LLMs a retry system was implemented. If the output does not contain a valid format for the class label, it will retry to a maximum of three times until skipping the headline (resulting in a NaN score).
     \item Price Analyzer: To enrich the Dataset with technical indicators, price information needed to be scraped from the web. Here multiple python packages like yfinance, investpy or commercial APIs like alpha vantage can be used. While yfinance and investpy are limited to daily granularity, free to use source for hourly data is hard to find. Investpy proved to be a sufficient APIs for the experiments of this research. Specifically, following endpoints where used: investpy.etfs for price data (SPDR S\&P 500), investpy.bonds for U.S. 1-Year Treasury (U.S. 1Y) and investpy.indices for the volatility indicators like the VIX (S\&P 500 VIX). %create a table with all possible technical indicators and their source
-    \item Final Dataset: The output of the data pipeline is the enriched dataset, with the daily aggregated (weighted) sentiment and the technical indicators. In the final dataset there are only entries for business days, reducing the entries for a year from 365 to around 252. Additionally, the pipeline allows to configure the figure matrix by its parameters. 
+    \item Final Dataset: The output of the data pipeline is the enriched dataset, with the daily aggregated (weighted) sentiment and the technical indicators. In the final dataset there are only entries for business days, reducing the entries for a year from 365 to around 252. Additionally, the pipeline allows to configure the figur
+    matrix by its parameters. 
     %create a table with all parameters and theire options  
     \par\vspace{2ex} % Adds clear vertical space between text and table
     \begin{minipage}{\linewidth}
@@ -155,21 +156,63 @@ Because this research is featuring multiple datasets and sentiment models a data
 \end{itemize}
 
 \section{Evaluation Models}
-% describe the idea of evaluation (can a sentiment enriched model beat a non sentiment model or a base line model)
-% describe the baseline model (always mean + formular)
-% describe the idea of classification and regression evaluation (why use both)
+To evaluate if sentiment does improve prediction accuracy for future returns of the SP500 an evaluation on different machine learning models is performed. Specifically, multiple feature configurations (with and without sentiment) will be used on a varity of regression and classification models to analyse the benefit of the sentiment feature.
+
+% table of different feature configurations (maybe change all technicals +- sentiment to a permutation of technicals +- sentiment)
+\par\vspace{2ex}
+\begin{minipage}{\linewidth}
+    \centering
+    \small
+    \begin{tabularx}{0.98\linewidth}{|l|X|}
+    \hline
+    \textbf{Configuration} & \textbf{Description} \\ \hline
+    \texttt{price only model} & Model with only price change \texttt{t-1}. \\ \hline
+    \texttt{sentiment only model} & Model with only the senitment score \\ \hline
+    \texttt{all technicals} & Model with all technical indicators (Volume, VIX, U.S. 1-Year Treasury, Moving Average 30d) \\ \hline
+    \texttt{all technicals + sentiment} & Model with all technical indicators + sentiment score \\ \hline
+    \end{tabularx}
+    \captionof{table}{Different feature configuration setups for the evaluation models}
+    \label{tab:feature_configuration_setups}
+\end{minipage}
+\par\vspace{1ex}
+
+To evaluate the effectiveness of these feature configurations, a baseline model was implemented that simply predicts the mean price change of the training set. This serve as a benchmark to evaluate if any sentiment or non-sentiment provides a gain in performance.
+
+$$\bar{y} = \frac{1}{n} \sum_{i=1}^{n} y_i$$
+
 \subsection{Regression}
-% problem description (can sentiment improve the forecasting of up and down movements)
-% targets (+ formular)
-% benchmarks (accuracy, precision, recall, f1-score)
-% models
-% ARMA
-% GRU
-% LSTM
-% MLR
+The regression task aims to test how well a model can predict exact numbers of future returns. Specifically, the models attempt to predict the price percentage change $y_{t+1}$ based on the feature sets defined in Table \ref{tab:feature_configuration_setups}. This approach will show how well the model can learn to predict not only the direction of the price change but also the magnitude.
+
+The target variable for the regression models is percentage change of the SP500 returns at time $t+1$.
+
+$$R_t = \frac{P_t - P_{t-1}}{P_{t-1}}$$
+
+% Todo fact check again
+\begin{quote}
+\small \textit{Note: Log returns may be preferred for other financial forecasting tasks \cite{fama1965behavior}. In this work however, the "simple" percentage change is sufficient because price change isn't used additively and variability is accounted for by the VIX index. The only arguable benefit of log returns would be that it is symmetric (a drop by 5\% followed by a 5\% increase is not zeroing out with normal percentage change). After testing both targets, the performance difference is negligible.}
+\end{quote}
+
+To compare the different forcasting models across the different feature sets the following loss function and metrics are utilized:
+\begin{itemize}
+    \item \textbf{Mean Squared Error (MSE)}: Measures the average suqared difference between the target and the predicted value, penalizing large outlierts more heavily. Allthough used as a loss function for regression models like multiple linear regression (MLR), for the final evaluation pipeline MSE is excluded because it is not suited for small numbers like percentage changes. Instead Mean Absolute Error and Root Mean Squared Error are used for the final comparison.
+    \item \textbf{Root Mean Squared Error (RMSE)}: Represents the square root of the MSE. It helps to transform the magnitude of the error back into the units of the target variable, making it easier to interpret.
+    \item \textbf{Mean Absolute Error}: Calculates the average of the absolute differences between target and prediction. In contrast to MSE and RMSE it does not square errors, making it less sensitive against outliers.
+    \item \textbf{R2}: Measures the proportion of variance in the target variable that can be explained by the feature set. If the value is around 0 it means that the model is not better than the baseline (predicting always the mean of the train target distribution).
+\end{itemize}
+
+To achieve a robust analysis of the regression task, a mix of traditional and advanced machine learning models is used. Using both statistical baselines and more complex recurrent neural networks provides a better comparison than relying on only one architecture. Therefore, the following models will be evaluated:
+\begin{itemize}
+    \item \textbf{ARMA(X) (Auto-Regressive Moving Average)}: A statistical model for forecasting time series data. It mixes a Auto-Regressive(AR) component, which uses previous target variables and a Moving Average(MA) component, which uses the models past forecasting errors. To include additional inputs like sentiment a extended version called ARMAX is used (the X comes from ARMA with eXogenous variables).
+    \item \textbf{LSTM (Long Short-Term Memory)}: An advanced RNN (Recurrent Neural Network) architecture that uses three distinct gates (input, output and forget) to improve long-term dependency learning. In financial forcasting, LSTM is often used and among the most performant models. %Quellen hier zitieren
+    \item \textbf{GRU (Gated Recurrent Unit)}: A type of RNN that is designed to efficiently handle sequential data. Compared to the LSTM model it has only two gates (update, reset) to mitigate for the vanishing gradient problem. Because of its architecture it is more lightweight than a LSTM but often achieve comparable performance.
+    \item \textbf{MLR (Multiple Linear Regression)}: A fundamental statistical method that models the linear relationship between the target variable and two or more explanatory features. In this evaluation, MLR serves as a highly interpretable, linear baseline model to contrast against the more complex, non-linear deep learning approaches (GRU and LSTM).
+\end{itemize}
+
 \subsection{Classification}
+In contrast to the regression task, the classification task shifts the focus away from predicting exact magnitudes to forecaste the binary direction of market movements. Specifically, this evaluation is going to analyse if the sentiment feature is benefitial when it comes to accuratly classifying the direction of the market (up or down).
 % problem description (can sentiment improve the forecasting of up and down movements)
 % targets (+ formular)
+% baseline (better than random (50%))
 % benchmarks (accuracy, precision, recall, f1-score)
 % models
 % XGBoost
