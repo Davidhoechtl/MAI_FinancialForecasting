@@ -7,6 +7,7 @@ from sympy.core.random import random
 import EvaluationPipeline
 from FeatureMatrixPipeline import get_feature_matrix
 from Forecasting.ARMA import ARMAForecastingModel
+from Forecasting.AlwaysUp import AlwaysUpModel
 from Forecasting.GRU import GRUForecastingModel
 from Forecasting.LSTM import LSTMForecastingModel
 from Forecasting.MLR import MLRForecastingModel
@@ -128,6 +129,15 @@ lstm_model_results = EvaluationPipeline.evaluate_model_on_regression(
 df_combined['Target'] = (df_combined["Pct_Change_next"] > 0).astype(int) # 1 if next day's pct change > 0 else 0
 target_col = 'Target'
 
+always_up_baseline = AlwaysUpModel()
+always_up_results = EvaluationPipeline.evaluate_model_on_classification(
+    model=always_up_baseline,
+    feature_matrix=df_combined,
+    predictor_cols=feature_cols,
+    target_col=target_col,
+    target_horizon_in_days=1
+)
+
 xGBoost_model = XGBoostForecastingModel()
 xGBoost_model_results = EvaluationPipeline.evaluate_model_on_classification(
     model=xGBoost_model,
@@ -159,3 +169,4 @@ print("Mean-Baseline:", mean_model_results)
 print("-----------------------CLASSIFICATION RESULTS-----------------------")
 print("XGBoost Results:", xGBoost_model_results)
 print("MLogR Results:", mlogr_model_results)
+print("Always Up Results:", always_up_results)
