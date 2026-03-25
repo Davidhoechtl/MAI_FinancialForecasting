@@ -210,18 +210,40 @@ To achieve a robust analysis of the regression task, a mix of traditional and ad
 
 \subsection{Classification}
 In contrast to the regression task, the classification task shifts the focus away from predicting exact magnitudes to forecaste the binary direction of market movements. Specifically, this evaluation is going to analyse if the sentiment feature is benefitial when it comes to accuratly classifying the direction of the market (up or down).
-% problem description (can sentiment improve the forecasting of up and down movements)
-% targets (+ formular)
-% baseline (better than random (50%))
-% benchmarks (accuracy, precision, recall, f1-score)
-% models
-% XGBoost
-% MLogR
+
+The target variable for the classification task is the binary direction of the market $Y_{t+1}$. Specifically, wethever the S\&P500 percentage change stated in the regression section is positive or flat/negative. The formular is as follows:
+
+$$Y_{t+1} = \begin{cases} 1, & \text{if } R_{t+1} > 0 \\ 0, & \text{if } R_{t+1} \leq 0 \end{cases}$$
+
+For the binary classificaton problem a random guessing model would yield an accuracy of around 50 percent. Howerever, the markets history shows that there is a class imbalance in favor of upward movements. Therefore the baseline will be a classification model that always predicts the majority class, resulting in a more robust and real-world benchmark for comparison.
+
+To evaluate the performance and compare classification models across different feature sets the following metrics are utilized:
+\begin{itemize}
+    \item \textbf{Accuracy}: Measures the overall porportion of right guesses. Accuracy is an important benchmark to understand model performance, however it sometimes does not show the complete picture. The model could learn to predict always up and yield a good performance alltough not optimal. For this reason other metrics from the confusion matrix are necesarry.
+    \item \textbf{Precision}: Calculates the ratio of true positive predictions to all positive predictions made by the model. In the context of financial forecasting, precision is critical because it indicates how reliable a model is when it signals an upward market movement. This metric is important if the goal is to minimize wrong buy signals.
+    \item \textbf{Recall}: Measures the ratio of true positive predictions to all actual positive cases. A model with high recall (sensitivity) missed very few upward cases (investment opportunities).
+    \item \textbf{F1-Score}: Represents the harmonic mean of precision and recall. Giving a good overview over the tradeoff between recall and precision. Specifically the balance between recalling all positive cases and actually beeing correct with the positive guesses.
+\end{itemize}
+
+To conduct a robust evaluation of the classification task, the analysis compares a traditional statistical method against an advanced ensemble learning technique. The following models will be evaluated:
+
+\begin{itemize}
+    \item \textbf{Multiple Logistic Regression (MLogR)}: The classification counterpart to Multiple Linear Regression. It models the probability of the market moving upward using a logistic function based on the explanatory features. In this evaluation, MLogR serves as a highly interpretable, linear baseline for the classification task, providing a benchmark to assess whether more complex, non-linear relationships exist in the data.
+    \item \textbf{XGBoost (eXtreme Gradient Boosting)}: A highly performant, tree-based ensemble learning algorithm. XGBoost builds multiple decision trees sequentially, with each new tree attempting to correct the residual errors of the previous ones. It is robust to outliers, handles non-linear relationships effectively, and is widely regarded as a state-of-the-art model for tabular financial data classification.
+\end{itemize}
 
 \section{Validation}
+Because financial forecasting is based on timeseries based market data we cannot use normal cross validation like k-fold. The reason is that if we shuffle datapoints randomly we break the causality of time (yesterday can not happend before tomorrow). Therefore a different approach hast to be used. There are two main ways on how to cross validate the evaluation models:
+\begin{itemize}
+    \item \textbf{Rolling Window}: In this approach the size of the traing data is fixed. After finishing a validation step, new data becomes part of the next train set while the old data is droped. This leads to a sliding window over the whole data with multiple combinations of train and test sets.
+    \item \textbf{Expanding Window}: In this appraoch the size of the training data is growing with each validation step. After each round new obeservations are included in the train set. Therefore the model learns from the maximum available historical context.
+\end{itemize}
+
+In this work the Expanding Window strategy is used to incooperate the whole train set in the hope that the model can achieve better generalization. Because this paper evaluates varying forecast horizons, the standard implementation of expanding window was adapted to prevent look-ahead bias. Specifically, days that are used to calculate the target are excluded by a gap between train and test set. For example, if the target is a 3-day percentage change utilizing $y_{t-1}$, $y_{t-2}$, and $y_{t-3}$. Non of 3 days may be included in the train set. This assures a strict boundary for the models learning data, with no information leaks into the future.
 
 \chapter{Results}
 \section{Correlations}
+% also analyse class imbalance (market tendency for positive returns)
 \section{Sentiment vs No-Sentiment Models}
 \section{FinBERT vs VADER}
 \section{Impact Score}
@@ -247,3 +269,4 @@ In contrast to the regression task, the classification task shifts the focus awa
 \listoftables
 \clearpage
 \end{document}
+method
