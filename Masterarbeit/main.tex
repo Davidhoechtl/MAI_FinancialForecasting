@@ -26,7 +26,7 @@
 \place{Wien}
 \outline{\blindtext}
 \keywords{Keyword1, Keyword2, Keyword3, Keyword4}
-%\acknowledgements{\blindtext}
+\acknowledgements{\blindtext}
 
 \begin{document}
 
@@ -86,6 +86,7 @@ Where P(y|x) stands for the conditional probability, $h_{\text{[CLS]}}$ for the 
 \section{Datasets}
 The data for the news sentiment score is joined by a datapipeline that combine, preprocess and align multiple datasets into one corpus of headlines. The aggregation of multiple news sources over a broader time horizon increases data coverage and diversity. Therefore reducing potential biases coming from a specific news portal or timeframe. Resulting in a more generalized and reliable sentiment signal.
 
+% Todo include information about preprocessing logic
 Following datasets are included in the pipeline:
 \begin{itemize}
     \item \textbf{Financial News Headlines Data} (Pham, \cite{pham_financial_news}): Kaggle hosted dataset that spans from December 2017 to July 2020. It contains about 53330 Headlines scraped from CNBC, the Guardian, and Reuters official websites.
@@ -95,7 +96,7 @@ Following datasets are included in the pipeline:
     % maybe move the potential error explanation into the appendix
     \item \textbf{FNSPID: Financial News Dataset in Time Series} (Dong et al., \cite{dong2024fnspid}): This dataset aggregates ~15.7 million news headlines from Nasdaq. The corpus offers datapoints from 1999 through 2023. Although promising, it appears to have wrong time conversions on some entries. For example, Benzinga-sourced headlines are localized as UTC-4, the corresponding timestamp in the dataset is localized as UTC-0 but converted in the wrong direction. This leads to potential data leakage if the article was published after 8 pm.
     
-    \item \textbf{NIFTY: News-Informed Financial Trend Yield} (Saqur, \cite{raeidsaqur2024NiftyLM}): Originally a dataset designed for aligning Large Language Models (LLMs) with financial market data. Contains headlines that are mostly about the Indian/Asian economy. In the context of this study, it is included as a benchmark to determine if there are performance variations compared to other datasets.
+    \item \textbf{NIFTY: News-Informed Financial Trend Yield} (Saqur, \cite{raeidsaqur2024NiftyLM}): Originally a dataset designed for aligning Large Language Models (LLMs) with financial market data. Contains headlines from 2010-2020 that are mostly about the Indian/Asian economy. In the context of this study, it is included as a benchmark to determine if there are performance variations compared to other datasets.
 \end{itemize}
 
 \section{Impact Scoring}
@@ -184,10 +185,6 @@ To evaluate if sentiment does improve prediction accuracy for future returns of 
 \end{minipage}
 \par\vspace{1ex}
 
-To evaluate the effectiveness of these feature configurations, a baseline model was implemented that simply predicts the mean price change of the training set. This serve as a benchmark to evaluate if any sentiment or non-sentiment provides a gain in performance.
-
-$$\bar{y} = \frac{1}{n} \sum_{i=1}^{n} y_i$$
-
 \subsection{Regression}
 The regression task aims to test how well a model can predict exact numbers of future returns. Specifically, the models attempt to predict the price percentage change $y_{t+1}$ based on the feature sets defined in Table \ref{tab:feature_configuration_setups}. This approach will show how well the model can learn to predict not only the direction of the price change but also the magnitude.
 
@@ -199,6 +196,10 @@ $$R_t = \frac{P_t - P_{t-1}}{P_{t-1}}$$
 \begin{quote}
 \small \textit{Note: Log returns may be preferred for other financial forecasting tasks \cite{fama1965behavior}. In this work however, the "simple" percentage change is sufficient because price change isn't used additively and variability is accounted for by the VIX index. The only arguable benefit of log returns would be that it is symmetric (a drop by 5\% followed by a 5\% increase is not zeroing out with normal percentage change). After testing both targets, the performance difference is negligible.}
 \end{quote}
+
+To evaluate the benefit of each forecaster, a baseline model was implemented that simply predicts the mean price change of the training set. This serve as a benchmark to evaluate if any sentiment or non-sentiment provides a gain in performance.
+
+$$\bar{y} = \frac{1}{n} \sum_{i=1}^{n} y_i$$
 
 To compare the different forcasting models across the different feature sets the following loss function and metrics are utilized:
 \begin{itemize}
@@ -249,18 +250,57 @@ Because financial forecasting is based on timeseries based market data we cannot
 
 In this work the Expanding Window strategy is used to incooperate the whole train set in the hope that the model can achieve better generalization. Because this paper evaluates varying forecast horizons, the standard implementation of expanding window was adapted to prevent look-ahead bias. Specifically, days that are used to calculate the target are excluded by a gap between train and test set. For example, if the target is a 3-day percentage change utilizing $y_{t-1}$, $y_{t-2}$, and $y_{t-3}$. Non of 3 days may be included in the train set. This assures a strict boundary for the models learning data, with no information leaks into the future.
 
-\chapter{Results}
-\section{Correlations}
-% also analyse class imbalance (market tendency for positive returns)
-\section{Sentiment vs No-Sentiment Models}
-\section{FinBERT vs VADER}
-\section{Impact Score}
-% also mention the experiment with impact score classification vs regression
-\section{Rolling Sentiment}
-\section{Different Target Horinzons}
-\chapter{Discussion}
+\chapter{Results \& Experiments}
+\section{Basic Experiment Setup}
+\par\vspace{2ex}
+\begin{minipage}{\linewidth}
+    \centering
+    \small
+    \begin{tabularx}{0.98\linewidth}{|l|X|}
+    \hline
+    \textbf{Configuration} & \textbf{Description} \\ \hline
+    \texttt{Time horizon} & 2010-2020 \\ \hline
+    \texttt{dataset configuratoin} & Pham \cite{pham_financial_news} + aenlle \cite{aenlle_financial_news} \\ \hline
+    \texttt{feature configuration} & see table \ref{tab:feature_configuration_setups} \\ \hline
+    \texttt{target} & 1d- price percentage change \\ \hline
+    \end{tabularx}
+    \captionof{table}{Experiment Setup}
+    \label{tab:experiment_setup}
+\end{minipage}
+\par\vspace{1ex}
 
+\section{Explorative Data Analsysis}
+\subsection{Target}
+% class imbalance (market tendency for positive returns)
+% target variable distribution
+\subsection{Sentiment}
+% News headline coverage
+% correlations (price x sentiment), (sentiment x volatility)
+% signal seperation (historgram seperation)
+
+\section{Sentiment vs No-Sentiment Models}
+% Results of the base experiment setup (normal unweighted sentiment, basic datasets, 1d target, ...)
+\section{FinBERT vs VADER}
+% Comparing the sentiment time series with eachother to see the difference between these two approaches
+% Comparing the performance on the basic experiment (sentiment_finbert, sentiment_vader)
+\section{Impact Score}
+% Show class distribution, overlay sentiment and weighted sentiment time series
+% Comparing the performance on the basic experiment (sentiment_unweighted, sentiment_weighted)
+\section{Rolling Sentiment}
+% analyse correlation to price change (+ historgram seperation)
+% Comparing the performance on the basic experiment (rolling_sentiment_1d, rolling_sentiment_3d, rolling_sentiment_5d, rolling_sentiment_20d)
+\section{Different Datasets}
+% Comparing two dataset configurations NIFTY (mostly non relevant news) Pham+aenlle (mostly relevant news)
+% check performance on the basic experiment (sentiment_nifty, sentiment_phamaenlle)
+\section{Different Target Horinzons}
+% Comparing the correlation to price change (point cloud)
+% Comparing the performance on the basic experiment (1d, 3d, 5d, 20d targets)
+\chapter{Discussion}
+% Discussion of the results, why did sentiment did not improve the forcasting performance despite some literature state otherwise.
+% Words in regards to the EMH and the GIF model. (Sentiment may be a short living signal due to efficient markets)
+% future work and steps to improve the current situation
 \chapter{Conclusion}
+% rounding everthing up
 
 %
 % Hier beginnen die Verzeichnisse.
