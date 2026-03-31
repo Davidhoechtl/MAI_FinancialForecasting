@@ -16,9 +16,11 @@ pd.set_option('display.max_colwidth', None)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 
-start_date = "17/12/2017"
-end_date = "06/04/2020"
-# end_date = "18/07/2020"
+start_date = "03/02/2010"
+end_date = "18/07/2020"
+
+# start_date = "17/12/2017"
+# end_date = "04/06/2020"
 impact_model = ImpactModel.NONE
 df_combined = get_feature_matrix(
     start_date=start_date,
@@ -29,7 +31,7 @@ df_combined = get_feature_matrix(
     sentiment_model=SentimentModel.FINBERT,
     granularity_level=GranularityLevel.DAILY
 )
-
+print(df_combined.describe())
 print(df_combined.tail(10))
 
 from Utils import result_plots as rp

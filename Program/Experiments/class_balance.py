@@ -16,8 +16,8 @@ pd.set_option('display.max_colwidth', None)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 
-start_date = "17/12/2017"
-end_date = "06/04/2020"
+start_date = "03/02/2010"
+end_date = "18/07/2020"
 # end_date = "18/07/2020"
 impact_model = ImpactModel.NONE
 df_combined = get_feature_matrix(
@@ -25,7 +25,7 @@ df_combined = get_feature_matrix(
     end_date=end_date,
     impact_model=impact_model,
     tech_indicators=[TechnicalIndicators.VOLATILITY],
-    sentiment_sources=[DatasetSources.AENLLE],
+    sentiment_sources=[DatasetSources.AENLLE, DatasetSources.LUCASPHAM],
     sentiment_model=SentimentModel.FINBERT,
     granularity_level=GranularityLevel.DAILY
 )
@@ -36,6 +36,10 @@ print(df_combined.tail(10))
 df_combined["Target"] = (df_combined["Pct_Change_next"] > 0).astype(int) # 1 if next day's pct change > 0 else 0
 labels = ["Down (0)", "Up (1)"]
 class_counts = df_combined["Target"].value_counts().sort_index()
+
+print("Class distribution:")
+print("up: " + str(class_counts[1]))
+print("down: " + str(class_counts[0]))
 
 # plot class balance
 plt.figure(figsize=(8, 6))

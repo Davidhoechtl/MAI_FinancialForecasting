@@ -35,11 +35,11 @@
 \chapter{Introduction}
 Financial markets are highly complex systems that are influenced by human behaviours and economic events. For decades, data scientists and economists have attempted to predict and explain financial time series, but it still remains a big challenge. Traditionally, autoregressive models or technical indicators were used to achieve this goal. While this approach created a mathematical and statistical foundation, it falls short when confronted with unstructured data like news headlines or investor sentiment.
 
-With the rapid advances in artificial intelligence (AI), especially in natural language processing (NLP), new ways for understanding those unstructured texts have been found. For example, transformer models can extract semantic information from text. This information could be used to engineer new features that help explain variance in the movement of stock market indices like the S\&P500 or the MSCI World. 
+With the rapid advances in artificial intelligence (AI), especially in natural language processing (NLP), new ways for understanding those unstructured texts have been found. For example, transformer models can extract semantic information from news headlines. This information could be used to engineer new features that help explain variance in the movement of stock market indices like the S\&P500 or the MSCI World. 
 
-The goal of this master thesis, therefore, is to investigate if a stochastic forecasting approach can be improved by adding sentiment-based features extracted from news headlines and/or social media posts. This feature can be understood as an indicator (usually ranged between -1 and 1), that tries to reflect the emotions of investors towards the current economy. In the scope of a single headline it captures how optimistic (bullish) or pessimistic (bearish) the context appears.
+The goal of this master thesis, therefore, is to investigate if a stochastic forecasting approach can be improved by adding sentiment-based features extracted from news headlines. This feature can be understood as an indicator (ranged between -1 and 1), that tries to reflect the emotions of investors towards the current economy. In the scope of a single headline it captures how optimistic (bullish) or pessimistic (bearish) the context appears.
 
-For analysing the quantitative benefit of this feature multiple stochastic and complex maschine learning models will be compared against baselines in regression and classification tasks. The evaluation is going to be performed by adding and removing the sentiment column from a given feature matrix to see if the prediction performance increases, flattens or decreases. To validate the outcome expanding window cross validation is used. Lastly to analyse the performance of both tasks common metrics like Mean Percentage Error (MAP) or F1-Scores are utilized.
+For analysing the quantitative benefit of this feature multiple stochastic and complex machine learning models will be compared against baselines in regression and classification tasks. The evaluation is going to be performed by adding and removing the sentiment column from a given feature matrix to see if the prediction performance increases, flattens or decreases. To validate the outcome expanding window cross validation is used. Lastly to analyse the performance of both tasks common metrics like Mean Percentage Error (MAP) or F1-Scores are utilized.
 
 This investigation contributes to an ongoing debate about the efficient market hypothesis.
 
@@ -98,6 +98,8 @@ Following datasets are included in the pipeline:
     
     \item \textbf{NIFTY: News-Informed Financial Trend Yield} (Saqur, \cite{raeidsaqur2024NiftyLM}): Originally a dataset designed for aligning Large Language Models (LLMs) with financial market data. Contains headlines from 2010-2020 that are mostly about the Indian/Asian economy. In the context of this study, it is included as a benchmark to determine if there are performance variations compared to other datasets.
 \end{itemize}
+
+% ToDo add note to timezone alignment: what is the problem, how did you solve it and where should it be taken with a grain of salt
 
 \section{Impact Scoring}
 Financial markets create a great volume of textual data. However, the distribution of important information is highly skewed. Most headlines are "noise" (repetitive updates, foreign news, minor price fluctuations), which can dilute the predictive power of the sentiment score. For this reason, a novel denoising method that uses large language models (LLMs) to differentiate between important headlines and noise is introduced.
@@ -271,11 +273,28 @@ In this work the Expanding Window strategy is used to incooperate the whole trai
 
 \section{Explorative Data Analsysis}
 \subsection{Target}
-% class imbalance (market tendency for positive returns)
-% target variable distribution
+To get a better picture of the target variable this analysis examine the statistical properties of the 1-day percentage price change of the S\%P500 - the target variable of our basic experiement. With a positive mean of $\mu = 0.00046$ alongside a standard diviation of $\sigma = 0.01093$, the distribution shows a relatively sharp peak with a slight rightward skew. This positive skewness captures the markets underlying tendency to have more positive days than negative ones. The distribution is shown in the following figure
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{PICs/TargetDistribution_1d.png}
+    \caption{1d- Target distribution}
+    \label{fig:1dtargetdistribution}
+\end{figure}
+
+To also include statistics for the classification objective, the mapped binary target (market direction) is also analysed for characteristics. There is a moderate class imbalance within the analysed time horizon. With 1435 days that signals up there are "only" 1178 days that signal a negative market direction. This again implies that the market tends to have a positive drift. This properties are also the reason for our naive baseline model that predicts the majority class rather than random.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{PICs/ClassImbalance.png}
+    \caption{binary target distribution}
+    \label{fig:ClassImbalance}
+\end{figure}
+
 \subsection{Sentiment}
 % News headline coverage
-% correlations (price x sentiment), (sentiment x volatility)
+% correlations (price x sentiment), 
+% (sentiment x volatility)
 % signal seperation (historgram seperation)
 
 \section{Sentiment vs No-Sentiment Models}
