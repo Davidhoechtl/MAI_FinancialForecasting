@@ -261,7 +261,7 @@ In this work the Expanding Window strategy is used to incooperate the whole trai
     \begin{tabularx}{0.98\linewidth}{|l|X|}
     \hline
     \textbf{Configuration} & \textbf{Description} \\ \hline
-    \texttt{Time horizon} & 2010-2020 \\ \hline
+    \texttt{Time horizon} & 03.02.2010-18.07.2020\\ \hline
     \texttt{dataset configuratoin} & Pham \cite{pham_financial_news} + aenlle \cite{aenlle_financial_news} \\ \hline
     \texttt{feature configuration} & see table \ref{tab:feature_configuration_setups} \\ \hline
     \texttt{target} & 1d- price percentage change \\ \hline
@@ -273,7 +273,7 @@ In this work the Expanding Window strategy is used to incooperate the whole trai
 
 \section{Explorative Data Analsysis}
 \subsection{Target}
-To get a better picture of the target variable this analysis examine the statistical properties of the 1-day percentage price change of the S\%P500 - the target variable of our basic experiement. With a positive mean of $\mu = 0.00046$ alongside a standard diviation of $\sigma = 0.01093$, the distribution shows a relatively sharp peak with a slight rightward skew. This positive skewness captures the markets underlying tendency to have more positive days than negative ones. The distribution is shown in the following figure
+The dataset for the basic experiment consists of 2,613 daily data points spanning from 03.02.2010 to 18.07.2020. This period would naturally euqal 3819 real days but all non-business days (weekend and holidays where the new york stock exchange was not open) are excluded (2614 days), -1 because we dont have a target $t+1$ for the last day. To get a better picture of the target variable this analysis examine the statistical properties of the 1-day percentage price change of the S\%P500 - the target variable of our basic experiement. With a positive mean of $\mu = 0.00046$ alongside a standard diviation of $\sigma = 0.01093$, the distribution shows a relatively sharp peak with a slight rightward skew. This positive skewness captures the markets underlying tendency to have more positive days than negative ones. The distribution is shown in the following figure
 
 \begin{figure}[H]
     \centering
@@ -292,9 +292,46 @@ To also include statistics for the classification objective, the mapped binary t
 \end{figure}
 
 \subsection{Sentiment}
+% optional sentiment distribution
+
 % News headline coverage
+Before analyzing the distribution of the sentiment score and its correlations, it is necessary to check the coverage of news headline across the target horizon. This is important to see if there are any gaps that could lead to noise in the results and distort the final conclusions.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{PICs/SentimentCoverage.png}
+    \caption{Coverage of news headlines for the target horzion}
+    \label{fig:headlineCoverage}
+\end{figure}
+
+As shown in figure \ref{fig:headlineCoverage} there is some volatility in the amount of headlines for each year. The dataset exhibits a mean headline count of $\mu = 231$ alongside a standard diviation of $\sigma = 241$. Allthough the volatile volume of the datapoints the coverage is fortunately sufficient enough. Out of the 2163 day only 15 days are without headlines. In this case the sentiment score for this day will be set to 0, indicating a neutral mood.
+
 % correlations (price x sentiment), 
-% (sentiment x volatility)
+Following the analysis on headline coverage, the correlation between the target variable and the sentiment value will be analysed. Specifically, the daily aggreagted sentiment score calculated by mean sentiment of all headlines will be compared to the 1-day percentage price change of the S\&P500 index. Both spearman and pearson correlation coefficients will be utilized to analyse if there are any linear or monotonic relationships between the two variables.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{PICs/pctChangexsentiment.png}
+    \caption{Scatterplot of price change and sentiment}
+    \label{fig:pctChangexsentiment}
+\end{figure}
+
+The result is a strong disconnect between raw daily sentiment and next day price change. The Pearson correlation yields a coefficient of  $r = -0.019$ with a $p$-value of $0.330$. Similarly, the Spearman correlation results in $\rho = -0.021$ with a $p$-value of $0.289$. Because both p-values are well above standard significance threshold of $\alpha = 0.05$ it can be concluded that there is no statistical correlation between the two variables. 
+
+% (sentiment x volatility),
+Eventhough there is no immediate relation between sentiment and target. The relationship between the standard deviation of the price (volatility) and sentiment reveals a significant market dynamic. Similar to the previous experiment the Pearson and Spearman correlation coefficient are calculated for senitment and market volatility. The Pearson coefficient is $r = -0.208$ ($p = 3.71 \times 10^{-27}$) while the Spearman coefficient $\rho = -0.279$ ($p = 2.26 \times 10^{-48}$). These very small p-values confirm a highly statistical inverse relationship. When sentiment is low (bad mood) the volatility rises.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{PICs/volatilityxsentiment1.png}
+    \caption{volatility x sentiment}
+    \label{fig:volatilityxsentiment1}
+\end{figure}
+
+However, this long-term inverse correlation is not stationary. When evaluating the correlations on a smaller rolling window of 90-days the correlation may vary. This fluctuation strongly suggests that the relationship between the two variables is regime-dependent. Furthermore, the origin of the news headlines matter. When looking on strong publishers only like in \cite{pham_financial_news} (Reuters, CNBC, The Guardian) a clearer non linear relationship emerges \ref{fig:volatilityxsentiment_pham}. This could imply that market participants value the source of the headline as well as the emotional polarity of the text. Finally if we compare the sentiment score to the VIX-index of the S\&P500 a similar even more inverse picture can be observed (see \ref{fig:vixxsentiment}).
+
+% optional show pham volatility correlation as plot in the appendix
+
 % signal seperation (historgram seperation)
 
 \section{Sentiment vs No-Sentiment Models}
@@ -320,6 +357,22 @@ To also include statistics for the classification objective, the mapped binary t
 % future work and steps to improve the current situation
 \chapter{Conclusion}
 % rounding everthing up
+
+\chapter{Appendix}
+\section{Plots}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{PICs/vixxsentiment.png}
+    \caption{vix x sentiment}
+    \label{fig:vixxsentiment}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{PICs/volatilityxsentiment_pham.png}
+    \caption{pham dataset volatility x sentiment}
+    \label{fig:volatilityxsentiment_pham}
+\end{figure}
+
 
 %
 % Hier beginnen die Verzeichnisse.

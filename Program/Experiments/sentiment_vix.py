@@ -20,15 +20,15 @@ pd.set_option('display.width', None)
 
 start_date = "2010/02/03"
 end_date = "2020/07/18"
-start_date = "2017/12/17"
-end_date = "2020/06/04"
+# start_date = "2017/12/17"
+# end_date = "2020/06/04"
 impact_model = ImpactModel.NONE
 df_combined = get_feature_matrix(
     start_date=start_date,
     end_date=end_date,
     impact_model=impact_model,
-    tech_indicators=[TechnicalIndicators.VOLATILITY],
-    sentiment_sources=[DatasetSources.LUCASPHAM],
+    tech_indicators=[TechnicalIndicators.VIX],
+    sentiment_sources=[DatasetSources.LUCASPHAM, DatasetSources.AENLLE],
     sentiment_model=SentimentModel.FINBERT,
     granularity_level=GranularityLevel.DAILY
 )
@@ -52,10 +52,10 @@ plt.show()
 
 # 1. Calculate Correlation Matrix
 # cols_to_analyze = ['Volatility', 'sentiment', 'weighted_sentiment']
-cols_to_analyze = ['Volatility', 'sentiment']
+cols_to_analyze = ['VIX', 'sentiment']
 
-spearman_corr, spearman_p_value = spearmanr(df_combined['Volatility'], df_combined['sentiment'])
-pearson_corr, pearson_p_value = pearsonr(df_combined['Volatility'], df_combined['sentiment'])
+spearman_corr, spearman_p_value = spearmanr(df_combined['VIX'], df_combined['sentiment'])
+pearson_corr, pearson_p_value = pearsonr(df_combined['VIX'], df_combined['sentiment'])
 print(f"Spearman correlation: {spearman_corr}, p_value: {spearman_p_value}" )
 print(f"Pearson correlation: {pearson_corr}, p_value: {pearson_p_value}" )
 
@@ -74,19 +74,19 @@ plt.figure(figsize=(18, 5))
 
 # --- Plot B: Scatter Plot ---
 plt.subplot(1, 2, 1)
-sns.regplot(data=df_combined, x='sentiment', y='Volatility',
+sns.regplot(data=df_combined, x='sentiment', y='VIX',
             scatter_kws={'alpha':0.3, 's':15}, line_kws={'color':'red'})
-plt.title('Sentiment vs. Volatility')
+plt.title('Sentiment vs. VIX')
 plt.grid(True, alpha=0.3)
 
 # --- Plot C: Rolling Correlation (60-day window) ---
 # Adjust window size (e.g., 30 or 90) based on your preference
-rolling_corr = df_combined['sentiment'].rolling(window=90, min_periods=1).corr(df_combined['Volatility'])
+rolling_corr = df_combined['sentiment'].rolling(window=90, min_periods=1).corr(df_combined['VIX'])
 
 plt.subplot(1, 2, 2)
 plt.plot(df_combined['Date'], rolling_corr, color='#2c3e50', linewidth=1.5)
 plt.axhline(0, color='red', linestyle='--', linewidth=1)
-plt.title('90-Day Rolling Correlation\n(Sentiment vs. Volatility)')
+plt.title('90-Day Rolling Correlation\n(Sentiment vs. VIX)')
 plt.ylabel('Correlation Coefficient')
 plt.xticks(rotation=45)
 plt.grid(True, alpha=0.3)

@@ -6,6 +6,7 @@ from Impact.ImpactScoreAnalyzerEnums import EvaluationMode, ImpactModel
 from Sentiment.Models.FinBERT import FinBERTSentimentModel
 from Sentiment.Models.Vader import VaderSentimentModel
 from Sentiment.Models.SentimentModelBase import SentimentModelBase
+from Utils.dataset_plots import visualize_headline_count_daily
 from Utils.sentiment_plots import show_daily_sentiment, plot_sentiment_distribution
 
 class SentimentModel(Enum):
@@ -80,6 +81,8 @@ def analyze_sentiment(
         combined["weighted_sentiment"] = get_weighted_sentiment(combined["sentiment"], combined["impact_score"])
         # plot_sentiment_distribution(combined, sentiment_col="weighted_sentiment")
         # show_daily_sentiment(combined, sentiment_col="weighted_sentiment")
+
+    #visualize_headline_count_daily(combined)
 
     mapped_to_timeseries = group_by_granularity(combined, granuality_level, aggregation_function)
 

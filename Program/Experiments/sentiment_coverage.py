@@ -2,12 +2,11 @@ import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-from scipy.stats import spearmanr, pearsonr
-
 from FeatureMatrixPipeline import get_feature_matrix
 from Impact.ImpactScoreAnalyzerEnums import ImpactModel
 from SP500_Prices.PriceAnalyzer import TechnicalIndicators
 from Sentiment.SentimentAnalyzer import DatasetSources, SentimentModel, GranularityLevel
+from Utils.dataset_plots import visualize_headline_count_daily
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "1"  # prevent OpenMP conflict early
 
@@ -20,6 +19,7 @@ pd.set_option('display.width', None)
 
 start_date = "2010/02/03"
 end_date = "2020/07/18"
+
 # start_date = "2017/12/17"
 # end_date = "2020/06/04"
 impact_model = ImpactModel.NONE
@@ -35,11 +35,4 @@ df_combined = get_feature_matrix(
 print(df_combined.describe())
 print(df_combined.tail(10))
 
-spearman_corr, spearman_p_value = spearmanr(df_combined['Pct_Change_next'], df_combined['sentiment'])
-pearson_corr, pearson_p_value = pearsonr(df_combined['Pct_Change_next'], df_combined['sentiment'])
-print(f"Spearman correlation: {spearman_corr}, p_value: {spearman_p_value}" )
-print(f"Pearson correlation: {pearson_corr}, p_value: {pearson_p_value}" )
-
-from Utils import result_plots as rp
-rp.plot_price_change_sentiment_scatter(df_combined)
-rp.sentiment_price_plot(df_combined)
+visualize_headline_count_daily(df_combined)
