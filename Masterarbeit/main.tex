@@ -166,7 +166,7 @@ Because this research is featuring multiple datasets and sentiment models a data
     \item Model Evaluation: the last component of this system is the evaluation pipeline. Here the final feature matrix can be used to perform experiments on multiple evlaution models. This part of the pipeline is outsourcing the cross validation and result preprocessing/formatting implementations. This allows for a wide varity of experiments with different feature matrix and evaluation models.
 \end{itemize}
 
-\section{Evaluation Models}
+\section{Evaluation Models} \label{ch:eval_chapter}
 To evaluate if sentiment does improve prediction accuracy for future returns of the SP500 an evaluation on different machine learning models is performed. Specifically, multiple feature configurations (with and without sentiment) will be used on a varity of regression and classification models to analyse the benefit of the sentiment feature.
 
 % table of different feature configurations (maybe change all technicals +- sentiment to a permutation of technicals +- sentiment)
@@ -179,7 +179,7 @@ To evaluate if sentiment does improve prediction accuracy for future returns of 
     \textbf{Configuration} & \textbf{Description} \\ \hline
     \texttt{price only model} & Model with only price change \texttt{t-1}. \\ \hline
     \texttt{sentiment only model} & Model with only the senitment score \\ \hline
-    \texttt{all technicals} & Model with all technical indicators (Volume, VIX, U.S. 1-Year Treasury, Moving Average 30d) \\ \hline
+    \texttt{all technicals} & Model with all technical indicators (Price Change, Volume, VIX, U.S. 1-Year Treasury, Moving Average 30d) \\ \hline
     \texttt{all technicals + sentiment} & Model with all technical indicators + sentiment score \\ \hline
     \end{tabularx}
     \captionof{table}{Different feature configuration setups for the evaluation models}
@@ -263,6 +263,7 @@ In this work the Expanding Window strategy is used to incooperate the whole trai
     \textbf{Configuration} & \textbf{Description} \\ \hline
     \texttt{Time horizon} & 03.02.2010-18.07.2020\\ \hline
     \texttt{dataset configuratoin} & Pham \cite{pham_financial_news} + aenlle \cite{aenlle_financial_news} \\ \hline
+    \texttt{sentiment model} & FinBERT \\ \hline
     \texttt{feature configuration} & see table \ref{tab:feature_configuration_setups} \\ \hline
     \texttt{target} & 1d- price percentage change \\ \hline
     \end{tabularx}
@@ -330,15 +331,50 @@ Eventhough there is no immediate relation between sentiment and target. The rela
 
 However, this long-term inverse correlation is not stationary. When evaluating the correlations on a smaller rolling window of 90-days the correlation may vary. This fluctuation strongly suggests that the relationship between the two variables is regime-dependent. Furthermore, the origin of the news headlines matter. When looking on strong publishers only like in \cite{pham_financial_news} (Reuters, CNBC, The Guardian) a clearer non linear relationship emerges \ref{fig:volatilityxsentiment_pham}. This could imply that market participants value the source of the headline as well as the emotional polarity of the text. Finally if we compare the sentiment score to the VIX-index of the S\&P500 a similar even more inverse picture can be observed (see \ref{fig:vixxsentiment}).
 
-% optional show pham volatility correlation as plot in the appendix
-
 % signal seperation (historgram seperation)
 
 \section{Sentiment vs No-Sentiment Models}
-% Results of the base experiment setup (normal unweighted sentiment, basic datasets, 1d target, ...)
+In this chapter the experiment descriped in \ref{ch:eval_chapter} will be performed. In short multiple maschine learning models will be evaluated and cross validated on four different features sets on regression and classification objectives. The first the only price and price + sentiment feature set will be compared. The goal is to compare the predicitve power of these models when utilizing various combinations of price data, sentiment score and technical indicators.
+
+\begin{itemize}
+    \item \textbf{Baselines}: First we look at the performance of the baseline models, their performance will not change across the different experiments because they rely only on static values or the target variable. For the regression tasks, a the Mean-Baseline approach achieved a $RMSE=0.009424$ and a $MAE=0.006779$. For the classification tasks, the "always up" baseline strategy yielded an accuracy of $acc=54.9$ percent and an $F1-score=0.70$
+    \item \textbf{Price Only}: Netxt 
+\end{itemize}
+
+% baselines performed:
+% Mean-Baseline: RMSE 0.009424; MAE 0.006779; Always Up: acc 0.549, f1_score: 0.7, precision
+
+% price only
+% Highlights for price only: simple regression models beat GRU, LSTM + no notable performance improvement against baseline
+% Highlights for classification: MLogR did not achieve better very bad f1_Score 0.29 with accuracy of 0.48 (worst than random), XGBoost did better F1 0.58 and quite good recall of 0.63
+% conclusion price alone does not help predicitng market returns
+
+% sentiment only
+% Highlights regression: compared to price only there is no notable improvement. 
+% Hightlights classification: MLogR improved from f1_Score 0.29 to f1 0.51 and acc of 51,1%. XGBoost performance went down to an acc of 0.49 percent and f1_score 0.56.
+% conclusion similar to price alone sentiment alone does not improve predicition performance.
+
+%all technicals
+% Highlights regression: no performance increase, More complex models seem to performe a little better compared to the simple ones on the larger feature matrix
+% Highlights classification: Very poor performance on both MLogR and XGBoost accuracy is below 50% indicating no profitable prediction
+% combining different techncial indicators seems to have no profitable benefit.
+
+%&all technical + sentiment
+% Highlights regression: nearly indentical performance when adding sentiment to the big feature matrix. Seems that sentiment get regulated away and or does not have any noteable cross feature effects
+% Highlights classification: similar to the regression results, no performance increase
+% even when using all available features the market cannot be predicted with a above baseline accuracy
+
+% sanity check with lookahead
+% to check if anything is wrong with the fature matrix and or pipeline a sanity check is added. We offset the sentiment one day introducing on purpose lookahead data (same day sentiment), to see if the performance increases. The assumption is it does.
+% Highlight regression: Performance of LSTM, GRU, MLR went up beating the baseline.
+% Highlights Classification: accuracy rises to 55.6-60%. F1-scores: ~0.6
+% This shows that as expected the performance of all models increases with lookahead bias, validating the correctness of the pipeline
+
+
 \section{FinBERT vs VADER}
 % Comparing the sentiment time series with eachother to see the difference between these two approaches
 % Comparing the performance on the basic experiment (sentiment_finbert, sentiment_vader)
+% show what happens when introducing lookahead (sentiment tomorrow) -> shows effectivesness of context understanding
 \section{Impact Score}
 % Show class distribution, overlay sentiment and weighted sentiment time series
 % Comparing the performance on the basic experiment (sentiment_unweighted, sentiment_weighted)

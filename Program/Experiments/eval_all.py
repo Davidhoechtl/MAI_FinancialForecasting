@@ -29,8 +29,10 @@ pd.set_option('display.max_colwidth', None)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 
-start_date = "17/12/2017"
-end_date = "06/11/2020"
+# start_date = "17/12/2017"
+# end_date = "06/11/2020"
+start_date = "2010/02/03"
+end_date = "2020/07/18"
 impact_model = ImpactModel.NONE
 df_combined = get_feature_matrix(
     start_date=start_date,
@@ -57,11 +59,11 @@ df_combined.dropna(subset=['sentiment_tomorrow'], inplace=True)
 # fill series with random values
 # df_combined['noise'] = np.random.uniform(-0.05, 0.05, size=len(df_combined))
 
-feature_cols = ['Pct_Change']
-#feature_cols = ['Log_Pct_Change', 'sentiment', 'VIX', 'US1Y_Yield', 'Volume']
+feature_cols = ['Pct_Change_next']
+# feature_cols = ['Log_Pct_Change', 'sentiment', 'VIX', 'US1Y_Yield', 'Volume']
 # feature_cols = ['weighted_sentiment']
 # feature_cols = ['weighted_sentiment', 'VIX']
-# feature_cols = ['Pct_Change', 'VIX', 'Volume', 'Moving_Average_30']
+# feature_cols = ['Pct_Change', 'VIX', 'Volume', 'Moving_Average_30', 'US1Y_Yield', 'sentiment']
 # feature_cols = ['weighted_sentiment', 'Pct_Change', 'VIX', 'Volume', 'Moving_Average_30']
 # feature_cols = ['Pct_Change_next']
 # feature_cols = ['rolling_sentiment_30day']
