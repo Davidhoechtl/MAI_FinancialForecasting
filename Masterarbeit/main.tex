@@ -337,39 +337,43 @@ However, this long-term inverse correlation is not stationary. When evaluating t
 In this chapter the experiment descriped in \ref{ch:eval_chapter} will be performed. In short multiple maschine learning models will be evaluated and cross validated on four different features sets on regression and classification objectives. The first the only price and price + sentiment feature set will be compared. The goal is to compare the predicitve power of these models when utilizing various combinations of price data, sentiment score and technical indicators.
 
 \begin{itemize}
-    \item \textbf{Baselines}: First we look at the performance of the baseline models, their performance will not change across the different experiments because they rely only on static values or the target variable. For the regression tasks, a the Mean-Baseline approach achieved a $RMSE=0.009424$ and a $MAE=0.006779$. For the classification tasks, the "always up" baseline strategy yielded an accuracy of $acc=54.9$ percent and an $F1-score=0.70$
-    \item \textbf{Price Only}: Netxt 
+    \item \textbf{Baselines}: First we look at the performance of the baseline models, their performance will not change across the different experiments because they rely only on static values or the target variable. For the regression tasks, a the Mean-Baseline approach achieved a $RMSE=0.00942$ and a $MAE=0.00678$. For the classification tasks, the "always up" baseline strategy yielded an accuracy of $54.9$ percent and an $F1-score=0.70$
+    \item \textbf{Price Only}: Next the evaluation models will be trained on only on $t-1$ percentage price change. The results indicates no notable performance improvement against the established baselines. In the regression tasks, simple regression models like Multiple Linear Regression outperformed more complex architecture like LSTM or GRU. For the classification objective MLogR(Multiple Logistic Regression) performed poorly yielding an accurcay of $48.2$ percent (which is worse than random chance) and a $F1-score=0.2948$. On the other hand XGBoost performed slightly better, achieving an accurcay of $50.4$, a $F1-score=0.5829$ and a $recall=0.6351$. This indicates that using past price data is not enough for prediciting market returns.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\textwidth]{PICs/results_price.png}
+        \caption{price only results}
+        \label{fig:res_price_only}
+    \end{figure}
+    \item \textbf{Sentiment Only}: The sentiment only feature set yieled similar results. For regression there is no significant difference between price only. However, there were shifts in classification performance. MLogR raised its accuracy to $51.1$ percent while also raising its F1-score to $0.5058$. Interesstingly the performance of the other classification model XGBoost dropped below the $50$ percent accuracy mark. The same conclusion as in the price only experiment is that sentiment alone could not be enough to improve prediction accuracy.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\textwidth]{PICs/results_sentiment.png}
+        \caption{sentiment only results}
+        \label{fig:res_sent_only}
+    \end{figure}
+    \item \textbf{All Technical Indicators}: In this Experiment all technical indicators ("Pct\_Change", "VIX", "Volume", "Moving\_Average\_30", "US1Y\_Yield") where used to predict the target. Even with this additional information the prediction performance could not be improved. However more complex models had a lower regression loss compared to the simpler models. Both classification models did not achieve above $50$ percent accurcacy, suggesting that there was no benefit in combining all the technical indicators for market direction prediction.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\textwidth]{PICs/results_alltechnicals.png}
+        \caption{all technicals results}
+        \label{fig:res_all_technicals}
+    \end{figure}
+    \item \textbf{All Technical Indicators and Sentiment}: Finally we are looking at the combined feature matrix of sentiment plus all technical indicators. The performance of this experiment is nearly indentical to the experiment with only technical indicators. A possible explaination could be that sentiment is regulated away during training due to a lack of notable corss feature-synergies and explainatory power. Even when utilizing every available feature the market could not be predicted with an accuracy above initial baseline.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\textwidth]{PICs/results_alltechnicals_sentiment.png}
+        \caption{all technicals plus sentiment results}
+        \label{fig:res_all_technicals_plus_sentiment}
+    \end{figure}
+    \item \textbf{Pipeline Sanity Check (Lookahead BIAS)}: To verfiy that there were no underlying issues (Bugs) in the feature matrix pipeline a sanity check was performed. The sentiment feature is offset by one day to allow models to train on same day sentiment. This lookahead bias should create an unfair advantage against the baseline models and yield a superior performance. The reason to use same-day sentiment is to include news headlines published at the end of the day, that potentially reflect the performance of the market day. As expected the performance of the LSTM, GRU and MLR models improved and successfully beat the baseline. Classification accurcay also rose to a value between $55.6-60$ percent with F1-scores improving to approximately $0.61$. This experiment thereby validates the fundamental correctness of the pipeline implementation.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\textwidth]{PICs/results_sanity_sentiment_tomorrow.png}
+        \caption{sentiment tomorrow results}
+        \label{fig:res_tomorrow_sent}
+    \end{figure}
 \end{itemize}
-
-% baselines performed:
-% Mean-Baseline: RMSE 0.009424; MAE 0.006779; Always Up: acc 0.549, f1_score: 0.7, precision
-
-% price only
-% Highlights for price only: simple regression models beat GRU, LSTM + no notable performance improvement against baseline
-% Highlights for classification: MLogR did not achieve better very bad f1_Score 0.29 with accuracy of 0.48 (worst than random), XGBoost did better F1 0.58 and quite good recall of 0.63
-% conclusion price alone does not help predicitng market returns
-
-% sentiment only
-% Highlights regression: compared to price only there is no notable improvement. 
-% Hightlights classification: MLogR improved from f1_Score 0.29 to f1 0.51 and acc of 51,1%. XGBoost performance went down to an acc of 0.49 percent and f1_score 0.56.
-% conclusion similar to price alone sentiment alone does not improve predicition performance.
-
-%all technicals
-% Highlights regression: no performance increase, More complex models seem to performe a little better compared to the simple ones on the larger feature matrix
-% Highlights classification: Very poor performance on both MLogR and XGBoost accuracy is below 50% indicating no profitable prediction
-% combining different techncial indicators seems to have no profitable benefit.
-
-%&all technical + sentiment
-% Highlights regression: nearly indentical performance when adding sentiment to the big feature matrix. Seems that sentiment get regulated away and or does not have any noteable cross feature effects
-% Highlights classification: similar to the regression results, no performance increase
-% even when using all available features the market cannot be predicted with a above baseline accuracy
-
-% sanity check with lookahead
-% to check if anything is wrong with the fature matrix and or pipeline a sanity check is added. We offset the sentiment one day introducing on purpose lookahead data (same day sentiment), to see if the performance increases. The assumption is it does.
-% Highlight regression: Performance of LSTM, GRU, MLR went up beating the baseline.
-% Highlights Classification: accuracy rises to 55.6-60%. F1-scores: ~0.6
-% This shows that as expected the performance of all models increases with lookahead bias, validating the correctness of the pipeline
-
 
 \section{FinBERT vs VADER}
 % Comparing the sentiment time series with eachother to see the difference between these two approaches
