@@ -40,7 +40,7 @@ df_combined = get_feature_matrix(
     impact_model=impact_model,
     tech_indicators=[TechnicalIndicators.VOLATILITY, TechnicalIndicators.VIX, TechnicalIndicators.MOVING_AVERAGE_30, TechnicalIndicators.US1Y_YIELD],
     sentiment_sources=[DatasetSources.LUCASPHAM, DatasetSources.AENLLE],
-    sentiment_model=SentimentModel.FINBERT,
+    sentiment_model=SentimentModel.VADER,
     granularity_level=GranularityLevel.DAILY
 )
 print(df_combined.head(20))
@@ -59,7 +59,8 @@ df_combined.dropna(subset=['sentiment_tomorrow'], inplace=True)
 # fill series with random values
 # df_combined['noise'] = np.random.uniform(-0.05, 0.05, size=len(df_combined))
 
-feature_cols = ['Pct_Change_next']
+feature_cols = ['Pct_Change']
+feature_cols = ['sentiment_tomorrow']
 # feature_cols = ['Log_Pct_Change', 'sentiment', 'VIX', 'US1Y_Yield', 'Volume']
 # feature_cols = ['weighted_sentiment']
 # feature_cols = ['weighted_sentiment', 'VIX']

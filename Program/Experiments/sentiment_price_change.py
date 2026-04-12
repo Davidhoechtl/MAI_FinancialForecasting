@@ -35,8 +35,16 @@ df_combined = get_feature_matrix(
 print(df_combined.describe())
 print(df_combined.tail(10))
 
+print("sentiment correlation:")
 spearman_corr, spearman_p_value = spearmanr(df_combined['Pct_Change_next'], df_combined['sentiment'])
 pearson_corr, pearson_p_value = pearsonr(df_combined['Pct_Change_next'], df_combined['sentiment'])
+print(f"Spearman correlation: {spearman_corr}, p_value: {spearman_p_value}" )
+print(f"Pearson correlation: {pearson_corr}, p_value: {pearson_p_value}" )
+
+# same day sentiment
+print("Same day sentiment correlation:")
+spearman_corr, spearman_p_value = spearmanr(df_combined['Pct_Change'], df_combined['sentiment'])
+pearson_corr, pearson_p_value = pearsonr(df_combined['Pct_Change'], df_combined['sentiment'])
 print(f"Spearman correlation: {spearman_corr}, p_value: {spearman_p_value}" )
 print(f"Pearson correlation: {pearson_corr}, p_value: {pearson_p_value}" )
 

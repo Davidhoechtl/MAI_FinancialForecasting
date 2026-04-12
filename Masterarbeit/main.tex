@@ -13,6 +13,7 @@
 \usepackage{parskip}  % automatically removes indent and adds vertical space
 \usepackage{float}         % für [H], optional
 \usepackage{subcaption}
+\usepackage[table]{xcolor}
 %
 %
 % Einträge für Deckblatt, Kurzfassung, etc.
@@ -292,7 +293,7 @@ To also include statistics for the classification objective, the mapped binary t
     \label{fig:ClassImbalance}
 \end{figure}
 
-\subsection{Sentiment}
+\subsection{Sentiment} \label{ch:eda_sentiment}
 % optional sentiment distribution
 
 % News headline coverage
@@ -312,7 +313,7 @@ Following the analysis on headline coverage, the correlation between the target 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{PICs/pctChangexsentiment.png}
+    \includegraphics[width=0.7\textwidth]{PICs/pctChangexsentiment.png}
     \caption{Scatterplot of price change and sentiment}
     \label{fig:pctChangexsentiment}
 \end{figure}
@@ -331,6 +332,17 @@ Eventhough there is no immediate relation between sentiment and target. The rela
 
 However, this long-term inverse correlation is not stationary. When evaluating the correlations on a smaller rolling window of 90-days the correlation may vary. This fluctuation strongly suggests that the relationship between the two variables is regime-dependent. Furthermore, the origin of the news headlines matter. When looking on strong publishers only like in \cite{pham_financial_news} (Reuters, CNBC, The Guardian) a clearer non linear relationship emerges \ref{fig:volatilityxsentiment_pham}. This could imply that market participants value the source of the headline as well as the emotional polarity of the text. Finally if we compare the sentiment score to the VIX-index of the S\&P500 a similar even more inverse picture can be observed (see \ref{fig:vixxsentiment}).
 
+% price change x same day sentiment
+Lastly the sentiment feature is offset by one day. This introduces a lookahead bias, where sentiment of tomorrow is used to predict the price change of the same day. Under the assumption that sentiment does have an impact on price change, this should yield a significant performance increase. Similar to the other comparisons we use a scatterplot and Pearson- and Spearman correlation to understand the connection between the two variables. Later the unfair feature is also utilized in a prediction setup to analyse the quantitative performance.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{PICs/pctChangexsentimenttomorrow.png}
+    \caption{Scatterplot of price change and same day sentiment}
+    \label{fig:pctChangexsentimenttomorrow}
+\end{figure}
+
+As \ref{fig:pctChangexsentimenttomorrow} suggests there is a slight positive correlation with a Pearson coefficient of $r = 0.1373$ with a $p-value = 1.5286e-12$ and a Spearman coefficient of $\rho = 0.1878$ with a $p-value = 2.6537e-22$. This shows a statistical significant correlation between both variables. Eventhough sentiment of the same day is not a fair feature it suggests that the extracted mood score is not pure noise but a variable with some explainability. 
 % signal seperation (historgram seperation)
 
 \section{Sentiment vs No-Sentiment Models}
@@ -366,7 +378,7 @@ In this chapter the experiment descriped in \ref{ch:eval_chapter} will be perfor
         \caption{all technicals plus sentiment results}
         \label{fig:res_all_technicals_plus_sentiment}
     \end{figure}
-    \item \textbf{Pipeline Sanity Check (Lookahead BIAS)}: To verfiy that there were no underlying issues (Bugs) in the feature matrix pipeline a sanity check was performed. The sentiment feature is offset by one day to allow models to train on same day sentiment. This lookahead bias should create an unfair advantage against the baseline models and yield a superior performance. The reason to use same-day sentiment is to include news headlines published at the end of the day, that potentially reflect the performance of the market day. As expected the performance of the LSTM, GRU and MLR models improved and successfully beat the baseline. Classification accurcay also rose to a value between $55.6-60$ percent with F1-scores improving to approximately $0.61$. This experiment thereby validates the fundamental correctness of the pipeline implementation.
+    \item \textbf{Lookahead BIAS (sentiment tomorrow)}: In \ref{ch:eda_sentiment} a statistical significant correlation could be confirmed. In this run the quantitative performance of the evaluation models will be analysed when introducing lookahead bias by offseting the sentiment feature by one day. This should create an unfair advantage against the baseline models and yield a superior performance. The results supports this assumption, the performance of the LSTM, GRU and MLR models improved and they successfully beat the baseline. Classification accurcay also rose to a value between $55.6-60$ percent with F1-scores improving to approximately $0.61$. This experiment thereby validates that sentiment models extract valuable information instead of pure noise.
     \begin{figure}[H]
         \centering
         \includegraphics[width=1\textwidth]{PICs/results_sanity_sentiment_tomorrow.png}
@@ -376,9 +388,76 @@ In this chapter the experiment descriped in \ref{ch:eval_chapter} will be perfor
 \end{itemize}
 
 \section{FinBERT vs VADER}
-% Comparing the sentiment time series with eachother to see the difference between these two approaches
+In this section the two sentiment models finBERT and VADER (Valence Aware Dictionary and sEntiment Reasoner) will be compared and evaluated. Both models use fundamentally different appraoches when it comes to sentiment analysis. FinBERT is based on a transformer architecture enabling it to extract deep semantic information from text. VADER on the other hand is using a set of rules to analyse the sentiment and intensity of the given headlines. The goal of this comparison is to understand which model is more successfull in extracting mood from financial news headlines.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{PICs/finbertvsvader.png}
+    \caption{comparision of sentiment timeseries finBERT vs VADER}
+    \label{fig:finbertvsvader}
+\end{figure}
+
+While the resulting sentiment time series from both models demonstrate a strong overall correlation, a closer examination reveals notable differences in their behavior. Specifically, FinBERT mood series exhibits significantly greater variation. Those more extreme amplitudes suggests that FinBERT is more sensitive to mood shifts and contextual nuances. To confirm this statement, two experiments will be performed. First, the basic experiment will be conducted using only VADER and FinBERT sentiment. Second, the shifted sentiment feature (same-day sentiment) will be applied to see which of the two models is superior in capturing the events of the market day.
+
+\begin{table}[htbp]
+    \centering
+    \small % Reduces font size for the table
+    \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
+    \begin{tabular}{|lcccc|}
+        \hline
+        \textbf{Model} & \textbf{$\Delta$ RMSE} & \textbf{$\Delta$ MAE} & \textbf{$\Delta$ $R^2$} & \\
+        \hline
+        ARIMA          &  0.000000                      & \cellcolor{green!25}-0.000017 & \cellcolor{green!25}+0.001753 & \\
+        LSTM           & \cellcolor{green!25}-0.000003  & \cellcolor{green!25}-0.000008 & \cellcolor{green!25}+0.001050 & \\
+        GRU            & \cellcolor{green!25}-0.000014  & \cellcolor{green!25}-0.000021 & \cellcolor{green!25}+0.003929 & \\
+        MLR            & \cellcolor{green!25}-0.000003  & \cellcolor{green!25}-0.000012 & \cellcolor{green!25}+0.001814 & \\
+        Mean-Baseline  &  0.000000                      &  0.000000                     &  0.000000                     & \\
+        \hline
+        \textbf{Model} & \textbf{$\Delta$ Accuracy} & \textbf{$\Delta$ Precision} & \textbf{$\Delta$ Recall} & \textbf{$\Delta$ F1-Score} \\
+        \hline
+        XGBoost        & \cellcolor{green!25}+0.025000  & \cellcolor{green!25}+0.020336 & \cellcolor{green!25}+0.038413 & \cellcolor{green!25}+0.026928 \\
+        MLogR          & \cellcolor{green!25}+0.027084  & \cellcolor{green!25}+0.051669 & \cellcolor{green!25}+0.182489 & \cellcolor{green!25}+0.114458 \\
+        Always Up      &  0.000000                      &  0.000000                     &  0.000000                     &  0.000000                     \\
+        \hline
+    \end{tabular}
+    \caption{Experiment 1 vader\_sentiment vs finbert\_sentiment ($\Delta$ = VADER - FinBERT). Green cells indicate VADER superiority.}
+    \label{tab:vader_advantage}
+\end{table}
+
+Interesstingly the experiment with only $vader\_sentiment$ was superior to the configuration with only $finbert\_sentiment$. While the regression task improvement seem to be negligible the performance increase of the classification models is notable. The overall prediction accuracy improved by 2.5 percent, with a notable 18 percent increase in the MLogR model´s recall. Next we will examine the results of the seconds experiment to determine if this superiority persists when using the shifted same-day sentiment feature.
+
+\begin{table}[htbp]
+    \centering
+    \small % Reduces font size for the table
+    \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
+    \begin{tabular}{|lcccc|}
+        \hline
+        \textbf{Model} & \textbf{$\Delta$ RMSE} & \textbf{$\Delta$ MAE} & \textbf{$\Delta$ $R^2$} & \\
+        \hline
+        ARIMA          & \cellcolor{red!25}+0.000058  & \cellcolor{red!25}+0.000041 & \cellcolor{red!25}-0.002806 & \\
+        LSTM           & \cellcolor{red!25}+0.000115  & \cellcolor{red!25}+0.000095 & \cellcolor{red!25}-0.028170 & \\
+        GRU            & \cellcolor{red!25}+0.000125  & \cellcolor{red!25}+0.000100 & \cellcolor{red!25}-0.030601 & \\
+        MLR            & \cellcolor{red!25}+0.000070  & \cellcolor{red!25}+0.000046 & \cellcolor{red!25}-0.006531 & \\
+        Mean-Baseline  &  0.000000                    &  0.000000                   &  0.000000                   & \\
+        \hline
+        \textbf{Model} & \textbf{$\Delta$ Accuracy} & \textbf{$\Delta$ Precision} & \textbf{$\Delta$ Recall} & \textbf{$\Delta$ F1-Score} \\
+        \hline
+        XGBoost        & \cellcolor{red!25}-0.037917  & \cellcolor{red!25}-0.027653 & \cellcolor{red!25}-0.037860   & \cellcolor{red!25}-0.027789   \\
+        MLogR          & \cellcolor{red!25}-0.034583  & \cellcolor{red!25}-0.064950 & \cellcolor{green!25}+0.106871 & \cellcolor{green!25}+0.028771 \\
+        Always Up      &  0.000000                    &  0.000000                   &  0.000000                     &  0.000000                     \\
+        \hline
+    \end{tabular}
+    \caption{Experiment 2 vader\_sameday\_sentiment vs finbert\_sameday\_sentiment ($\Delta$ = VADER - FinBERT). Green cells indicate VADER superiority, while red cells indicate FinBERT superiority.}
+    \label{tab:vader_advantage_shifted}
+\end{table}
+
+In contrast to the first experiment, the results of using same-day sentiment strongly favor the FinBERT mode. Nearly every performance benchmakr decreased fro VADER compared to FinBERT, with the only exception being the MLogR model´s recall (with an increase of approximately $10.7$ percent). These results show that $finbert\_sentiment$ capture the nuances of context of the same day sentiment better than $vader\_sentiment$. Howerver, this does not mean that capturing context is the only important factor when it comes to the predicitve power of the sentiment score. Concluded the overall performance of both sentiment features is highly comparable in a fair setup (no lookahead). VADER holds a slight advantage in predictive classification tasks while FinBERT succeeds in the lookahead setup.
+
 % Comparing the performance on the basic experiment (sentiment_finbert, sentiment_vader)
+% Vader sentiment has similar performance on the regression models (slightly better), classificaton performance is better especially the recall of the MLogR has improved significant
+
 % show what happens when introducing lookahead (sentiment tomorrow) -> shows effectivesness of context understanding
+% finbert is slightly superiror when it comes to sentiment tomorrow performance. It seems that finbert capture the lookahead signals better than vader.
 \section{Impact Score}
 % Show class distribution, overlay sentiment and weighted sentiment time series
 % Comparing the performance on the basic experiment (sentiment_unweighted, sentiment_weighted)
