@@ -462,9 +462,48 @@ In contrast to the first experiment, the results of using same-day sentiment str
 % Show class distribution, overlay sentiment and weighted sentiment time series
 % Comparing the performance on the basic experiment (sentiment_unweighted, sentiment_weighted)
 \section{Rolling Sentiment}
+This section will analyse if applying a rolling average to sentiment scores enhances predictive power. The idea is that sentiment can be very volatile, on one day it is neutral and on the others it might have extreme apmplitudes. Calculating the average helps capture a more stable representation of investor mood. Specifically, there will be a comparison between 3-day, 5-day and 20-day rolling sentiment. Before conducting the basic experiment with those features the correlation with the target variable will be tested.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{PICs/rolling_sentiment.png}
+    \caption{Rolling averaged sentiment vs percentage price change}
+    \label{fig:rollingsentimentvspricechange}
+\end{figure}
+
+As show in \ref{fig:rollingsentimentvspricechange} there is no statistical significant configuration between rolling sentiment of 1-60 days and next day price change. This hints that eventhough correlation values increases on day 20 it still is not enough to be declared as statistical relevant (p\_value < 0.05). While this gives a pessimistic view of the predicitve power of this feature, a complex machine learning model still could extract something usefull. Therefore we will switch the original sentiment feature with the previously stated 3-day, 5-day and 20-day rolling sentiment and compare the results. To better illustrate the impact, the first configuration with only sentiment as predictor will be used.
+
+\begin{table}[htbp]
+    \centering
+    \small % Reduces font size for the table
+    \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
+    \begin{tabular}{|lcccc|}
+        \hline
+        \textbf{Model} & \textbf{Base (MAE)} & \textbf{3d ($\Delta$ MAE)} & \textbf{5d ($\Delta$ MAE)} & \textbf{20d ($\Delta$ MAE)} \\
+        \hline
+        ARIMA          & 0.006818            & \cellcolor{green!20}-0.000012        & \cellcolor{green!20}-0.000009        & \cellcolor{green!20}-0.000017        \\
+        LSTM           & 0.006808            & 0                                    & 0                                    & \cellcolor{red!20}+0.000002      \\
+        GRU            & 0.006814            & \cellcolor{green!20}-0.000006        & \cellcolor{green!20}-0.000005        & \cellcolor{green!20}-0.000004        \\
+        MLR            & 0.00679             & \cellcolor{green!20}-0.000004        & \cellcolor{green!20}-0.000003        & \cellcolor{green!20}-0.000008        \\
+        Mean-Baseline  & 0.006779            & 0                                    & 0                                    & 0                                 \\
+        \hline
+        \textbf{Model} & \textbf{Base (F1)}  & \textbf{3d ($\Delta$ F1)}   & \textbf{5d ($\Delta$ F1)}   & \textbf{20d ($\Delta$ F1)}  \\
+        \hline
+        XGBoost        & 0.561939            & \cellcolor{green!20}+0.014751      & \cellcolor{green!20}+0.026967      & \cellcolor{green!20}+0.016062      \\
+        MLogR          & 0.505767            & \cellcolor{red!20}-0.007104        & \cellcolor{green!20}+0.080338      & \cellcolor{red!20}-0.089671        \\
+        Always Up      & 0.708273            & 0                                  & 0                                  & 0                                 \\
+        \hline
+    \end{tabular}
+    \caption{Comparison of MAE and F1 Score across Base, 3d, 5d, and 20d Experiments (Deltas relative to Base)}
+    \label{tab:comp_rolling_sentiment}
+\end{table}
+
+The results show that there is only a small difference between the sentiment scores. The rolling sentiment of 5 days has the best overall performance with a $F1-score = 0.589$ on the XGBoost model. The regression performance stayed approximately the same, with LSTM profiting the least. It is also notable that with 5d-sentiment the prediction accurcacy of the classification models rose to an average $accuracy of 0.515$ percent which is an increase of around $1.5 percent points$. These finding suggests that eventhough averaging the sentiment score seems to improve the overall prediction accurcay it is by far not enough to beat the baselines.
+
 % analyse correlation to price change (+ historgram seperation)
-% Comparing the performance on the basic experiment (rolling_sentiment_1d, rolling_sentiment_3d, rolling_sentiment_5d, rolling_sentiment_20d)
 \section{Different Datasets}
+Additonally to the impact scoring section, the importance of quality data as a starting point will be examined in this section. Specifically, the dataset configuration of the basic experiment is going to be replaced by a datasource that has little connection to the target index fond. The goal of this analysis is to verify if there is any performance difference when introducing vast amount of noise into the sentiment score. To achieve this, two dataset configurations will be compared: The NIFTY dataset and the Pham and Aenlle dataset. The NIFTY dataset contains general financial news and articles tied to the Indian NIFTY 50 index, while sharing some global economical concerns it will mainly add irrelevant information. On the other hand the Pham+Anlle datapoints contain high relevant and domain specific nuances. To measure the change in performance accuracy both confiugrations $sentiment\_nifty$ and $sentiment\_phamaenlle$ will be evaluated and compared.
+
 % Comparing two dataset configurations NIFTY (mostly non relevant news) Pham+aenlle (mostly relevant news)
 % check performance on the basic experiment (sentiment_nifty, sentiment_phamaenlle)
 \section{Different Target Horinzons}

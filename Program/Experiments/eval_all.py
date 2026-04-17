@@ -56,11 +56,16 @@ df_combined.dropna(subset=['sentiment_tomorrow'], inplace=True)
 # df_combined['Target_60d_Return'] = df_combined['Close'].pct_change(periods=60).shift(-60)
 # df_combined.dropna(subset=['Target_60d_Return'], inplace=True)
 
+df_combined["rolling_sentiment_3d"] = df_combined['sentiment'].rolling(window=3, min_periods=1).mean()
+df_combined["rolling_sentiment_5d"] = df_combined['sentiment'].rolling(window=5, min_periods=1).mean()
+df_combined["rolling_sentiment_20d"] = df_combined['sentiment'].rolling(window=20, min_periods=1).mean()
+df_combined["rolling_sentiment_60d"] = df_combined['sentiment'].rolling(window=60, min_periods=1).mean()
+
 # fill series with random values
 # df_combined['noise'] = np.random.uniform(-0.05, 0.05, size=len(df_combined))
 
 feature_cols = ['Pct_Change']
-feature_cols = ['sentiment_tomorrow']
+feature_cols = ['rolling_sentiment_60d']
 # feature_cols = ['Log_Pct_Change', 'sentiment', 'VIX', 'US1Y_Yield', 'Volume']
 # feature_cols = ['weighted_sentiment']
 # feature_cols = ['weighted_sentiment', 'VIX']
