@@ -21,8 +21,12 @@ pd.set_option('display.width', None)
 start_date = "2010/02/03"
 end_date = "2020/07/18"
 # start_date = "2017/12/17"
-# end_date = "2020/06/04"
-impact_model = ImpactModel.NONE
+# end_date = "2020/06/04
+
+# very good period
+# start_date = "2018/07/18"
+# end_date = "2019/07/18"
+impact_model = ImpactModel.LLAMA_3_1_Instruct
 df_combined = get_feature_matrix(
     start_date=start_date,
     end_date=end_date,

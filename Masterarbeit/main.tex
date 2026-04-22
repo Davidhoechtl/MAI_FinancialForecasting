@@ -273,6 +273,8 @@ In this work the Expanding Window strategy is used to incooperate the whole trai
 \end{minipage}
 \par\vspace{1ex}
 
+\textit{As stated in the methodology section expanding window cross validation will be utilized. In regard to the basic experiment this means approximately 24 folds over the complete dataset. The initial train set will consist of 200 datapoints and the test set will be fixed at 100 datapoints. This will ensure the preservation of the temporal order, preventing any look-ahead biases and providing a consistent and robust evaluation for the evaluation models.}
+
 \section{Explorative Data Analsysis}
 \subsection{Target}
 The dataset for the basic experiment consists of 2,613 daily data points spanning from 03.02.2010 to 18.07.2020. This period would naturally euqal 3819 real days but all non-business days (weekend and holidays where the new york stock exchange was not open) are excluded (2614 days), -1 because we dont have a target $t+1$ for the last day. To get a better picture of the target variable this analysis examine the statistical properties of the 1-day percentage price change of the S\%P500 - the target variable of our basic experiement. With a positive mean of $\mu = 0.00046$ alongside a standard diviation of $\sigma = 0.01093$, the distribution shows a relatively sharp peak with a slight rightward skew. This positive skewness captures the markets underlying tendency to have more positive days than negative ones. The distribution is shown in the following figure
@@ -459,8 +461,15 @@ In contrast to the first experiment, the results of using same-day sentiment str
 % show what happens when introducing lookahead (sentiment tomorrow) -> shows effectivesness of context understanding
 % finbert is slightly superiror when it comes to sentiment tomorrow performance. It seems that finbert capture the lookahead signals better than vader.
 \section{Impact Score}
-% Show class distribution, overlay sentiment and weighted sentiment time series
-% Comparing the performance on the basic experiment (sentiment_unweighted, sentiment_weighted)
+% shortly revise on what the impact score is telling: llm-classification of how impactfull a headline is to denoise the data.
+% Outline the amount of headlines that needed classification: 1,9 Million with ~1 Million duplicated ~ 1 Million datapoints
+% Before going into the setup of the experiment explain the computational cost: 70.769 seconds on a rtx 5070ti with llama 3.1 Instruct
+% Show class distribution (A,B,C,D)
+% Explain and comment on the results
+% overlay sentiment and weighted sentiment time series + compare pearson and spearman correlation
+% Compare weighted_sentiment vs sentiment on the basic experiment
+% Elaborate on using bigger frontier models to improve the denoising process
+
 \section{Rolling Sentiment}
 This section will analyse if applying a rolling average to sentiment scores enhances predictive power. The idea is that sentiment can be very volatile, on one day it is neutral and on the others it might have extreme apmplitudes. Calculating the average helps capture a more stable representation of investor mood. Specifically, there will be a comparison between 3-day, 5-day and 20-day rolling sentiment. Before conducting the basic experiment with those features the correlation with the target variable will be tested.
 
@@ -502,10 +511,37 @@ The results show that there is only a small difference between the sentiment sco
 
 % analyse correlation to price change (+ historgram seperation)
 \section{Different Datasets}
-Additonally to the impact scoring section, the importance of quality data as a starting point will be examined in this section. Specifically, the dataset configuration of the basic experiment is going to be replaced by a datasource that has little connection to the target index fond. The goal of this analysis is to verify if there is any performance difference when introducing vast amount of noise into the sentiment score. To achieve this, two dataset configurations will be compared: The NIFTY dataset and the Pham and Aenlle dataset. The NIFTY dataset contains general financial news and articles tied to the Indian NIFTY 50 index, while sharing some global economical concerns it will mainly add irrelevant information. On the other hand the Pham+Anlle datapoints contain high relevant and domain specific nuances. To measure the change in performance accuracy both confiugrations $sentiment\_nifty$ and $sentiment\_phamaenlle$ will be evaluated and compared.
+Additonally to the impact scoring section, the importance of quality data as a starting point will be examined in this section. Specifically, the dataset configuration of the basic experiment is going to be replaced by a datasource that has little connection to the target index fond. The goal of this analysis is to verify if there is any performance difference when introducing vast amount of noise into the sentiment score. To achieve this, two dataset configurations will be compared: The NIFTY dataset and the Pham and Aenlle dataset. The NIFTY dataset contains general financial news and articles tied to the Indian NIFTY 50 index, while sharing some global economical concerns it will mainly add irrelevant information. On the other hand the Pham+Anlle datapoints contain high relevant and domain specific nuances. To measure the change in performance accuracy both confiugrations $sentiment\_nifty$ and $sentiment\_phamaenlle$ will be evaluated and compared. The assumption is that while keeping the models architecture, hyper parameters and seed the same changing the underlying data which introduces domain-irrelevant noise will shrink performance.
 
-% Comparing two dataset configurations NIFTY (mostly non relevant news) Pham+aenlle (mostly relevant news)
-% check performance on the basic experiment (sentiment_nifty, sentiment_phamaenlle)
+\begin{table}[htbp]
+    \centering
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{|lcccc|}
+        \hline
+        \textbf{Model} & \textbf{$\Delta$ RMSE} & \textbf{$\Delta$ MAE} & \textbf{$\Delta$ $R^2$} & \\
+        \hline
+        ARIMA          & \cellcolor{red!25}+0.000004    & \cellcolor{green!25}-0.000008  & \cellcolor{red!25}-0.000271    & \\
+        LSTM           & \cellcolor{red!25}+0.000004    &  0.000000                      & \cellcolor{red!25}-0.000741    & \\
+        GRU            & \cellcolor{green!25}-0.000001  & \cellcolor{green!25}-0.000003  & \cellcolor{green!25}+0.000685  & \\
+        MLR            & \cellcolor{red!25}+0.000004    &  0.000000                      & \cellcolor{red!25}-0.000249    & \\
+        Mean-Baseline  &  0.000000                      &  0.000000                      &  0.000000                      & \\
+        \hline
+        \textbf{Model} & \textbf{$\Delta$ Accuracy} & \textbf{$\Delta$ Precision} & \textbf{$\Delta$ Recall} & \textbf{$\Delta$ F1-Score} \\
+        \hline
+        XGBoost        & \cellcolor{green!25}+0.032916  & \cellcolor{green!25}+0.018520 & \cellcolor{green!25}+0.127306 & \cellcolor{green!25}+0.063134   \\
+        MLogR          & \cellcolor{red!25}-0.018750    & \cellcolor{red!25}-0.073880   & \cellcolor{red!25}-0.181846   & \cellcolor{red!25}-0.120055 \\
+        Always Up      &  0.000000                      &  0.000000                     &  0.000000                     &  0.000000                     \\
+        \hline
+    \end{tabular}
+    \caption{Experiment $sentiment\_nifty$ vs $sentiment\_phamaenlle$ ($\Delta$ = NIFTY - Pham/Aenlle). Green cells indicate NIFTY superiority, while red cells indicate Pham/Aenlle superiority.}
+    \label{tab:nifty_vs_phamaenlle}
+\end{table}
+
+Surprisingly, the results are fairly mixed; the sentiment feature based on the NIFTY dataset shows highly comparable performance to the sentiment score of the basic experiment. While the performance of $sentiment\_nifty$ falls below that of $sentiment\_phamaenlle$ for most regression models, the difference is not as clear for classification models.XGBoost, for example, saw a notable 3 percentage point increase when using the domain-irrelevant sentiment data. In contrast, the MLogR model's performance dropped notably by approximately 2 percent. This indicates that there is no consistent increase or decrease in performance when introducing noise.The results suggest that the original sentiment feature, despite being extracted from domain-relevant information, might not have much explanatory power due to an efficient market. Consequently, this could mean that the quality of the headlines is secondary when compared to the lifespan of the sentiment signal itself.
+
+% ToDo: add comparison of impact scoring denoising to check how much noise each dataset contains
+
 \section{Different Target Horinzons}
 % Comparing the correlation to price change (point cloud)
 % Comparing the performance on the basic experiment (1d, 3d, 5d, 20d targets)

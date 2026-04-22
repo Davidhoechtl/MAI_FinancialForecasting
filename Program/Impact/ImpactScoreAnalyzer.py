@@ -45,7 +45,7 @@ def _predict_impact_single_classification(llm:Llama, headline: str, max_retries:
         prompt = format_prompt_llama(system_prompt, user_prompt)
     else:
         prompt = f"{system_prompt}\n{user_prompt}"
-    print("Prompt: " + prompt)
+    #print("Prompt: " + prompt)
     for attempt in range(1, max_retries + 1):
         output = llm(
             prompt,
