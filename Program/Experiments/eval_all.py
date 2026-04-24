@@ -33,6 +33,9 @@ pd.set_option('display.width', None)
 # end_date = "06/11/2020"
 start_date = "2010/02/03"
 end_date = "2020/07/18"
+
+start_date = "2017/07/18"
+end_date = "2019/07/18"
 impact_model = ImpactModel.NONE
 df_combined = get_feature_matrix(
     start_date=start_date,
@@ -65,7 +68,7 @@ df_combined["rolling_sentiment_60d"] = df_combined['sentiment'].rolling(window=6
 # df_combined['noise'] = np.random.uniform(-0.05, 0.05, size=len(df_combined))
 
 feature_cols = ['Pct_Change']
-feature_cols = ['rolling_sentiment_60d']
+feature_cols = ['sentiment']
 # feature_cols = ['Log_Pct_Change', 'sentiment', 'VIX', 'US1Y_Yield', 'Volume']
 # feature_cols = ['weighted_sentiment']
 # feature_cols = ['weighted_sentiment', 'VIX']

@@ -236,8 +236,17 @@ if __name__ == "__main__":
     adapter1 = AenlleAdapter()
     if not adapter1.try_load_preprocessed():
         adapter1.load()
-    df = adapter1.to_standard_format()
-    df = pandas_helper.filter_dataset_by_dates(df, start_date, end_date)
+    df1 = adapter1.to_standard_format()
+    df1 = pandas_helper.filter_dataset_by_dates(df1, start_date, end_date)
+
+    adapter1 = Adapter1()
+    if not adapter1.try_load_preprocessed():
+        adapter1.load()
+    df2 = adapter1.to_standard_format()
+    df2 = pandas_helper.filter_dataset_by_dates(df2, start_date, end_date)
+
+    # concat df1 and df2
+    df = pd.concat([df1, df2], ignore_index=True)
 
     df["impact"] = load_impact_score(df["headline"], ImpactModel.LLAMA_3_1_Instruct, EvaluationMode.CLASSIFICATION)
 

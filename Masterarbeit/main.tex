@@ -461,14 +461,70 @@ In contrast to the first experiment, the results of using same-day sentiment str
 % show what happens when introducing lookahead (sentiment tomorrow) -> shows effectivesness of context understanding
 % finbert is slightly superiror when it comes to sentiment tomorrow performance. It seems that finbert capture the lookahead signals better than vader.
 \section{Impact Score}
-% shortly revise on what the impact score is telling: llm-classification of how impactfull a headline is to denoise the data.
-% Outline the amount of headlines that needed classification: 1,9 Million with ~1 Million duplicated ~ 1 Million datapoints
-% Before going into the setup of the experiment explain the computational cost: 70.769 seconds on a rtx 5070ti with llama 3.1 Instruct
-% Show class distribution (A,B,C,D)
-% Explain and comment on the results
+In this section the effectivesness of the novel denoising function of this work will be analysed. In the world of stock market prediction, distinguishing between meaningful and noise in financial headlines is not trivial. For example the news headline "Buy these 10 stocks today" has near to zero use for future prediction while "the us fed increasing interest rate by 0.5 percentage" will have a bigger and more pronounced impact on the market. To filter relevant news from irrelevant impact scoring is utilized, by using modern large language models to classify datapoints into 4 categories (A -> very impactful, D -> noise).
+
+The scale of this denoising process was substantial, because the dataset consisted of a massive raw pool of 1.9 million financial headlines and computational resources where limited. Therefore to filter most noise out one important preprocessing was to filter duplicated rows. The assumption is that news that repreat will likely be noise. With this rule the amount of headlines shrink by an astonishing 1 Million datapoints- showing the amount of redundant news headlines. Before diving into the specific experiment setup, it is important to adress the compautation cost for this experiment. The classification process was run on a RTX 5070ti hosting the LLama 3.1 8B Instruct model. With an average 13 headliens per seconds and 919.858 classifications the total time needed resulted in 19 hours. This shows that even with limited computational power a broad headline corpus can be processed in reasonable time. To improve processing efficiency 6-bit GGUF quantization is utilized, a choice that significantly lowers memory usage and accelerates inference speed. To ensure the model’s output could be cleanly parsed into specific classes, the LLM was prompted to return results only in a valid JSON format. Because large language models can behave unexpectedly, a gracefull error handling was essential. Therefore, a retry mechanism was implemented to re-execute the process whenever an invalid response is received. In the case of the 3 failed attempts the headlines is excluded by setting its impact score to NaN.
+
+Following table will show some examples of the llm annoated headlines
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|p{10cm}|}
+    \hline
+    \textbf{Impact} & \textbf{Headline} \\
+    \hline
+    1.0 & Project Syndicate economists Donald Trump is making America's deficits great again \\
+    \hline
+    0.66 & Engineering giant GKN battles to hold off £7bn takeover \\
+    \hline
+    0.66 & Jim Cramer said there’s one thing that this market needs to do to curb the major stock shortage facing investors \\
+    \hline
+    0.0 & British cars: black overtakes white as most popular colour \\
+    \hline
+    0.0 & Jersey Royal potato crop could be hit by shortage of EU workers \\
+    \hline
+    0.0 & Tesco revamps Clubcard rewards scheme \\
+    \hline
+    \end{tabular}
+    \caption{Examples of Headline Impact Classification}
+    \label{tab:impact_examples}
+\end{table}
+
+In \ref{fig:impact_score_distribution} the distribution of impact score classes is shown. The most striking feature is that the model is not producing a smooth, continous distribution from A to D. Instead it is biased to the classes D and B. Approximately 250,000 headlines were filtered out completely, while around 400,000 were marked as important. A much smaller portion, approximately 20.000, were categorized as very important, and about 50.000 were marked as somewhat important. While the classification process effectively filters out some noise, it is not performing at an optimal level.  This problem could be due to two main issues. Primarily, because a non-fine-tuned variant of Llama 3.1 Instruct is being used, the system relies entirely on the prompt for guidance. If the prompt lacks sufficient examples or if the models fails to understand the context of the headline the performance on classification could suffer and biases towards classes can occure.
+
+To evaluate the benefit of the impact score the basic experiment is changed by multipling the sentiment score with the impact score yielding a weighted sentiment score. This new feature is used as sole predictor in the evaluation pipeline and is compared to a sentiment only run. The resulting data will show how much the prediction performance increased/decreased when using the sharpened denoised predictor.
+
+\begin{table}[htbp]
+    \centering
+    \small % Reduces font size for the table
+    \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
+    \begin{tabular}{|lcccc|}
+        \hline
+        \textbf{Model} & \textbf{$\Delta$ RMSE} & \textbf{$\Delta$ MAE} & \textbf{$\Delta$ $R^2$} & \\
+        \hline
+        ARIMA          & \cellcolor{green!25}-0.000003 & \cellcolor{green!25}-0.000020 & \cellcolor{green!25}+0.001869 & \\
+        LSTM           & \cellcolor{green!25}-0.000002 & \cellcolor{green!25}-0.000005 & \cellcolor{green!25}+0.000576 & \\
+        GRU            & \cellcolor{green!25}-0.000007 & \cellcolor{green!25}-0.000012 & \cellcolor{green!25}+0.001388 & \\
+        MLR            & \cellcolor{green!25}-0.000004 & \cellcolor{green!25}-0.000013 & \cellcolor{green!25}+0.002394 & \\
+        Mean-Baseline  &  0.000000                     &  0.000000                     &  0.000000                     & \\
+        \hline
+        \textbf{Model} & \textbf{$\Delta$ Accuracy} & \textbf{$\Delta$ Precision} & \textbf{$\Delta$ Recall} & \textbf{$\Delta$ F1-Score} \\
+        \hline
+        XGBoost        & \cellcolor{green!25}+0.012083 & \cellcolor{green!25}+0.009791 & \cellcolor{green!25}+0.005739 & \cellcolor{green!25}+0.008275 \\
+        MLogR          & \cellcolor{green!25}+0.024584 & \cellcolor{green!25}+0.045963 & \cellcolor{green!25}+0.210761 & \cellcolor{green!25}+0.124301 \\
+        Always Up      &  0.000000                     &  0.000000                     &  0.000000                     &  0.000000                     \\
+        \hline
+    \end{tabular}
+    \caption{Benefit of Weighted Sentiment: Weighted Sentiment vs Baseline Sentiment ($\Delta$ = Weighted - Baseline). Green cells indicate Weighted Sentiment superiority}
+    \label{tab:weighted_sentiment_advantage}
+\end{table}
+
+As shown in \ref{weighted_sentiment_advantage} the impact scoring seems to consistently improve prediction performance in both regression and classification tasks. The most notable improvement is registered in the classification model MLogR with a $ \delta F1-score = +0.1243$ and the regression model MLR with a $\delta R2-score = + 0.00239$. Eventhough prediction accuracy went up by a small yet consistent amount the baseline models stay unbeated. This suggest that a good preprocessing of headlines might give good leverage on improving financial forcasiting with sentiment analysis.
+
 % overlay sentiment and weighted sentiment time series + compare pearson and spearman correlation
-% Compare weighted_sentiment vs sentiment on the basic experiment
-% Elaborate on using bigger frontier models to improve the denoising process
+% note the bad performance of the small llm missclassification of obvious 1s
+
+Future iterations could build upon this by combining a better engineered prompt with a larger llm like GPT 5 or Gemini 3.1 to further improve the denoising process. Because of their largely expanded parameter counts and advances in contextual understanding, these frontier models could interpret subtle economic nuances in financial news headlines more accurately. With this leap in compautation the observed class distribution biases would propably decrease, yielding a much smoother and more reliable classification. Furthermore, their superior reasoning would reduce the reliance on the examples provided by the prompt, making classificatoin more robust against unseen examples. Using frontier models however is vastly inefficient. A fine-tuned smaller llm with the sole binary classification goal of declaring a headlines as relevant or not relevant would yield the best performance and cost ratio. However, to train such a model a big corpus on annoated data is needed and would propably be out of scope of this research.
+
 
 \section{Rolling Sentiment}
 This section will analyse if applying a rolling average to sentiment scores enhances predictive power. The idea is that sentiment can be very volatile, on one day it is neutral and on the others it might have extreme apmplitudes. Calculating the average helps capture a more stable representation of investor mood. Specifically, there will be a comparison between 3-day, 5-day and 20-day rolling sentiment. Before conducting the basic experiment with those features the correlation with the target variable will be tested.
@@ -566,7 +622,12 @@ Surprisingly, the results are fairly mixed; the sentiment feature based on the N
     \caption{pham dataset volatility x sentiment}
     \label{fig:volatilityxsentiment_pham}
 \end{figure}
-
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{PICs/impact score distribution.png}
+    \caption{pham dataset volatility x sentiment}
+    \label{fig:impact_score_distribution}
+\end{figure}
 
 %
 % Hier beginnen die Verzeichnisse.
