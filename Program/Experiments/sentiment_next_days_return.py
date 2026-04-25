@@ -41,6 +41,13 @@ df_combined["Target_5d_Return_binary"] = (df_combined["Target_5d_Return"] > 0).a
 
 df_combined.dropna(subset=['Target_3d_Return', 'Target_5d_Return', 'Target_20d_Return', 'Target_5d_Return_binary'], inplace=True)
 
+print('Mean 3d Return:', df_combined['Target_3d_Return'].mean())
+print('Mean 5d Return:', df_combined['Target_5d_Return'].mean())
+print('Mean 20d Return:', df_combined['Target_20d_Return'].mean())
+print('Standard Deviation 3d Return:', df_combined['Target_3d_Return'].std())
+print('Standard Deviation 5d Return:', df_combined['Target_5d_Return'].std())
+print('Standard Deviation 20d Return:', df_combined['Target_20d_Return'].std())
+
 # --- 2. Visualization ---
 fig, axes = plt.subplots(2, 3, figsize=(20, 12))
 

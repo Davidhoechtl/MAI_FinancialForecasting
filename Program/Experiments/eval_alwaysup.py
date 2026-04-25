@@ -31,17 +31,20 @@ df_combined = get_feature_matrix(
 )
 
 print(df_combined.tail(10))
+target_horizon = 20
+df_combined['Target'] = df_combined['Close'].pct_change(periods=target_horizon).shift(-target_horizon)
+df_combined.dropna(subset=['Target'], inplace=True)
+df_combined["Target"] = (df_combined["Target"] > 0).astype(int) # 1 if next day's pct change > 0 else 0
 
 # --- Create target (next-day direction) ---
 feature_cols = ['Pct_Change']
-df_combined["Target"] = (df_combined["Pct_Change_next"] > 0).astype(int) # 1 if next day's pct change > 0 else 0
 always_up_baseline = AlwaysUpModel()
 always_up_results = EvaluationPipeline.evaluate_model_on_classification(
     model=always_up_baseline,
     feature_matrix=df_combined,
     predictor_cols=feature_cols,
     target_col='Target',
-    target_horizon_in_days=1
+    target_horizon_in_days=target_horizon
 )
 
 print("Always Up Baseline Results:")

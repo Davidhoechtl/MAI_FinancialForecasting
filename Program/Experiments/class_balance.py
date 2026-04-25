@@ -32,8 +32,12 @@ df_combined = get_feature_matrix(
 
 print(df_combined.tail(10))
 
+target_horizon = 20
+df_combined['Target'] = df_combined['Close'].pct_change(periods=target_horizon).shift(-target_horizon)
+df_combined.dropna(subset=['Target'], inplace=True)
+
 # --- Create target (next-day direction) ---
-df_combined["Target"] = (df_combined["Pct_Change_next"] > 0).astype(int) # 1 if next day's pct change > 0 else 0
+df_combined["Target"] = (df_combined["Target"] > 0).astype(int) # 1 if next day's pct change > 0 else 0
 labels = ["Down (0)", "Up (1)"]
 class_counts = df_combined["Target"].value_counts().sort_index()
 

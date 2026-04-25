@@ -491,6 +491,15 @@ Following table will show some examples of the llm annoated headlines
 
 In \ref{fig:impact_score_distribution} the distribution of impact score classes is shown. The most striking feature is that the model is not producing a smooth, continous distribution from A to D. Instead it is biased to the classes D and B. Approximately 250,000 headlines were filtered out completely, while around 400,000 were marked as important. A much smaller portion, approximately 20.000, were categorized as very important, and about 50.000 were marked as somewhat important. While the classification process effectively filters out some noise, it is not performing at an optimal level.  This problem could be due to two main issues. Primarily, because a non-fine-tuned variant of Llama 3.1 Instruct is being used, the system relies entirely on the prompt for guidance. If the prompt lacks sufficient examples or if the models fails to understand the context of the headline the performance on classification could suffer and biases towards classes can occure.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{PICs/sentimentvsweighted_sentiment.png}
+    \caption{Price vs Sentiment vs Weighted Sentiment Over Time}
+    \label{fig:sentimentvsweighted_sentiment}
+\end{figure}
+
+As seen in \ref{fig:sentimentvsweighted_sentiment} the shaprened sentiment looks dampened compared to the original mood timeseries. This is due to the mathematical foundation of multiplying a score with $impact_score <= 1$ yielding less extreme amplitudes compared to the original sentiment score. Interesstingly, extrem outliers like in 2016 or 2010 are not present in the impact score series. Furthermore, in some sections like 2014-2016 or 2018 the mood score is notably below the original values. This illustation shows that while utilizing the same FinBERT class lables the impact score adjusted the timeseries in some notable ways.
+
 To evaluate the benefit of the impact score the basic experiment is changed by multipling the sentiment score with the impact score yielding a weighted sentiment score. This new feature is used as sole predictor in the evaluation pipeline and is compared to a sentiment only run. The resulting data will show how much the prediction performance increased/decreased when using the sharpened denoised predictor.
 
 \begin{table}[htbp]
@@ -520,11 +529,9 @@ To evaluate the benefit of the impact score the basic experiment is changed by m
 
 As shown in \ref{weighted_sentiment_advantage} the impact scoring seems to consistently improve prediction performance in both regression and classification tasks. The most notable improvement is registered in the classification model MLogR with a $ \delta F1-score = +0.1243$ and the regression model MLR with a $\delta R2-score = + 0.00239$. Eventhough prediction accuracy went up by a small yet consistent amount the baseline models stay unbeated. This suggest that a good preprocessing of headlines might give good leverage on improving financial forcasiting with sentiment analysis.
 
-% overlay sentiment and weighted sentiment time series + compare pearson and spearman correlation
-% note the bad performance of the small llm missclassification of obvious 1s
+It is important to note that while the impact model successfully filter out a considerable amount of noise it is not without missclassifications. A manual review of the impact score data store revealed that there are some occurences of false negatives and false positives. Most critical is the sub-optimal perfromance on recall, frequently failing to indentify relevant headlines (obvious 1´s).
 
-Future iterations could build upon this by combining a better engineered prompt with a larger llm like GPT 5 or Gemini 3.1 to further improve the denoising process. Because of their largely expanded parameter counts and advances in contextual understanding, these frontier models could interpret subtle economic nuances in financial news headlines more accurately. With this leap in compautation the observed class distribution biases would propably decrease, yielding a much smoother and more reliable classification. Furthermore, their superior reasoning would reduce the reliance on the examples provided by the prompt, making classificatoin more robust against unseen examples. Using frontier models however is vastly inefficient. A fine-tuned smaller llm with the sole binary classification goal of declaring a headlines as relevant or not relevant would yield the best performance and cost ratio. However, to train such a model a big corpus on annoated data is needed and would propably be out of scope of this research.
-
+Future iterations could build upon this idea by combining a better engineered prompt with a larger llm like GPT 5 or Gemini 3.1 to further improve the denoising process. Because of their largely expanded parameter counts and advances in contextual understanding, these frontier models could interpret subtle economic nuances in financial news headlines more accurately. With this leap in compautation the observed class distribution biases would propably decrease, yielding a much smoother and more reliable classification. Furthermore, their superior reasoning would reduce the reliance on the examples provided by the prompt, making classificatoin more robust against unseen examples. Using frontier models however is vastly inefficient. A fine-tuned smaller llm with the sole binary classification goal of declaring a headlines as relevant or not relevant would yield the best performance and cost ratio. However, to train such a model a big corpus on annoated data is needed and would propably be out of scope of this research.
 
 \section{Rolling Sentiment}
 This section will analyse if applying a rolling average to sentiment scores enhances predictive power. The idea is that sentiment can be very volatile, on one day it is neutral and on the others it might have extreme apmplitudes. Calculating the average helps capture a more stable representation of investor mood. Specifically, there will be a comparison between 3-day, 5-day and 20-day rolling sentiment. Before conducting the basic experiment with those features the correlation with the target variable will be tested.
@@ -599,8 +606,58 @@ Surprisingly, the results are fairly mixed; the sentiment feature based on the N
 % ToDo: add comparison of impact scoring denoising to check how much noise each dataset contains
 
 \section{Different Target Horinzons}
-% Comparing the correlation to price change (point cloud)
-% Comparing the performance on the basic experiment (1d, 3d, 5d, 20d targets)
+% explain the last modification idea for the basic experiment: using longer prediction horizons
+% Speculate on the idea why next day prediction is chaotic and volatile and hard for machine learning models to predict. And how fluctuations flattens out when looked at a longer time horizon
+% present the concrete modifications of the basic experiment 1d, 3d, 5d, 20d.
+The final modification for the basic experiment involves changing the prediction target. In this section, the forcasting performance is tested across multiple target horizons. The fundamental idea is that next day stock preidction is extremly difficult due to the volatile and chaotic fluctuation of market prices. This high variance makes it very challenging for machine learning algorithms to extract meaningful patterns, even when provided with high-quality predictors. By extending the target timeframe, the focus shifts from short-term noise to broader market trends. Consequently, the underlying assumption is that price changes smooth out over longer periods, reducing overall volatility and enabling the evaluation models to learn fundamental relationships. Precisely, the basic experiment will be changed to accomodate three new target horizons: 3-days, 5-days and 20-days.
+
+% EDA: 
+% how is the correlation between sentiment score and all targets?
+% show target distribution
+% (show price timer series with sentiment overlay)
+Before testing the effectivness of this experiment, it is important to analyse the correlation with the predictors and disitribuiton of the new targets. To do so a correlation matrix that shows the pearson correlation will be implemented. Furthermore, a plot of every distribution will give a first impression of how price change behaves on longer time horizons.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{PICs/eda_next_days_returns.png}
+    \caption{Explorative Data Analysis of different target horizons1}
+    \label{fig:eda_next_days_returns}
+\end{figure}
+
+Surprisingly the negative correlation between sentiment and the new targets increases with longer timeframes, for the 3-day target the pearson correlation coefficient is $-0.05$ for both weighted sentiment and sentiment. On the 20-day target the coefficient amplyfies to $-0.12$ on both mood features. The volatitly increases of price change (standard deviation) increases with longer horizons, suggesting that the variance of the target datapoints increases. This assumption is backed by the second plot that shows that the distribution widens the longer the target is lying in the future. The mean of the 3-day target is $\mu = 0.000981$ while the mean of the 20-day target is $\mu = 0.006455$. Additionally the standard deviation of the 3-day target is a lot smaller with $\sigma=0.0232$ compared to the deviation of the 20-day target with $\sigma=0.0604$. Consequently, the predictive models will face a clear trade-off: while they can leverage the amplified correlation between sentiment and price trends, they must simultaneously contend with a significantly wider variance in target outcomes. The baseline models will be equally affected by these dynamics. The Always-Up strategy will inherently benefit from the higher expected mean, while the naive mean-predicting regression model will suffer from higher error due to the wider variance.
+
+% explain the adjustments needed for expanding windows crossvalidation. A gap between test und train set is needed to avoid lookahead. Assuming for 3d horizon prediction t-1, t-2, t-3 need to be excluded to avoid unfair advantage on the first datapoint.
+It is also important to note that the expanding window cross validation is adjusted for this new experiment setup. Because the new target is based on previous days $t-n$ a gap of $n$ days between train and test set needs to be established. This prevents lookahead advantages on the first datapoint, keeping the model evaluation fair in regards of the other experiments.
+
+To evaluate how perdiction accuracy change across the new target variables. The basic experiment is run with all available features (sentiment + all technicals). After that every result will be plotted with a delta to the 1-day outcomes, this will reveal if the evaluation models will benefit from the previously mentioned trade offs.
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|lccc|}
+\hline
+\textbf{Regression Model} & \textbf{$\Delta$ MAE (3-Day)} & \textbf{$\Delta$ MAE (5-Day)} & \textbf{$\Delta$ MAE (20-Day)} \\
+\hline
+ARIMA          & \cellcolor{red!25}+0.000315  & \cellcolor{red!25}+0.001780  & \cellcolor{red!25}+0.002391 \\
+LSTM           & \cellcolor{red!25}+0.004879  & \cellcolor{red!25}+0.008188  & \cellcolor{red!25}+0.022878 \\
+GRU            & \cellcolor{red!25}+0.004874  & \cellcolor{red!25}+0.008191  & \cellcolor{red!25}+0.022975 \\
+MLR            & \cellcolor{red!25}+0.005486  & \cellcolor{red!25}+0.009356  & \cellcolor{red!25}+0.028729 \\
+Mean-Baseline  & \cellcolor{red!25}+0.004782  & \cellcolor{red!25}+0.007929  & \cellcolor{red!25}+0.021533 \\
+\hline
+\textbf{Classification Model} & \textbf{$\Delta$ F1-Score (3-Day)} & \textbf{$\Delta$ F1-Score (5-Day)} & \textbf{$\Delta$ F1-Score (20-Day)} \\
+\hline
+XGBoost        & \cellcolor{green!25}+0.005911  & \cellcolor{green!25}+0.016420  & \cellcolor{green!25}+0.060627 \\
+MLogR          & \cellcolor{green!25}+0.022911  & \cellcolor{green!25}+0.324874  & \cellcolor{green!25}+0.074139 \\
+Always Up      & \cellcolor{green!25}+0.038396  & \cellcolor{green!25}+0.044909  & \cellcolor{green!25}+0.083723 \\
+\hline
+\end{tabular}
+\caption{Performance Deltas against 1-Day results ($\Delta$ = N-Day - 1-Day) for MAE and F1-Score. For MAE, red cells indicate increased error (degraded performance). For F1-Score, green cells indicate higher scores (improved performance).}
+\label{tab:delta_all_horizons_mae_f1}
+\end{table}
+
+As shown in \ref{tab:delta_all_horizons_mae_f1} the error margines of the regression models increased with the the expanding target windows. This was expected because of the greater variance in the target variable. As previously stated the regression baseline is no exception for this dynamic. In contrast the classificaton models all improved in performance against the 1-day baseline. The MLogR model did exceptionally well on the 5-day target with a F1-score gain of $+0.324874$. As expected the always up baseline profited the most from this new setup. Interesstingly the errors of the other classification models did not improve in the same way, one possible explaination is that the predictors introduce too much noise leveling out the classification advantages. Finally, it is important to note that eventhough the always up baseline did very well with an accuracy of 67.1 percent it might still not be enough to beat the market in the real world. This is likely because directional accuracy alone fail to account for the magnitude of actual price movements, meaning that a few severe market downturns could potentially wipe out the accumulated profits from many small correct predictions.
+
 \chapter{Discussion}
 % Discussion of the results, why did sentiment did not improve the forcasting performance despite some literature state otherwise.
 % Words in regards to the EMH and the GIF model. (Sentiment may be a short living signal due to efficient markets)
