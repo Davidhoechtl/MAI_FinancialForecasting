@@ -15,6 +15,7 @@ from Impact.Models.GPT_OSS_20B.GptOss20B import GptOss20B
 from Impact.Models.Llama3_1_Instruct.Llama3_1_Instruct import LlamaInstruct
 from Sentiment.Datasets.Headlines_2017_12_to_2020_7_USEastern.dataset_adapter import Adapter1
 from Sentiment.Datasets.Miguel_Aenlle.AenlleAdapter import AenlleAdapter
+from Sentiment.Datasets.NIFTY.nifty_adapter import NiftyAdapter
 
 factories = [
     LlamaInstruct(),
@@ -230,23 +231,29 @@ if __name__ == "__main__":
     # Change working directory to project root
     os.chdir("D:/Studium/Master/Masterarbeit/MAI_FinancialForecasting/Program")
 
-    start_date = "17/12/2017"
-    # start_date = "10/12/2019"
-    end_date = "18/07/2020"
-    adapter1 = AenlleAdapter()
+    start_date = "2010/02/03"
+    end_date = "2020/07/18"
+    adapter1 = NiftyAdapter()
     if not adapter1.try_load_preprocessed():
         adapter1.load()
     df1 = adapter1.to_standard_format()
     df1 = pandas_helper.filter_dataset_by_dates(df1, start_date, end_date)
 
-    adapter1 = Adapter1()
+    adapter1 = AenlleAdapter()
     if not adapter1.try_load_preprocessed():
         adapter1.load()
     df2 = adapter1.to_standard_format()
+    df1 = pandas_helper.filter_dataset_by_dates(df1, start_date, end_date)
+
+    adapter1 = Adapter1()
+    if not adapter1.try_load_preprocessed():
+        adapter1.load()
+    df3 = adapter1.to_standard_format()
     df2 = pandas_helper.filter_dataset_by_dates(df2, start_date, end_date)
 
     # concat df1 and df2
-    df = pd.concat([df1, df2], ignore_index=True)
+    # df = pd.concat([df1, df2, df3], ignore_index=True)
+    df = pd.concat([df1], ignore_index=True)
 
     df["impact"] = load_impact_score(df["headline"], ImpactModel.LLAMA_3_1_Instruct, EvaluationMode.CLASSIFICATION)
 

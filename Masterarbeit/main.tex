@@ -603,7 +603,7 @@ Additonally to the impact scoring section, the importance of quality data as a s
 
 Surprisingly, the results are fairly mixed; the sentiment feature based on the NIFTY dataset shows highly comparable performance to the sentiment score of the basic experiment. While the performance of $sentiment\_nifty$ falls below that of $sentiment\_phamaenlle$ for most regression models, the difference is not as clear for classification models.XGBoost, for example, saw a notable 3 percentage point increase when using the domain-irrelevant sentiment data. In contrast, the MLogR model's performance dropped notably by approximately 2 percent. This indicates that there is no consistent increase or decrease in performance when introducing noise.The results suggest that the original sentiment feature, despite being extracted from domain-relevant information, might not have much explanatory power due to an efficient market. Consequently, this could mean that the quality of the headlines is secondary when compared to the lifespan of the sentiment signal itself.
 
-% ToDo: add comparison of impact scoring denoising to check how much noise each dataset contains
+Furthermore, the impact model was utilized to classify the Nifty dataset to see how impact scores are distributed. The expected results are a highly skewed distribution to the non-relvant class. This seems to be true, the results \ref{fig:impact_score_distribution_nifty} show a significant divergence in score distribution when compared to the relevant dataset. The vast majority of the Nifty dataset fell into class D, meaning the headlines were classified as irrelevant.
 
 \section{Different Target Horinzons}
 % explain the last modification idea for the basic experiment: using longer prediction horizons
@@ -659,9 +659,15 @@ Always Up      & \cellcolor{green!25}+0.038396  & \cellcolor{green!25}+0.044909 
 As shown in \ref{tab:delta_all_horizons_mae_f1} the error margines of the regression models increased with the the expanding target windows. This was expected because of the greater variance in the target variable. As previously stated the regression baseline is no exception for this dynamic. In contrast the classificaton models all improved in performance against the 1-day baseline. The MLogR model did exceptionally well on the 5-day target with a F1-score gain of $+0.324874$. As expected the always up baseline profited the most from this new setup. Interesstingly the errors of the other classification models did not improve in the same way, one possible explaination is that the predictors introduce too much noise leveling out the classification advantages. Finally, it is important to note that eventhough the always up baseline did very well with an accuracy of 67.1 percent it might still not be enough to beat the market in the real world. This is likely because directional accuracy alone fail to account for the magnitude of actual price movements, meaning that a few severe market downturns could potentially wipe out the accumulated profits from many small correct predictions.
 
 \chapter{Discussion}
-% Discussion of the results, why did sentiment did not improve the forcasting performance despite some literature state otherwise.
-% Words in regards to the EMH and the GIF model. (Sentiment may be a short living signal due to efficient markets)
+The primary objective of this research was to evaluate the benefit of sentiment analysis on financial news headlines for predicting the S\&P500 index. Across a vast series of experiments (utilizing different sentiment models, sentiment feature engineering, noise reduction techniques, and different target horizons) a consistent picture emerged. The engineerd sentiment feature captures meaningful market dynamics. However, it is not enough to beat naive baselines in a fair, no lookahead setup. Despite utilizing state of the art transformer-based sentiment models (FinBERT), classical lexicon-based models (VADER) and a novel impact scoring mechanism based on LLMs, none of the evaluation models successfully outperformed baselines in regression and classification tasks.
+The most critical takeaway from the experiment is the efficiency of the modern stock market. The missing correlation between sentiment and next-day price change suggests that the information contained in news is priced into the market in a very short time. This is further supported by the experiment where lookahead bias (same-day sentiment) was intentionally introduced. The result showed that there is a significant correlation with the target and the evaluation models did outperform the baselines. This confirms that sentiment scores are not merely noise but contain explanatory power regarding market movements. However, the lifetime of this signal seems to be very short, suggesting that the semi-strong form of the efficient market hypothesis holds for all performed experiments.
+% speculate if the same results might hold for other equities, cite some other papers
+% comment on the impact scoring and the benefit of preprocessing and denoising of headlines
 % future work and steps to improve the current situation
+% 1. use more fine granulated sentiment data
+% 2. use larger or fine-tuned llms for denoising
+% 3. use embeddings instead of a single dimensional sentiment score
+
 \chapter{Conclusion}
 % rounding everthing up
 
@@ -682,8 +688,14 @@ As shown in \ref{tab:delta_all_horizons_mae_f1} the error margines of the regres
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{PICs/impact score distribution.png}
-    \caption{pham dataset volatility x sentiment}
+    \caption{impact score distribution of pham+aenlle dataset}
     \label{fig:impact_score_distribution}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{PICs/impact score distribution_nifty.png}
+    \caption{impact score distribution of nifty dataset}
+    \label{fig:impact_score_distribution_nifty}
 \end{figure}
 
 %

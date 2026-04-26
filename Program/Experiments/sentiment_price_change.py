@@ -32,7 +32,7 @@ df_combined = get_feature_matrix(
     end_date=end_date,
     impact_model=impact_model,
     tech_indicators=[TechnicalIndicators.VOLATILITY],
-    sentiment_sources=[DatasetSources.AENLLE, DatasetSources.LUCASPHAM],
+    sentiment_sources=[DatasetSources.NIFTY],
     sentiment_model=SentimentModel.FINBERT,
     granularity_level=GranularityLevel.DAILY
 )
