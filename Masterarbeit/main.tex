@@ -14,6 +14,8 @@
 \usepackage{float}         % für [H], optional
 \usepackage{subcaption}
 \usepackage[table]{xcolor}
+\usepackage{hyperref}
+
 %
 %
 % Einträge für Deckblatt, Kurzfassung, etc.
@@ -28,7 +30,14 @@
 \outline{
     This research analyses the predictive value of financial news setniment on percentage price change of the S\&P500, serving as a new data point in the ongoing debate sourrounding the semi-strong form of the Efficient Market Hypothesis (EMH). To quantify the benefit of sentiment features, a comprehensive data pipeline was implemented. It is able to combine multiple news headline datasets and extracts senitment using both Large Language Model (LLM)-based and rule-based sentiment models. The resulting feature matrix was tested across both regression (predicting exact percentage price change) and classification (predicting future market direction) tasks on multiple evlauation models. The results suggests that in a fair, non-lookahead setup, outperforming baseline models was not successfull. However, furhter analysis showed that there is a non-linear correlation between sentiment and price change volatility. Furthermore, utilizing LLMs as denoising method to filter news headlines by improtance demonstrated a small but consistent improvement in performance, suggesting a promising avenue for future research.
 }
-\keywords{financial forcasting, sentiment analysis, efficient markets, FinBERT, VADER}
+\keywords{
+    financial forcasting, sentiment analysis, efficient markets, FinBERT, VADER \\
+    \textbf{Github: } \url{https://github.com/Davidhoechtl/MAI_FinancialForecasting}
+}
+
+\outlineGerman{
+    Diese Forschungsarbeit befasst sich mit der Aussagekraft von Marktstimmung (Sentiment) von Zeitungsüberschriften auf die Vorhersage der Kursveränderung des S\&P500 Aktienindexes. Dies dient als neuer Datenpunkt in einer anhaltenden Diskussion über die mittelstarke Form der Markteffizienzhypothese (EMH). Um den Nutzen der Sentiment-Merkmale zu quantifizieren, wurde eine umfassende Datenpipeline implementiert. Diese ist in der Lage, mehrere Datasets von Nachrichtenüberschriften zu kombinieren und die Marktstimmung sowohl mit Modellen, die auf großen Sprachmodellen (LLMs) basieren, als auch mit regelbasierten Sentiment-Modellen zu extrahieren. Die resultierende Feature-Matrix wurde sowohl in Regressionsaufgaben (Vorhersage der genauen prozentualen Kursveränderung) als auch in Klassifikationsaufgaben (Vorhersage der zukünftigen Marktrichtung) an mehreren Evaluationsmodellen getestet. Die Ergebnisse deuten darauf hin, dass es in einem fairen, non-lookahead Setup nicht gelungen ist, die Basismodelle zu übertreffen. Weitere Analysen zeigten jedoch, dass eine nichtlineare Korrelation zwischen dem Sentiment und der Volatilität der Kursveränderung besteht. Darüber hinaus zeigte die Verwendung von LLMs als Methode zur Filterung (Denoising), um Nachrichtenüberschriften nach ihrer Wichtigkeit zu filtern, eine kleine, aber beständige Verbesserung der Modellleistung, was einen vielversprechenden Ansatz für zukünftige Forschung darstellt.
+}
 \acknowledgements{
     First and foremost, I would like to express my sincere gratitude to my supervisor, Dr. rer. nat. Sharwin Rezagholi, MSc., for his invaluable guidance, continuous support, and important input throughout the duration of this research. His ongoing feedback was essential for shaping the outlines of this project, from the initial discussions to the complexity of each experiment. I am also grateful to the academic institution that educated me and provided me with guidelines for this thesis. Furthermore, I would like to thank my peers and colleagues for the stimulating discussions and technical exchanges. Finally, I want to thank my family for listening and encouraging me throughout the countless hours of creating this project and thesis.
 }
@@ -357,40 +366,160 @@ In this chapter the experiment descriped in \ref{ch:eval_chapter} will be perfor
 \begin{itemize}
     \item \textbf{Baselines}: First we look at the performance of the baseline models, their performance will not change across the different experiments because they rely only on static values or the target variable. For the regression tasks, a the Mean-Baseline approach achieved a $RMSE=0.00942$ and a $MAE=0.00678$. For the classification tasks, the "always up" baseline strategy yielded an accuracy of $54.9$ percent and an $F1-score=0.70$
     \item \textbf{Price Only}: Next the evaluation models will be trained on only on $t-1$ percentage price change. The results indicates no notable performance improvement against the established baselines. In the regression tasks, simple regression models like Multiple Linear Regression outperformed more complex architecture like LSTM or GRU. For the classification objective MLogR(Multiple Logistic Regression) performed poorly yielding an accurcay of $48.2$ percent (which is worse than random chance) and a $F1-score=0.2948$. On the other hand XGBoost performed slightly better, achieving an accurcay of $50.4$, a $F1-score=0.5829$ and a $recall=0.6351$. This indicates that using past price data is not enough for prediciting market returns.
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=1\textwidth]{PICs/results_price.png}
-        \caption{price only results}
-        \label{fig:res_price_only}
-    \end{figure}
+    \begin{table}[htbp]
+    \centering
+    \small % Reduces font size for the table
+    \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
+    \begin{tabular}{|lcccc|}
+        \hline
+        \textbf{Model} & \textbf{RMSE} & \textbf{MAE} & \textbf{$R^2$} & \\
+        \hline
+        ARIMA          & 0.009443      & 0.006803     & -0.014985      & \\
+        LSTM           & 0.009417      & 0.006808     & -0.015571      & \\
+        GRU            & 0.009422      & 0.006814     & -0.017069      & \\
+        MLR            & 0.009407      & 0.006778     & -0.007385      & \\
+        Mean-Baseline  & 0.009424      & 0.006779     & -0.00844       & \\
+        \hline
+        \textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
+        \hline
+        XGBoost        & 0.504583      & 0.541862     & 0.635176       & 0.582921 \\
+        MLogR          & 0.482083      & 0.3289       & 0.270216       & 0.29481  \\
+        Always Up      & 0.549583      & 0.549583     & 1.0            & 0.708273 \\
+        \hline
+    \end{tabular}
+    \caption{Price-Only Results}
+    \label{tab:price_only_results}
+    \end{table}
+    % \begin{figure}[H]
+    %     \centering
+    %     \includegraphics[width=1\textwidth]{PICs/results_price.png}
+    %     \caption{price only results}
+    %     \label{fig:res_price_only}
+    % \end{figure}
     \item \textbf{Sentiment Only}: The sentiment only feature set yieled similar results. For regression there is no significant difference between price only. However, there were shifts in classification performance. MLogR raised its accuracy to $51.1$ percent while also raising its F1-score to $0.5058$. Interesstingly the performance of the other classification model XGBoost dropped below the $50$ percent accuracy mark. The same conclusion as in the price only experiment is that sentiment alone could not be enough to improve prediction accuracy.
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=1\textwidth]{PICs/results_sentiment.png}
-        \caption{sentiment only results}
-        \label{fig:res_sent_only}
-    \end{figure}
+    \begin{table}[htbp]
+    \centering
+    \small % Reduces font size for the table
+    \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
+    \begin{tabular}{|lcccc|}
+        \hline
+        \textbf{Model} & \textbf{RMSE} & \textbf{MAE} & \textbf{$R^2$} & \\
+        \hline
+        ARIMA          & 0.009453      & 0.006818     & -0.018653      & \\
+        LSTM           & 0.009417      & 0.006808     & -0.016312      & \\
+        GRU            & 0.009418      & 0.006814     & -0.016761      & \\
+        MLR            & 0.009428      & 0.00679      & -0.010642      & \\
+        Mean-Baseline  & 0.009424      & 0.006779     & -0.00844       & \\
+        \hline
+        \textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
+        \hline
+        XGBoost        & 0.489167      & 0.530961     & 0.602157       & 0.561939 \\
+        MLogR          & 0.510833      & 0.509475     & 0.540943       & 0.505767 \\
+        Always Up      & 0.549583      & 0.549583     & 1.0            & 0.708273 \\
+        \hline
+    \end{tabular}
+    \caption{Sentiment-Only Results}
+    \label{tab:res_sent_only}
+    \end{table}
+    % \begin{figure}[H]
+    %     \centering
+    %     \includegraphics[width=1\textwidth]{PICs/results_sentiment.png}
+    %     \caption{sentiment only results}
+    %     \label{fig:res_sent_only}
+    % \end{figure}
     \item \textbf{All Technical Indicators}: In this Experiment all technical indicators ("Pct\_Change", "VIX", "Volume", "Moving\_Average\_30", "US1Y\_Yield") where used to predict the target. Even with this additional information the prediction performance could not be improved. However more complex models had a lower regression loss compared to the simpler models. Both classification models did not achieve above $50$ percent accurcacy, suggesting that there was no benefit in combining all the technical indicators for market direction prediction.
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=1\textwidth]{PICs/results_alltechnicals.png}
-        \caption{all technicals results}
-        \label{fig:res_all_technicals}
-    \end{figure}
+    \begin{table}[htbp]
+    \centering
+    \small % Reduces font size for the table
+    \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
+    \begin{tabular}{|lcccc|}
+        \hline
+        \textbf{Model} & \textbf{RMSE} & \textbf{MAE} & \textbf{$R^2$} & \\
+        \hline
+        ARIMA          & 0.009693      & 0.00705      & -0.088735      & \\
+        LSTM           & 0.009417      & 0.006807     & -0.015555      & \\
+        GRU            & 0.009417      & 0.006808     & -0.015511      & \\
+        MLR            & 0.009623      & 0.006997     & -0.076115      & \\
+        Mean-Baseline  & 0.009424      & 0.006779     & -0.00844       & \\
+        \hline
+        \textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
+        \hline
+        XGBoost        & 0.49125       & 0.558421     & 0.478794       & 0.47806  \\
+        MLogR          & 0.485833      & 0.243254     & 0.375433       & 0.27988  \\
+        Always Up      & 0.549583      & 0.549583     & 1.0            & 0.708273 \\
+        \hline
+    \end{tabular}
+    \caption{All-Technicals Results}
+    \label{tab:res_all_technicals}
+    \end{table}
+    % \begin{figure}[H]
+    %     \centering
+    %     \includegraphics[width=1\textwidth]{PICs/results_alltechnicals.png}
+    %     \caption{all technicals results}
+    %     \label{fig:res_all_technicals}
+    % \end{figure}
     \item \textbf{All Technical Indicators and Sentiment}: Finally we are looking at the combined feature matrix of sentiment plus all technical indicators. The performance of this experiment is nearly indentical to the experiment with only technical indicators. A possible explaination could be that sentiment is regulated away during training due to a lack of notable corss feature-synergies and explainatory power. Even when utilizing every available feature the market could not be predicted with an accuracy above initial baseline.
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=1\textwidth]{PICs/results_alltechnicals_sentiment.png}
-        \caption{all technicals plus sentiment results}
-        \label{fig:res_all_technicals_plus_sentiment}
-    \end{figure}
+    \begin{table}[htbp]
+    \centering
+    \small % Reduces font size for the table
+    \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
+    \begin{tabular}{|lcccc|}
+        \hline
+        \textbf{Model} & \textbf{RMSE} & \textbf{MAE} & \textbf{$R^2$} & \\
+        \hline
+        ARIMA          & 0.009656      & 0.00704      & -0.086785      & \\
+        LSTM           & 0.009417      & 0.006807     & -0.015513      & \\
+        GRU            & 0.009416      & 0.006806     & -0.015529      & \\
+        MLR            & 0.009629      & 0.007007     & -0.079361      & \\
+        Mean-Baseline  & 0.009424      & 0.006779     & -0.00844       & \\
+        \hline
+        \textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
+        \hline
+        XGBoost        & 0.497917      & 0.57244      & 0.450527       & 0.468894 \\
+        MLogR          & 0.48625       & 0.264806     & 0.38585        & 0.293925 \\
+        Always Up      & 0.549583      & 0.549583     & 1.0            & 0.708273 \\
+        \hline
+    \end{tabular}
+    \caption{All-Technicals + Sentiment Results}
+    \label{tab:res_all_technicals_plus_sentiment}
+    \end{table}
+    % \begin{figure}[H]
+    %     \centering
+    %     \includegraphics[width=1\textwidth]{PICs/results_alltechnicals_sentiment.png}
+    %     \caption{all technicals plus sentiment results}
+    %     \label{fig:res_all_technicals_plus_sentiment}
+    % \end{figure}
     \item \textbf{Lookahead BIAS (sentiment tomorrow)}: In \ref{ch:eda_sentiment} a statistical significant correlation could be confirmed. In this run the quantitative performance of the evaluation models will be analysed when introducing lookahead bias by offseting the sentiment feature by one day. This should create an unfair advantage against the baseline models and yield a superior performance. The results supports this assumption, the performance of the LSTM, GRU and MLR models improved and they successfully beat the baseline. Classification accurcay also rose to a value between $55.6-60$ percent with F1-scores improving to approximately $0.61$. This experiment thereby validates that sentiment models extract valuable information instead of pure noise.
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=1\textwidth]{PICs/results_sanity_sentiment_tomorrow.png}
-        \caption{sentiment tomorrow results}
-        \label{fig:res_tomorrow_sent}
-    \end{figure}
+    \begin{table}[htbp]
+    \centering
+    \small % Reduces font size for the table
+    \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
+    \begin{tabular}{|lcccc|}
+        \hline
+        \textbf{Model} & \textbf{RMSE} & \textbf{MAE} & \textbf{$R^2$} & \\
+        \hline
+        ARIMA          & 0.009368      & 0.00675      & -0.00702       & \\
+        LSTM           & 0.009276      & 0.006692     & 0.019158       & \\
+        GRU            & 0.009263      & 0.006686     & 0.022305       & \\
+        MLR            & 0.009334      & 0.006727     & 0.003554       & \\
+        Mean-Baseline  & 0.009424      & 0.006779     & -0.00844       & \\
+        \hline
+        \textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
+        \hline
+        XGBoost        & 0.55625       & 0.579614     & 0.69749        & 0.626898 \\
+        MLogR          & 0.598333      & 0.645683     & 0.640414       & 0.612824 \\
+        Always Up      & 0.549583      & 0.549583     & 1.0            & 0.708273 \\
+        \hline
+    \end{tabular}
+    \caption{Sentiment-Tomorrow Results}
+    \label{tab:res_tomorrow_sent}
+    \end{table}
+    % \begin{figure}[H]
+    %     \centering
+    %     \includegraphics[width=1\textwidth]{PICs/results_sanity_sentiment_tomorrow.png}
+    %     \caption{sentiment tomorrow results}
+    %     \label{fig:res_tomorrow_sent}
+    % \end{figure}
 \end{itemize}
 
 \section{FinBERT vs VADER}
@@ -683,6 +812,22 @@ A fundamental limitation of sentiment analysis with FinBERT or similar models, w
 
 \chapter{Conclusion}
 The fundamental question that this study was trying to answer is "Can daily aggregated sentiment extrated from financial news headlines improve prediction accuracy in financial forcasting on the S\&P500?". This research evaluated the predictive power of such feature accross multiple evaluation models in regression and classification tasks. Through a robust series of experiments utilizing transformer-based architectures (FinBERT), lexicon-based models (VADER), varying target horizons, and denosing by impact scoring, a consistent conclusion can be made: daily aggreagted sentiment fails to systematically outperform any naive baseline models in regression and classification tasks. This work therefore fails to reject the semi-strong form of the efficient market hypothesis, suggesting that daily aggregated sentiment alone is not enough to improve predicitve capabilities. However, with the introduction of LLM-based filtering a promising way for data denoising has been evaluated. Even though the resulting gains were not yet sufficient to overcome the robust baselines it suggests that semantic filtering has greate potential to extract clearer and stronger sentiment signals.
+
+\chapter{Used AI Tools}
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|p{10cm}|}
+        \hline
+        \textbf{AI Tool} & \textbf{Purpose} \\
+        \hline
+        \textbf{Gemini Pro 3.1} & Correcting grammar, improving wording, and creating latex tables. \\
+        \hline
+        \textbf{Consensus} & Finding literature in addition to manual literature research with Google Scholar. \\
+        \hline
+   \end{tabular}
+    \caption{Overview of AI tools used in this work.}
+    \label{tab:ai_tools}
+\end{table}
 
 \chapter{Appendix}
 \section{Plots}
