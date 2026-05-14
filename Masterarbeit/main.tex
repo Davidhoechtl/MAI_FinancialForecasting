@@ -123,7 +123,7 @@ The following datasets are included in the pipeline:
     \begin{tabularx}{\linewidth}{|l|X|}
     \hline
     \textbf{Dataset} & \textbf{Description} \\ \hline
-    \textbf{Financial News Headlines Data} (Pham, \cite{pham_financial_news}) & Kaggle-hosted dataset that spans from December 2017 to July 2020. It contains about 53,330 headlines scraped from CNBC, the Guardian, and Reuters official websites. \\ \hline
+    \textbf{Financial News Headlines Data} (Pham, \cite{pham_financial_news}) & Kaggle-hosted dataset that spans from December 2017 to July 2020. It contains about 53330 headlines scraped from CNBC, The Guardian, and Reuters official websites. \\ \hline
     \textbf{Daily Financial News for 6000+ Stocks} (Aenlle, \cite{aenlle_financial_news}) &Kaggle-hosted dataset that covers 1.85 million news items from 2009--2020. It covers many news portals like Seeking Alpha, Zacks, and GuruFocus. The timestamps are localized as UTC-4 (US/Eastern). \\ \hline
     \textbf{NIFTY: News-Informed Financial Trend Yield} (Saqur, \cite{raeidsaqur2024NiftyLM}) & Originally a dataset designed for aligning Large Language Models (LLMs) with financial market data. It contains headlines from 2010--2020 that are mostly about the Indian/Asian economy. In the context of this study, it is included as a benchmark to determine if there are performance variations compared to relevant datasets. \\ \hline
     \end{tabularx}
@@ -135,23 +135,23 @@ The following datasets are included in the pipeline:
 % ToDo add note to timezone alignment: what is the problem, how did you solve it and where should it be taken with a grain of salt
 
 \section{Sentiment Models}
-For the sentiment classification task two different models are used and compared: FinBERT and VADER. The reason for this decision is to compare which of the models performs better in sentiment analysis. Doing so will show how important contextual understanding of transformers are when it comes to sentiment classification of short texts like news headlines.
+For the sentiment classification task, two different models are used and compared: FinBERT and VADER. The reason for this decision is to compare which of the models performs better in sentiment analysis. Doing so will show how important contextual understanding of transformers is when it comes to sentiment classification of short texts like news headlines.
 
 \subsection{VADER}
-Vader is a traditional lexicon and rule based sentiment model \cite{hutto2014vader}. It was developed to analyse short sentences like social media posts, product reviews, or short editorials in news papers. It assignes each word a predefined polarity score and adjusts the values based on heuristical rules. Negations, Intensifiers (extremly, marginally, ...), Capitalisation are some examples for those rules. They are used to get more contextual understanding. 
+VADER is a traditional lexicon- and rule-based sentiment model \cite{hutto2014vader}. It was developed to analyze short sentences like social media posts, product reviews, or short editorials in newspapers. It assigns each word a predefined polarity score and adjusts the values based on heuristic rules. Negations, intensifiers (extremely, marginally, ...), and capitalization are some examples of these rules. They are used to gain more contextual understanding.
 
-The final output of the model is called Compound-Score and is calculated by summing all polarity values and normalize:
+The final output of the model is called the compound score and is calculated by summing all polarity values and normalizing them:
 
 $$s_{compound} = \frac{\sum v_i}{\sqrt{\left(\sum v_i\right)^2 + \alpha}}$$
 
-Where $v_i$ are the adjusted polarity scores and $\alpha$ a normalization constant (default value $\alpha = 15$), which acts as sensitivity dial. As final output this formula guarantees a value between -1 (negative sentiment) and 1 (positive sentiment).
+Where $v_i$ are the adjusted polarity scores and $\alpha$ is a normalization constant (default value $\alpha = 15$), which acts as a sensitivity dial. As the final output, this formula guarantees a value between $-1$ (negative sentiment) and $1$ (positive sentiment).
 
 \subsection{FinBERT}
-FinBERT is a state of the art sentiment model which in contrast uses a transformer architecture instead of a lexicon approach \cite{araci2019finbert}. It is a fine tuned version of the famous BERT model from Google \cite{devlin2019bert} and was trained on a large corpus of financial text. Because of its architecture and fine tuning it exceeds in the task of understanding semantic texts in the financial domain. At the end of the model architecture a dense layer for classification was added. The output is passed through a softmax function to obtain the probability distribution of the three senitment labels (positive, negative, neutral).
+FinBERT is a state-of-the-art sentiment model which, in contrast, uses a transformer architecture instead of a lexicon approach \cite{araci2019finbert}. It is a fine-tuned version of the famous BERT model from Google \cite{devlin2019bert} and was trained on a large corpus of financial text. Because of its architecture and fine-tuning, it excels at the task of understanding semantic text in the financial domain. At the end of the model architecture, a dense layer for classification was added. The output is passed through a softmax function to obtain the probability distribution of the three sentiment labels (positive, negative, and neutral).
 
 $$P(y|x) = \text{softmax}(W \cdot h_{\text{[CLS]}} + b)$$
 
-Where P(y|x) stands for the conditional probability, $h_{\text{[CLS]}}$ for the CLS Token (compressed representation vector of the sentence) and W, b for the learned parameters of the classification layer.
+Where $P(y|x)$ stands for the conditional probability, $h_{\text{[CLS]}}$ for the CLS token (compressed representation vector of the sentence), and $W$ and $b$ for the learned parameters of the classification layer.
 
 \section{Impact Scoring}
 Financial markets create a great volume of textual data. However, the distribution of important information is highly skewed. Most headlines are "noise" (repetitive updates, foreign news, minor price fluctuations), which can dilute the predictive power of the sentiment score. For this reason, a novel denoising method that uses large language models (LLMs) to differentiate between important headlines and noise is introduced.
