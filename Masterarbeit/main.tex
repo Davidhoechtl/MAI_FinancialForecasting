@@ -107,24 +107,30 @@ To accommodate the multiple datasets and sentiment models used in this research,
     \end{minipage}
     \par\vspace{1ex}
 
-    \item \textbf{Model Evaluation}: the last component of this system is the evaluation pipeline. Here the final feature matrix can be used to perform experiments on multiple evlaution models. This part of the pipeline is outsourcing the cross validation and result preprocessing/formatting implementations. This allows for a wide varity of experiments with different feature matrix and evaluation models.
+    \item \textbf{Model Evaluation}: The final component of the system is the evaluation pipeline. Here, the final feature matrix can be used to perform experiments on multiple evaluation models. This part of the pipeline handles the cross-validation and result preprocessing/formatting implementations. This allows for a wide variety of experiments across different feature matrices and evaluation models.
 \end{itemize}
 
 \section{Datasets}
-The data for the news sentiment score is joined by a datapipeline that combine, preprocess and align multiple datasets into one corpus of headlines. The aggregation of multiple news sources over a broader time horizon increases data coverage and diversity. Therefore reducing potential biases coming from a specific news portal or timeframe. Resulting in a more generalized and reliable sentiment signal.
+To construct a unified corpus of financial headlines, this research aggregates multiple news datasets. The aggregation of multiple news sources over a broader time horizon increases data coverage and diversity. Therefore reducing potential biases coming from a specific news portal or timeframe. This should result in a more generalized and reliable sentiment signal. 
 
 % Todo include information about preprocessing logic
-Following datasets are included in the pipeline:
-\begin{itemize}
-    \item \textbf{Financial News Headlines Data} (Pham, \cite{pham_financial_news}): Kaggle hosted dataset that spans from December 2017 to July 2020. It contains about 53330 Headlines scraped from CNBC, the Guardian, and Reuters official websites.
-    
-    \item \textbf{Daily Financial News for 6000+ Stocks} (Aenlle, \cite{aenlle_financial_news}): Kaggle hosted dataset that covers 1.85 million news from 2009-2020. Covers many news portals like Seeking Alpha, Zacks, GuruFocus. The timestamps are localized as UTC-4 (US/Eastern).
-    
-    % maybe move the potential error explanation into the appendix
-    \item \textbf{FNSPID: Financial News Dataset in Time Series} (Dong et al., \cite{dong2024fnspid}): This dataset aggregates ~15.7 million news headlines from Nasdaq. The corpus offers datapoints from 1999 through 2023. Although promising, it appears to have wrong time conversions on some entries. For example, Benzinga-sourced headlines are localized as UTC-4, the corresponding timestamp in the dataset is localized as UTC-0 but converted in the wrong direction. This leads to potential data leakage if the article was published after 8 pm.
-    
-    \item \textbf{NIFTY: News-Informed Financial Trend Yield} (Saqur, \cite{raeidsaqur2024NiftyLM}): Originally a dataset designed for aligning Large Language Models (LLMs) with financial market data. Contains headlines from 2010-2020 that are mostly about the Indian/Asian economy. In the context of this study, it is included as a benchmark to determine if there are performance variations compared to other datasets.
-\end{itemize}
+The following datasets are included in the pipeline:
+
+\par\vspace{2ex}
+\begin{minipage}{\linewidth}
+    \centering
+    \small
+    \begin{tabularx}{\linewidth}{|l|X|}
+    \hline
+    \textbf{Dataset} & \textbf{Description} \\ \hline
+    \textbf{Financial News Headlines Data} (Pham, \cite{pham_financial_news}) & Kaggle-hosted dataset that spans from December 2017 to July 2020. It contains about 53,330 headlines scraped from CNBC, the Guardian, and Reuters official websites. \\ \hline
+    \textbf{Daily Financial News for 6000+ Stocks} (Aenlle, \cite{aenlle_financial_news}) &Kaggle-hosted dataset that covers 1.85 million news items from 2009--2020. It covers many news portals like Seeking Alpha, Zacks, and GuruFocus. The timestamps are localized as UTC-4 (US/Eastern). \\ \hline
+    \textbf{NIFTY: News-Informed Financial Trend Yield} (Saqur, \cite{raeidsaqur2024NiftyLM}) & Originally a dataset designed for aligning Large Language Models (LLMs) with financial market data. It contains headlines from 2010--2020 that are mostly about the Indian/Asian economy. In the context of this study, it is included as a benchmark to determine if there are performance variations compared to relevant datasets. \\ \hline
+    \end{tabularx}
+    \captionof{table}{Summary and specifications of the integrated financial news datasets.}
+    \label{tab:integrated_datasets}
+\end{minipage}
+\par\vspace{1ex}
 
 % ToDo add note to timezone alignment: what is the problem, how did you solve it and where should it be taken with a grain of salt
 
