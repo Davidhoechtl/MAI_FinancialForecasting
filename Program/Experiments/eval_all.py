@@ -7,6 +7,7 @@ from sympy.core.random import random
 import EvaluationPipeline
 from FeatureMatrixPipeline import get_feature_matrix
 from Forecasting.ARMA import ARMAForecastingModel
+from Forecasting.AlwaysUp import AlwaysUpModel
 from Forecasting.GRU import GRUForecastingModel
 from Forecasting.LSTM import LSTMForecastingModel
 from Forecasting.MLR import MLRForecastingModel
@@ -28,42 +29,58 @@ pd.set_option('display.max_colwidth', None)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 
-start_date = "17/12/2017"
-end_date = "06/11/2020"
-impact_model = ImpactModel.LLAMA_3_1_Instruct
+# start_date = "17/12/2017"
+# end_date = "06/11/2020"
+start_date = "2010/02/03"
+end_date = "2020/07/18"
+
+impact_model = ImpactModel.NONE
 df_combined = get_feature_matrix(
     start_date=start_date,
     end_date=end_date,
     impact_model=impact_model,
-    tech_indicators=[TechnicalIndicators.VOLATILITY, TechnicalIndicators.VIX, TechnicalIndicators.MOVING_AVERAGE_30],
-    sentiment_sources=[DatasetSources.LUCASPHAM],
-    sentiment_model=SentimentModel.FINBERT,
+    tech_indicators=[TechnicalIndicators.VOLATILITY, TechnicalIndicators.VIX, TechnicalIndicators.MOVING_AVERAGE_30, TechnicalIndicators.US1Y_YIELD],
+    sentiment_sources=[DatasetSources.LUCASPHAM, DatasetSources.AENLLE],
+    sentiment_model=SentimentModel.VADER,
     granularity_level=GranularityLevel.DAILY
 )
 print(df_combined.head(20))
 print(df_combined.info())
 
-print("count of sentiment 0s:", (df_combined['weighted_sentiment'] == 0).sum())
-
-# with lookahead bias
+# print("count of sentiment 0s:", (df_combined['weighted_sentiment'] == 0).sum())
+#
+# # with lookahead bias
 df_combined['sentiment_tomorrow'] = df_combined['sentiment'].shift(-1)
 df_combined.dropna(subset=['sentiment_tomorrow'], inplace=True)
-#
-df_combined['rolling_weighted_sentiment_3day'] = df_combined['weighted_sentiment'].rolling(window=3, min_periods=1).mean()
+# #
+# df_combined['rolling_weighted_sentiment_3day'] = df_combined['weighted_sentiment'].rolling(window=3, min_periods=1).mean()
 # df_combined['Target_60d_Return'] = df_combined['Close'].pct_change(periods=60).shift(-60)
 # df_combined.dropna(subset=['Target_60d_Return'], inplace=True)
+
+df_combined["rolling_sentiment_3d"] = df_combined['sentiment'].rolling(window=3, min_periods=1).mean()
+df_combined["rolling_sentiment_5d"] = df_combined['sentiment'].rolling(window=5, min_periods=1).mean()
+df_combined["rolling_sentiment_20d"] = df_combined['sentiment'].rolling(window=20, min_periods=1).mean()
+df_combined["rolling_sentiment_60d"] = df_combined['sentiment'].rolling(window=60, min_periods=1).mean()
 
 # fill series with random values
 # df_combined['noise'] = np.random.uniform(-0.05, 0.05, size=len(df_combined))
 
-feature_cols = ['Pct_Change_next']
+target_horizon = 20
+df_combined['Target'] = df_combined['Close'].pct_change(periods=target_horizon).shift(-target_horizon)
+df_combined.dropna(subset=['Target'], inplace=True)
+
+# feature_cols = ['Pct_Change']
+# feature_cols = ['sentiment']
+# feature_cols = ['Log_Pct_Change', 'sentiment', 'VIX', 'US1Y_Yield', 'Volume']
 # feature_cols = ['weighted_sentiment']
 # feature_cols = ['weighted_sentiment', 'VIX']
-# feature_cols = ['Pct_Change', 'VIX', 'Volume', 'Moving_Average_30']
+feature_cols = ['Pct_Change', 'VIX', 'Volume', 'Moving_Average_30', 'US1Y_Yield', 'sentiment']
 # feature_cols = ['weighted_sentiment', 'Pct_Change', 'VIX', 'Volume', 'Moving_Average_30']
 # feature_cols = ['Pct_Change_next']
 # feature_cols = ['rolling_sentiment_30day']
-target_col = 'Pct_Change_next'
+target_col = 'Target'
+
+
 
 mean_model = MeanForecastingModel()
 mean_model_results = EvaluationPipeline.evaluate_model_on_regression(
@@ -71,7 +88,7 @@ mean_model_results = EvaluationPipeline.evaluate_model_on_regression(
     feature_matrix=df_combined,
     predictor_cols=feature_cols,
     target_col=target_col,
-    target_horizon_in_days=1
+    target_horizon_in_days=target_horizon
 )
 
 # momentum_model_results = None
@@ -93,7 +110,7 @@ arima_results = EvaluationPipeline.evaluate_model_on_regression(
     feature_matrix=df_combined,
     predictor_cols=feature_cols,
     target_col=target_col,
-    target_horizon_in_days=1
+    target_horizon_in_days=target_horizon
 )
 
 gru_model = GRUForecastingModel()
@@ -102,7 +119,7 @@ gru_model_results = EvaluationPipeline.evaluate_model_on_regression(
     feature_matrix=df_combined,
     predictor_cols=feature_cols,
     target_col=target_col,
-    target_horizon_in_days=1
+    target_horizon_in_days=target_horizon
 )
 
 mlr_model = MLRForecastingModel()
@@ -111,7 +128,7 @@ mlr_model_results = EvaluationPipeline.evaluate_model_on_regression(
     feature_matrix=df_combined,
     predictor_cols=feature_cols,
     target_col=target_col,
-    target_horizon_in_days=1
+    target_horizon_in_days=target_horizon
 )
 
 lstm_model = LSTMForecastingModel()
@@ -120,12 +137,21 @@ lstm_model_results = EvaluationPipeline.evaluate_model_on_regression(
     feature_matrix=df_combined,
     predictor_cols=feature_cols,
     target_col=target_col,
-    target_horizon_in_days=1
+    target_horizon_in_days=target_horizon
 )
 
 # Change target to next day up and down (1 if up, 0 if down)
-df_combined['Target'] = (df_combined["Pct_Change_next"] > 0).astype(int) # 1 if next day's pct change > 0 else 0
-target_col = 'Target'
+df_combined['Target_dir'] = (df_combined["Target"] > 0).astype(int) # 1 if next day's pct change > 0 else 0
+target_col = 'Target_dir'
+
+always_up_baseline = AlwaysUpModel()
+always_up_results = EvaluationPipeline.evaluate_model_on_classification(
+    model=always_up_baseline,
+    feature_matrix=df_combined,
+    predictor_cols=feature_cols,
+    target_col=target_col,
+    target_horizon_in_days=target_horizon
+)
 
 xGBoost_model = XGBoostForecastingModel()
 xGBoost_model_results = EvaluationPipeline.evaluate_model_on_classification(
@@ -133,7 +159,7 @@ xGBoost_model_results = EvaluationPipeline.evaluate_model_on_classification(
     feature_matrix=df_combined,
     predictor_cols=feature_cols,
     target_col=target_col,
-    target_horizon_in_days=1
+    target_horizon_in_days=target_horizon
 )
 
 mlogr_model = MLogRForecastingModel()
@@ -142,7 +168,7 @@ mlogr_model_results = EvaluationPipeline.evaluate_model_on_classification(
     feature_matrix=df_combined,
     predictor_cols=feature_cols,
     target_col=target_col,
-    target_horizon_in_days=1
+    target_horizon_in_days=target_horizon
 )
 
 # plot the results
@@ -158,3 +184,4 @@ print("Mean-Baseline:", mean_model_results)
 print("-----------------------CLASSIFICATION RESULTS-----------------------")
 print("XGBoost Results:", xGBoost_model_results)
 print("MLogR Results:", mlogr_model_results)
+print("Always Up Results:", always_up_results)

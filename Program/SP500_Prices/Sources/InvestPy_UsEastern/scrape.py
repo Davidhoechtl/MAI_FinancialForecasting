@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import investpy
 from datetime import datetime, timezone
@@ -25,10 +26,14 @@ def get_sp500_data(start, end, max_retries=3, verbose=True):
             cached_df.index = pd.to_datetime(cached_df.index, utc=True, errors='coerce')
             cached_df.index = cached_df.index.tz_convert('US/Eastern')
 
+            # Calculate log returns
+            cached_df['Log_Pct_Change'] = np.log(cached_df['Close'] / cached_df['Close'].shift(1))
+            cached_df.dropna(subset=['Log_Pct_Change'], inplace=True)
+
             # Slice to requested window
             df_slice = cached_df.loc[start_ts:end_ts]
 
-            result = df_slice[['Close', 'Pct_Change', 'Volume']]
+            result = df_slice[['Close', 'Pct_Change', 'Log_Pct_Change', 'Volume']]
             return result
         except Exception as exc:
             raise Exception(f"[ERROR]: failed to load cache {CACHE_FILE_PATH}: {exc}")
@@ -42,7 +47,7 @@ def get_sp500_data(start, end, max_retries=3, verbose=True):
             verbose=verbose,
             max_retries=max_retries
         )
-        return df[['Close', 'Pct_Change', 'Volume']]
+        return df[['Close', 'Pct_Change', 'Log_Pct_Change', 'Volume']]
 
 def get_sp500_data_weekly(start, end):
     import investpy
@@ -167,7 +172,11 @@ def scrape_all(start, end, chunk_days=365, verbose=True, max_retries=3, stop_on_
     df_all = df_all[~df_all.index.duplicated(keep='last')]
 
     # Calculate daily percent change
-    df_all['Pct_Change'] = df_all['Close'].pct_change()
+    # df_all['Pct_Change'] = df_all['Close'].pct_change()
+
+    # Calculate log returns
+    df_all['Log_Pct_Change'] = np.log(df_all['Close'] / df_all['Close'].shift(1))
+    df_all.dropna(subset=['Log_Pct_Change'], inplace=True)
 
     df_all.to_csv(CACHE_FILE_PATH, index=True)
     if verbose:

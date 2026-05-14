@@ -1,9 +1,11 @@
 from Impact.ImpactScoreAnalyzerEnums import EvaluationMode
 from Sentiment.Datasets.FNSPID.FnspidAdapter import FnspidAdapter
 from Sentiment.Datasets.Headlines_2017_12_to_2020_7_USEastern.dataset_adapter import Adapter1
+from Sentiment.Datasets.Miguel_Aenlle.AenlleAdapter import AenlleAdapter
 from Sentiment.Datasets.NIFTY.nifty_adapter import NiftyAdapter
 from Sentiment.Datasets.dataset_adapter_base import DatasetAdapterBase
-from Sentiment.SentimentAnalyzer import analyze_sentiment, SentimentModel, GranularityLevel, DatasetSources, ImpactModel
+from Sentiment.SentimentAnalyzer import analyze_sentiment, SentimentModel, GranularityLevel, DatasetSources, \
+    ImpactModel, AggregationMethod
 import pandas as pd
 from Utils.pandas_helper import filter_dataset_by_dates
 
@@ -20,6 +22,7 @@ def load(
     granularity_level: GranularityLevel,
     impact_model: ImpactModel = ImpactModel.NONE,
     impact_model_evaluation_mode: EvaluationMode = EvaluationMode.CLASSIFICATION,
+    aggregation_function: AggregationMethod = AggregationMethod.MEAN,
     start_date: str = None,
     end_date: str = None ):
     """
@@ -35,6 +38,8 @@ def load(
             adapter = NiftyAdapter()
         elif source == DatasetSources.FNSPID:
             adapter = FnspidAdapter()
+        elif source == DatasetSources.AENLLE:
+            adapter = AenlleAdapter()
         else:
             print(f"⚠️ Unknown dataset: {source}, skipping.")
             continue
@@ -51,7 +56,8 @@ def load(
         sentiment_model=sentiment_model,
         granuality_level=granularity_level,
         impact_model=impact_model,
-        impact_model_evaluation_mode=impact_model_evaluation_mode
+        impact_model_evaluation_mode=impact_model_evaluation_mode,
+        aggregation_function=aggregation_function
     )
 
     return sentiment_scored

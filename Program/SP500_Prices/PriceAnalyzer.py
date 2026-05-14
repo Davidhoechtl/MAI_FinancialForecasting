@@ -2,6 +2,7 @@ import pandas as pd
 from enum import Enum
 import numpy as np
 
+from SP500_Prices.Sources.InvestPy_UsEastern.scrape_US1Y_Yield import get_us1y_data
 from SP500_Prices.Sources.InvestPy_UsEastern.scrape_VIX import get_vix_data
 
 
@@ -11,6 +12,7 @@ class TechnicalIndicators(Enum):
     VIX = "VIX"
     MOVING_AVERAGE_30 = "Moving_Average_30"
     MOVING_AVERAGE_60 = "Moving_Average_60"
+    US1Y_YIELD = "US1Y_Yield"
 
 def analyze_price(df_price: pd.DataFrame, indicators: list[TechnicalIndicators], start_date: str, end_date: str) -> pd.DataFrame:
     """
@@ -39,10 +41,24 @@ def analyze_price(df_price: pd.DataFrame, indicators: list[TechnicalIndicators],
             df_enriched[indicator.value] = get_moving_average_feature(df_price, window=60)
         elif indicator == TechnicalIndicators.VIX:
             df_enriched[indicator.value] = get_vix_feature(df_price, start_date, end_date)
+        elif indicator == TechnicalIndicators.US1Y_YIELD:
+            df_enriched[indicator.value] = get_us1y_feature(df_price, start_date, end_date)
         else:
             print(f"[WARN]: The technical indicator {indicator.value} is unknown and will not be included.")
 
     return df_enriched
+
+# --------------------------------------------------
+# 💡 Feature: US1Y Yield (USA -1 year Treasury Yield)
+# --------------------------------------------------
+def get_us1y_feature(df_price: pd.DataFrame, start_date:str, end_date:str) -> pd.Series:
+    df_us1y = get_us1y_data(start_date, end_date)
+    price_dates = pd.to_datetime(df_price['Date'])
+    us1y_feature = df_us1y.reindex(price_dates)
+    us1y_feature = us1y_feature.fillna(0.0)
+    us1y_feature.index = df_price.index
+
+    return us1y_feature
 
 # --------------------------------------------------
 # 💡 Feature: VIX Index (Volatility Index)

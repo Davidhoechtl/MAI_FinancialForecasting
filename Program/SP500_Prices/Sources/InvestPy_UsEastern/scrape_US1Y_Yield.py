@@ -8,12 +8,12 @@ pd.set_option('display.max_colwidth', None)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 
-# Update the cache path to reflect VIX data
-CACHE_FILE_PATH = 'SP500_Prices/Sources/InvestPy_UsEastern/sp500_vix_daily.csv'
+# Update the cache path to reflect the 1-Year Treasury Yield data
+CACHE_FILE_PATH = 'SP500_Prices/Sources/InvestPy_UsEastern/us_1y_treasury_daily.csv'
 
-def get_vix_data(start, end, max_retries=3, verbose=True):
+def get_us1y_data(start, end, max_retries=3, verbose=True):
     """
-    Fetch daily VIX index data between start and end
+    Fetch daily U.S. 1-Year Treasury Bond Yield data between start and end
     """
     start_ts = pd.to_datetime(start)
     end_ts = pd.to_datetime(end)
@@ -31,18 +31,19 @@ def get_vix_data(start, end, max_retries=3, verbose=True):
             cached_df.index = pd.to_datetime(cached_df.index, utc=True, errors='coerce')
             cached_df.index = cached_df.index.tz_convert('US/Eastern')
 
-            df_slice = cached_df.loc[start_ts:end_ts]
+            # Use .copy() to avoid SettingWithCopyWarning when renaming later
+            df_slice = cached_df.loc[start_ts:end_ts].copy()
 
-            # rename close colume to vix_close
-            df_slice.rename(columns={'Close': 'VIX_Close'}, inplace=True)
+            # rename Close column to US1Y_Yield
+            df_slice.rename(columns={'Close': 'US1Y_Yield'}, inplace=True)
 
-            return df_slice[['VIX_Close']]
+            return df_slice[['US1Y_Yield']]
         except Exception as exc:
             raise Exception(f"[ERROR]: failed to load cache {CACHE_FILE_PATH}: {exc}")
     else:
         if verbose:
             print("Cache not used or not found, fetching data directly.")
-        df = scrape_all_vix(
+        df = scrape_all_us1y(
             start,
             end,
             chunk_days=-1,  # -1 fetches the whole range at once
@@ -50,14 +51,14 @@ def get_vix_data(start, end, max_retries=3, verbose=True):
             max_retries=max_retries
         )
 
-        # rename close colume to vix_close
-        df.rename(columns={'Close': 'VIX_Close'}, inplace=True)
+        # rename Close column to US1Y_Yield
+        df.rename(columns={'Close': 'US1Y_Yield'}, inplace=True)
 
-        return df[['VIX_Close']]
+        return df[['US1Y_Yield']]
 
 
-def scrape_all_vix(start, end, chunk_days=365, verbose=True, max_retries=3, stop_on_fail=True):
-    """Scrape daily VIX data between start and end."""
+def scrape_all_us1y(start, end, chunk_days=365, verbose=True, max_retries=3, stop_on_fail=True):
+    """Scrape daily U.S. 1-Year Treasury Bond Yield data between start and end."""
     start_ts = pd.to_datetime(start)
     end_ts = pd.to_datetime(end)
 
@@ -82,14 +83,14 @@ def scrape_all_vix(start, end, chunk_days=365, verbose=True, max_retries=3, stop
         success = False
         for attempt in range(1, max_retries + 1):
             try:
-                # Target 'VIX' as an index in the United States
-                df_chunk = fetch_vix_data(s_str, e_str)
+                # Fetching the U.S. 1Y Bond
+                df_chunk = fetch_us1y_data(s_str, e_str)
                 if df_chunk is not None and len(df_chunk) > 0:
                     dfs.append(df_chunk)
                 success = True
                 break
             except Exception as exc:
-                print(f"Warning: failed attempt {attempt}/{max_retries}: {exc}")
+                print(f"Warning: failed attempt {attempt}/{max_retries} for {s_str}-{e_str}: {exc}")
                 time.sleep(2 ** (attempt - 1))
 
     if not dfs:
@@ -107,11 +108,10 @@ def scrape_all_vix(start, end, chunk_days=365, verbose=True, max_retries=3, stop
     return df_all
 
 
-def fetch_vix_data(start_date, end_date):
-    """Uses investpy.indices.get_index_historical_data for VIX."""
-    df = investpy.indices.get_index_historical_data(
-        index='S&P 500 VIX',  # Change: index name
-        country='United States',
+def fetch_us1y_data(start_date, end_date):
+    """Uses investpy.bonds.get_bond_historical_data for U.S. 1-Year Treasury."""
+    df = investpy.bonds.get_bond_historical_data(
+        bond='U.S. 1Y',
         from_date=start_date,
         to_date=end_date
     )
@@ -137,8 +137,8 @@ if __name__ == '__main__':
     end = "31/12/2022"
 
     try:
-        df_vix = scrape_all_vix(start, end, chunk_days=360, verbose=True, max_retries=5)
-        print("VIX Data Sample:")
-        print(df_vix.tail())
+        df_us1y = scrape_all_us1y(start, end, chunk_days=360, verbose=True, max_retries=5)
+        print("U.S. 1-Year Treasury Yield Data Sample:")
+        print(df_us1y.tail())
     except Exception as e:
         print(f"Scrape failed: {e}")

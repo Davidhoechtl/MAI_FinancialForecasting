@@ -1,23 +1,22 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def visualize_headline_count_daily(df, start_date, end_date):
+def visualize_headline_count_daily(df):
     """
     Visualizes the number of headlines per day within a specified date range.
     Includes days with zero headlines.
     """
-    # Ensure datetime and strip timezone info
-    df['Date'] = pd.to_datetime(df['Date'], utc=True).dt.tz_localize(None) # for plotting timezone is not relevant
-
-    # Filter DataFrame for the specified date range
-    mask = (df['Date'] >= pd.to_datetime(start_date)) & (df['Date'] <= pd.to_datetime(end_date))
-    filtered_df = df.loc[mask]
-
     # Group by date and count headlines
-    headline_counts = filtered_df.groupby(filtered_df['Date'].dt.date).size()
+    headline_counts = df.groupby(df['date'].dt.date).size()
 
-    # Create a full date range
-    full_range = pd.date_range(start=start_date, end=end_date, freq='D')
+    min_date = df['date'].min().date()
+    max_date = df['date'].max().date()
+    full_range = pd.date_range(start=min_date, end=max_date, freq='B')
+
+    print("Total days in range: " + str(len(full_range)))
+    print("Empty days (no headlines):" + str(len(set(full_range.date) - set(headline_counts.index))))
+    print("mean headline count per day: " + str(headline_counts.mean()))
+    print("standard deviation of headline count per day: " + str(headline_counts.std()))
 
     # Reindex to include missing dates (fill with 0)
     headline_counts = headline_counts.reindex(full_range.date, fill_value=0)
@@ -25,7 +24,8 @@ def visualize_headline_count_daily(df, start_date, end_date):
     # Plotting
     plt.figure(figsize=(15, 5))
     plt.bar(headline_counts.index, headline_counts.values, width=0.8, align='center')
-    plt.title(f'Number of Headlines per Day from {start_date} to {end_date}')
+    plt.margins(x=0)
+    plt.title(f'Number of Headlines per Day from {min_date} to {max_date}')
     plt.xlabel('Date')
     plt.ylabel('Headline Count')
     plt.xticks(rotation=45)

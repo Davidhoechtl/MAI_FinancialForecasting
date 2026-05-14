@@ -154,7 +154,7 @@ def evaluate_model_on_regression(
             # 'MSE': mse,
             'RMSE': rmse,
             'MAE': mae,
-            # 'R2': r2_rounded
+            'R2': r2
         })
 
     # Aggregation

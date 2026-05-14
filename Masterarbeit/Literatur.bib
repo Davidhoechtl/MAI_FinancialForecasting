@@ -1,0 +1,281 @@
+
+-- Literature START
+-- Uses news sentiment scores from finBERT to aggregate news on a hourly basis. They use a fusion of technical indicators + the aggregated sentiment score (mood time series) and use lstms + dense layer to make price regression. Their finding is combining technical indicators with sentiment score results in performance gain. They analyse currency market EUR/USD, BTC/USDT, USD/JPY
+@article{ANBAEEFARIMANI2022108742,
+title = {Investigating the informativeness of technical indicators and news sentiment in financial market price prediction},
+journal = {Knowledge-Based Systems},
+volume = {247},
+pages = {108742},
+year = {2022},
+issn = {0950-7051},
+doi = {https://doi.org/10.1016/j.knosys.2022.108742},
+url = {https://www.sciencedirect.com/science/article/pii/S095070512200346X},
+author = {Saeede {Anbaee Farimani} and Majid {Vafaei Jahan} and Amin {Milani Fard} and Seyed Reza Kamel Tabbakh},
+keywords = {Market prediction, Transformer-based language models, Financial sentiment analysis, Information gain, FinBERT},
+abstract = {Real-time market prediction tool tracking public opinion in specialized newsgroups and informative market data persuades investors of financial markets. Previous works mainly used lexicon-based sentiment analysis for financial markets prediction, while recently proposed transformer-based sentiment analysis promise good results for cross-domain sentiment analysis. This work considers temporal relationships between consecutive snapshots of informative market data and mood time series for market price prediction. We calculate the sentiment mood time series via the probability distribution of news embedding generated through a BERT-based transformer language model fine-tuned for financial domain sentiment analysis. We then use a deep recurrent neural network for feature extraction followed by a dense layer for price regression. We implemented our approach as an open-source API for real-time price regression. We build a corpus of financial news related to currency pairs in foreign exchange and Cryptocurrency markets. We further augment our model with informative technical indicators and news sentiment scores aligned based on news release timestamp. Results of our experiments show significant error reduction compared to the baselines. Our Financial News and Financial Sentiment Analysis RESTFul APIs are available for public use.}
+}
+
+// Reference Paper
+// looks kaggle dataset and use sentiment analysis with vader, textblob and finBERT. Comparse models like adaboost, xgboost, stacking.
+// Looks at the SP500 subindices
+// Cant reject the Efficient market hypothesis.
+@Article{jrfm18080412,
+AUTHOR = {Davidovic, Milivoje and McCleary, Jacqueline},
+TITLE = {News Sentiment and Stock Market Dynamics: A Machine Learning Investigation},
+JOURNAL = {Journal of Risk and Financial Management},
+VOLUME = {18},
+YEAR = {2025},
+NUMBER = {8},
+ARTICLE-NUMBER = {412},
+URL = {https://www.mdpi.com/1911-8074/18/8/412},
+ISSN = {1911-8074},
+ABSTRACT = {The study relies on an extensive dataset (1.86 million news headlines) to investigate the heterogeneity and predictive power of explicit sentiment signals (TextBlob, VADER, and FinBERT) and implied sentiment (VIX) for stock market trends. We find that news content predominantly consists of objective or neutral information, with only a small portion carrying subjective or emotive weight. There is a structural market bias toward upswings (bullish market states). Market behavior appears anticipatory rather than reactive: forwardlooking implied sentiment captures a substantial share (45 to 50\%) of the variation in stock returns. By contrast, sentiment scores, even when disaggregated into firm and nonfirmspecific subscores, lack robust predictive power. However, weekend and holiday sentiment contains modest yet valuable market signals. Algorithmwise, Gradient Boosting Machine (GBM) stands out in both classification (bullish vs. bearish) and regression tasks. Neither FinBERT news sentiment, historical returns, nor implied volatility offer a consistently exploitable edge over market efficiency. Thus, our findings lend empirical support to both the weakform and semistrong forms of the Efficient Market Hypothesis. In the realm of exploitable trading strategies, markets remain an enigma against systematic alpha.},
+DOI = {10.3390/jrfm18080412}
+}
+
+// Uses blog entries from StockTwits to predict company stock (AAPL, AMZN, MSFT, ...) with success. States that same day sentiment is the most effective. Decay of sentiment informativeness over a course of 5 days. The calssification goal is to predict market direction with naive bayes, logistic regression, and svm. five featurization techniques (bag of words, bigram, trigram, TF-IDF, and LSA). Predicting accuracy improved by 2-3%
+@INPROCEEDINGS{9175549,
+  author={Gupta, Rubi and Chen, Min},
+  booktitle={2020 IEEE Conference on Multimedia Information Processing and Retrieval (MIPR)}, 
+  title={Sentiment Analysis for Stock Price Prediction}, 
+  year={2020},
+  volume={},
+  number={},
+  pages={213-218},
+  keywords={Machine learning;Correlation;Sentiment analysis;Stock markets;Twitter;Companies;Time series analysis;sentiment analysis;stock price prediction;StockTwits;machine learning;tweet processing},
+  doi={10.1109/MIPR49039.2020.00051}}
+
+// uses transformers to extend traditional lexicons without manual annoations, it does this by leveraging FinBERT and SHAP values to extend the vocabulary, resulting in a more robust lexicon
+@ARTICLE{10380556,
+  author={Rizinski, Maryan and Peshov, Hristijan and Mishev, Kostadin and Jovanovik, Milos and Trajanov, Dimitar},
+  journal={IEEE Access}, 
+  title={Sentiment Analysis in Finance: From Transformers Back to eXplainable Lexicons (XLex)}, 
+  year={2024},
+  volume={12},
+  number={},
+  pages={7170-7198},
+  keywords={Sentiment analysis;Transformers;Finance;Dictionaries;Computational modeling;Analytical models;Task analysis;Machine learning;Natural language processing;Text categorization;Machine learning;natural language processing;text classification;sentiment analysis;finance;lexicons;lexicon learning;transformers;SHAP;explainability},
+  doi={10.1109/ACCESS.2024.3349970}}
+
+// argues that impediments of short selling leads to some overvaluation of stocks even for rational investors. And also build apon the assumption that there is a market wide sentiment.
+@article{stambaugh2012short,
+  title={The short of it: Investor sentiment and anomalies},
+  author={Stambaugh, Robert F and Yu, Jianfeng and Yuan, Yu},
+  journal={Journal of financial economics},
+  volume={104},
+  number={2},
+  pages={288--302},
+  year={2012},
+  publisher={Elsevier}
+}
+
+// unsupervised heuristic algorithm to extract features (UP, down, flat and Unknown) to preidcict future returns. In the literature section the authors note a weakness of sentiment based predictions. There is no guaranteethat sentiment does not include misleading information. Also it is not very clear on how strong the correlation between sentiment and price change really is. They therefore reside on pattern recognition.
+@article{ZHANG201860,
+title = {A novel data-driven stock price trend prediction system},
+journal = {Expert Systems with Applications},
+volume = {97},
+pages = {60-69},
+year = {2018},
+issn = {0957-4174},
+doi = {https://doi.org/10.1016/j.eswa.2017.12.026},
+url = {https://www.sciencedirect.com/science/article/pii/S0957417417308485},
+author = {Jing Zhang and Shicheng Cui and Yan Xu and Qianmu Li and Tao Li},
+keywords = {Feature selection, Morphological pattern recognition, Random forest, Stock price prediction},
+abstract = {This paper proposes a novel stock price trend prediction system that can predict both stock price movement and its interval of growth (or decline) rate within the predefined prediction durations. It utilizes an unsupervised heuristic algorithm to cut raw transaction data of each stock into multiple clips with the predefined fixed length and classifies them into four main classes (Up, Down, Flat, and Unknown) according to the shapes of their close prices. The clips in Up and Down can be further classified into different levels reflecting the extents of their growth (or decline) rates with respect to both close price and relative return rate. The features of clips include their prices and technical indices. The prediction models are trained from these clips by a combination of random forests, imbalance learning and feature selection. Evaluations on the seven-year Shenzhen Growth Enterprise Market (China) transaction data show that the proposed system can make effective predictions, is robust to the market volatility, and outperforms some existing methods in terms of accuracy and return per trade.}
+}
+
+// Paper from the 1997, that uses neural networks for price prediction. Speaks skeptical about the use of technical indicators calling them subjective and unreliable. It also argues against the efficient market hypothesis hinting that the market crash of october 1987 was due to a overwehlming investor fear rather than rational informative decisions. It also stating that EMH can only be true if there is a equal distribution of market information, hinting that some people leverage insider information for beating the market (The seperation between semi-strong form and strong form of the EMH is not stated). Further the paper states that neural networks outperforms statistical and regression techniques.
+@article{lawrence1997using,
+  title={Using neural networks to forecast stock market prices},
+  author={Lawrence, Ramon},
+  journal={University of Manitoba},
+  volume={333},
+  number={2006},
+  pages={2013},
+  year={1997}
+}
+
+// Built a framework that incooperate both social media news from twitter and financial news from business insiders to predict HPQ stock price. It is also looking at different time horizons 1-10 days. It looks like that for a longer prediction horizon (> 3 days) performance is rising peaking at day 9. RF after voting ensemble method yields a ~80% prediction accuracy.
+@article{khan2022stock,
+  title={Stock market prediction using machine learning classifiers and social media, news},
+  author={Khan, Wasiat and Ghazanfar, Mustansar Ali and Azam, Muhammad Awais and Karami, Amin and Alyoubi, Khaled H and Alfakeeh, Ahmed S},
+  journal={Journal of Ambient Intelligence and Humanized Computing},
+  volume={13},
+  number={7},
+  pages={3433--3456},
+  year={2022},
+  publisher={Springer}
+}
+
+@article{CHOI2024121589,
+title = {Stock price momentum modeling using social media data},
+journal = {Expert Systems with Applications},
+volume = {237},
+pages = {121589},
+year = {2024},
+issn = {0957-4174},
+doi = {https://doi.org/10.1016/j.eswa.2023.121589},
+url = {https://www.sciencedirect.com/science/article/pii/S0957417423020912},
+author = {Min Choi and Hye Jin Lee and Soh Hyung Park and Sung Whan Jeon and Sungzoon Cho},
+keywords = {Alternative data, Social media, Online Stock Message boards, Keyword extraction, Stock market forecasting, Stock price momentum}
+}
+
+-- talks alot about the GIF (Gradual Information Flow), a theorm that seems to be a spin off of the EMH (information is not diluted instant but proportional to the exposed audience). Information spreaded by the mass media are diluted faster than information that is unknown to the public. This makes less known information influence the market over a longer period.
+-- uses 2.5 Million tweets to predict SP500 company returns. The sentiment analysis was performed with a lexicon called Harvard-IV dictionary.
+-- Found that there is a correlation between price and sentiment. In the regression results you can also clearly see that the coefficients are statistical significant p<0.001
+@article{sul2017trading,
+  title={Trading on twitter: Using social media sentiment to predict stock returns},
+  author={Sul, Hong Kee and Dennis, Alan R and Yuan, Lingyao},
+  journal={Decision Sciences},
+  volume={48},
+  number={3},
+  pages={454--488},
+  year={2017},
+  publisher={Wiley Online Library}
+}
+
+-- This paper explains that market anomalies occur because "newswatchers" only focus on fundamental news and "momentum traders" only watch price trends, with neither group seeing the whole picture. This separation causes prices to initially underreact as news spreads slowly (diffuse into the price), which then triggers trend-chasing that inevitably pushes prices past their fair value into an overreaction.
+@article{hong1999unified,
+  title={A unified theory of underreaction, momentum trading, and overreaction in asset markets},
+  author={Hong, Harrison and Stein, Jeremy C},
+  journal={The Journal of finance},
+  volume={54},
+  number={6},
+  pages={2143--2184},
+  year={1999},
+  publisher={Wiley Online Library}
+}
+
+-- paper that discusses the efficient market hypothesis (weak, semi-strong, and strong).
+@article{emh1970,
+author = {Malkiel, Burton G. and Fama, Eugene F.},
+title = {EFFICIENT CAPITAL MARKETS: A REVIEW OF THEORY AND EMPIRICAL WORK},
+journal = {The Journal of Finance},
+volume = {25},
+number = {2},
+pages = {383-417},
+doi = {https://doi.org/10.1111/j.1540-6261.1970.tb00518.x},
+url = {https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.1970.tb00518.x},
+eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1540-6261.1970.tb00518.x},
+year = {1970}
+}
+
+-- traditional dictionary approach
+@article{loughran2011liability,
+  title={When is a liability not a liability? Textual analysis, dictionaries, and 10-Ks},
+  author={Loughran, Tim and McDonald, Bill},
+  journal={The Journal of finance},
+  volume={66},
+  number={1},
+  pages={35--65},
+  year={2011},
+  publisher={Wiley Online Library}
+}
+
+-- Literature END
+
+
+
+
+
+-- Sentiment Models START
+-- BERT transformer model Paper
+@inproceedings{devlin2019bert,
+  title={Bert: Pre-training of deep bidirectional transformers for language understanding},
+  author={Devlin, Jacob and Chang, Ming-Wei and Lee, Kenton and Toutanova, Kristina},
+  booktitle={Proceedings of the 2019 conference of the North American chapter of the association for computational linguistics: human language technologies, volume 1 (long and short papers)},
+  pages={4171--4186},
+  year={2019}
+}
+-- FinBERT sentiment model Paper
+@article{araci2019finbert,
+  title={Finbert: Financial sentiment analysis with pre-trained language models},
+  author={Araci, Dogu},
+  journal={arXiv preprint arXiv:1908.10063},
+  year={2019}
+}
+
+-- VADER sentiment model Paper
+@article{hutto2014vader,
+  title={VADER: A Parsimonious Rule-Based Model for Sentiment Analysis of Social Media Text},
+  author={Hutto, Clayton J. and Gilbert, Eric},
+  journal={Proceedings of the International AAAI Conference on Web and Social Media},
+  volume={8},
+  number={1},
+  pages={216--225},
+  year={2014},
+  publisher={Association for the Advancement of Artificial Intelligence}
+}
+-- Sentiment Models END
+
+-- DATASETS START
+@misc{pham_financial_news,
+  author       = {Lucas Pham},
+  title        = {Financial News Headlines Data},
+  year         = {2018},
+  url          = {https://www.kaggle.com/datasets/notlucasp/financial-news-headlines},
+  note         = {Accessed: 2026-03-04},
+  publisher    = {Kaggle}
+}
+
+@misc{aenlle_financial_news,
+  author       = {Miguel Aenlle},
+  title        = {Daily Financial News for 6000+ Stocks},
+  year         = {2020},
+  url          = {https://www.kaggle.com/datasets/miguelaenlle/massive-stock-news-analysis-db-for-nlpbacktests},
+  note         = {Accessed: 2026-03-04},
+  publisher    = {Kaggle}
+}
+
+@article{raeidsaqur2024NiftyLM,
+  author  = {Raeid Saqur},
+  title   = {NIFTY-LM Financial News Headlines Dataset for LLMs},
+  journal = {arXiv},
+  year    = {2024},
+  url     = {https://arxiv.org/abs/2405.09747},
+  note    = {Dataset available at: https://huggingface.co/datasets/raeidsaqur/NIFTY}
+}
+
+@article{dong2024fnspid,
+  title={FNSPID: A Comprehensive Financial News Dataset in Time Series},
+  author={Zihan Dong and Xinyu Fan and Zhiyuan Peng},
+  journal={Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining},
+  year={2024},
+  url={https://arxiv.org/abs/2402.06698}
+}
+-- DATASETS END
+
+-- EVAL MODELS START
+// ARIMA Model
+@misc{WikipediaARIMA,
+  author       = {{Wikipedia contributors}},
+  title        = {Autoregressive integrated moving average},
+  year         = 2025,
+  url          = {https://en.wikipedia.org/wiki/Autoregressive_integrated_moving_average},
+  note         = {Accessed: 2025-10-09}
+}
+-- EVAL Model END
+
+
+-- OTHERS START
+-- Llama 3.1 Prompt Template / Special tokens
+@misc{meta_llama31_2024,
+  author       = {{Meta AI}},
+  title        = {Llama 3.1 Model Card and Prompt Formats},
+  howpublished = {\url{https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_1/}},
+  year         = {2024},
+  note         = {Accessed: Mar. 10, 2026}
+}
+
+-- Why use log price
+@article{fama1965behavior,
+  title={The behavior of stock-market prices},
+  author={Fama, Eugene F},
+  journal={The journal of Business},
+  volume={38},
+  number={1},
+  pages={34--105},
+  year={1965},
+  publisher={JSTOR}
+}
+-- OTHERS END

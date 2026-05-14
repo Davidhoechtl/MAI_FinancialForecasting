@@ -113,7 +113,7 @@ def add_rolling_sentiment(df: pd.DataFrame, days: int, sentiment_col: str) -> pd
 def plot_rolling_sentiment_correlations(df: pd.DataFrame, sentiment_col: str, target_col: str = "Pct_Change_next") -> pd.DataFrame:
     # === Run correlations for windows 1–30 ===
     results = []
-    for days in range(1, 31):
+    for days in range(1, 61):
         df_temp = add_rolling_sentiment(df, days, sentiment_col)
         spearman_corr, spearman_p = calc_spearman_corr(df_temp, days, target_col)
         pearson_corr, pearson_p = calc_pearson_corr(df_temp, days, target_col)

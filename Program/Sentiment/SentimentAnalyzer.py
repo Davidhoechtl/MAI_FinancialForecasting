@@ -6,6 +6,7 @@ from Impact.ImpactScoreAnalyzerEnums import EvaluationMode, ImpactModel
 from Sentiment.Models.FinBERT import FinBERTSentimentModel
 from Sentiment.Models.Vader import VaderSentimentModel
 from Sentiment.Models.SentimentModelBase import SentimentModelBase
+from Utils.dataset_plots import visualize_headline_count_daily
 from Utils.sentiment_plots import show_daily_sentiment, plot_sentiment_distribution
 
 class SentimentModel(Enum):
@@ -16,17 +17,23 @@ class GranularityLevel(Enum):
     DAILY = 1,
     WEEKLY = 2
 
+class AggregationMethod(Enum):
+    MEAN = 1,
+    SUM = 2
+
 class DatasetSources(Enum):
     NIFTY = 1,
     LUCASPHAM = 2,
-    FNSPID = 3
+    FNSPID = 3,
+    AENLLE = 4
 
 def analyze_sentiment(
         datasets: list[pd.DataFrame],
         sentiment_model: SentimentModel,
         granuality_level: GranularityLevel,
         impact_model: ImpactModel = ImpactModel.NONE,
-        impact_model_evaluation_mode: EvaluationMode = EvaluationMode.CLASSIFICATION ) -> pd.DataFrame:
+        impact_model_evaluation_mode: EvaluationMode = EvaluationMode.CLASSIFICATION,
+        aggregation_function: AggregationMethod = AggregationMethod.MEAN) -> pd.DataFrame:
     """
     Analyze sentiment of headlines in the combined DataFrame using the specified sentiment model.
 
@@ -36,6 +43,7 @@ def analyze_sentiment(
         granuality_level (GranularityLevel): The granularity level for grouping results.
         impact_model (ImpactModel): The impact model to use (default is NONE).
         impact_model_evaluation_mode (Impact Model Evaluation Mode): The impact models evaluation function (prompt to use).
+        aggregation_function (AggregationMethod): The method to aggregate sentiment scores when grouping by granularity (default is MEAN).
 
     Returns:
         pd.DataFrame: DataFrame with sentiment analysis results.
@@ -74,11 +82,13 @@ def analyze_sentiment(
         # plot_sentiment_distribution(combined, sentiment_col="weighted_sentiment")
         # show_daily_sentiment(combined, sentiment_col="weighted_sentiment")
 
-    mapped_to_timeseries = group_by_granularity(combined, granuality_level)
+    #visualize_headline_count_daily(combined)
+
+    mapped_to_timeseries = group_by_granularity(combined, granuality_level, aggregation_function)
 
     return mapped_to_timeseries
 
-def group_by_granularity(combined: pd.DataFrame, granularity_level: GranularityLevel) -> pd.DataFrame:
+def group_by_granularity(combined: pd.DataFrame, granularity_level: GranularityLevel, aggregation_function: AggregationMethod) -> pd.DataFrame:
     """
     Create a timeseries with the given GranularityLevel. Then group the sentiment data by GranularityLevel
     and map it to the timeseries.
@@ -119,12 +129,14 @@ def group_by_granularity(combined: pd.DataFrame, granularity_level: GranularityL
     # Create a continuous date range with timezone awareness
     full_range = pd.date_range(start=start_date, end=end_date, freq=freq, tz=tz)
 
+    aggregation_function = 'mean' if aggregation_function == AggregationMethod.MEAN else 'sum'
+
     if "weighted_sentiment" not in combined.columns:
         # Group by chosen granularity and compute mean sentiment per period
         grouped = (
             combined
             .groupby(pd.Grouper(key='date', freq=freq))
-            .agg({'sentiment': 'mean'})
+            .agg({'sentiment': aggregation_function})
             .reset_index()
         )
 
@@ -142,7 +154,7 @@ def group_by_granularity(combined: pd.DataFrame, granularity_level: GranularityL
         grouped = (
             combined
             .groupby(pd.Grouper(key='date', freq=freq))
-            .agg({'sentiment': 'mean', 'weighted_sentiment': 'mean'})
+            .agg({'sentiment': aggregation_function, 'weighted_sentiment': aggregation_function})
             .reset_index()
         )
 

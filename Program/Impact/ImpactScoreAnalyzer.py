@@ -14,6 +14,8 @@ from Impact.ImpactScoreAnalyzerEnums import EvaluationMode, ImpactModel
 from Impact.Models.GPT_OSS_20B.GptOss20B import GptOss20B
 from Impact.Models.Llama3_1_Instruct.Llama3_1_Instruct import LlamaInstruct
 from Sentiment.Datasets.Headlines_2017_12_to_2020_7_USEastern.dataset_adapter import Adapter1
+from Sentiment.Datasets.Miguel_Aenlle.AenlleAdapter import AenlleAdapter
+from Sentiment.Datasets.NIFTY.nifty_adapter import NiftyAdapter
 
 factories = [
     LlamaInstruct(),
@@ -29,7 +31,7 @@ def format_prompt_llama(system_prompt: str, user_prompt: str) -> str:
 def _predict_impact_single_classification(llm:Llama, headline: str, max_retries: int = 2):
     """Call the LLM for a single headline, retry if no number is found."""
     system_prompt = """    
-    Act as a Senior US Economic Strategist with. Classify the news headline's relevance to the US Economy using these four categories:
+    Act as a Senior US Economic Strategist. Classify the news headline's relevance to the US Economy using these four categories:
     
     A (Critical US Macro): Direct US economic indicators only (Fed news, US Inflation, US GDP, US Jobs, US Treasury Yields).
     B (Major US Corporate): Events moving US large companies or sectors (big Deals, Antitrust, Major M&A, product launches).
@@ -44,7 +46,7 @@ def _predict_impact_single_classification(llm:Llama, headline: str, max_retries:
         prompt = format_prompt_llama(system_prompt, user_prompt)
     else:
         prompt = f"{system_prompt}\n{user_prompt}"
-
+    #print("Prompt: " + prompt)
     for attempt in range(1, max_retries + 1):
         output = llm(
             prompt,
@@ -229,14 +231,29 @@ if __name__ == "__main__":
     # Change working directory to project root
     os.chdir("D:/Studium/Master/Masterarbeit/MAI_FinancialForecasting/Program")
 
-    start_date = "17/12/2017"
-    # start_date = "10/12/2019"
-    end_date = "18/07/2020"
+    start_date = "2010/02/03"
+    end_date = "2020/07/18"
+    adapter1 = NiftyAdapter()
+    if not adapter1.try_load_preprocessed():
+        adapter1.load()
+    df1 = adapter1.to_standard_format()
+    df1 = pandas_helper.filter_dataset_by_dates(df1, start_date, end_date)
+
+    adapter1 = AenlleAdapter()
+    if not adapter1.try_load_preprocessed():
+        adapter1.load()
+    df2 = adapter1.to_standard_format()
+    df1 = pandas_helper.filter_dataset_by_dates(df1, start_date, end_date)
+
     adapter1 = Adapter1()
     if not adapter1.try_load_preprocessed():
         adapter1.load()
-    df = adapter1.to_standard_format()
-    df = pandas_helper.filter_dataset_by_dates(df, start_date, end_date)
+    df3 = adapter1.to_standard_format()
+    df2 = pandas_helper.filter_dataset_by_dates(df2, start_date, end_date)
+
+    # concat df1 and df2
+    # df = pd.concat([df1, df2, df3], ignore_index=True)
+    df = pd.concat([df1], ignore_index=True)
 
     df["impact"] = load_impact_score(df["headline"], ImpactModel.LLAMA_3_1_Instruct, EvaluationMode.CLASSIFICATION)
 
