@@ -258,13 +258,12 @@ To conduct a robust evaluation of the classification task, a traditional statist
 \end{itemize}
 
 \section{Validation}
-Because financial forecasting is based on timeseries based market data we cannot use normal cross validation like k-fold. The reason is that if we shuffle datapoints randomly we break the causality of time (yesterday can not happend before tomorrow). Therefore a different approach hast to be used. There are two main ways on how to cross validate the evaluation models:
+Because financial forecasting relies on time-series market data, standard cross-validation techniques like k-fold cannot be used. The reason is that shuffling data points randomly, breaks the causality of time (yesterday cannot happen before tomorrow). Therefore, a different approach must be employed. There are two main ways on how to cross-validate the evaluation models:
 \begin{itemize}
-    \item \textbf{Rolling Window}: In this approach the size of the traing data is fixed. After finishing a validation step, new data becomes part of the next train set while the old data is droped. This leads to a sliding window over the whole data with multiple combinations of train and test sets.
-    \item \textbf{Expanding Window}: In this appraoch the size of the training data is growing with each validation step. After each round new obeservations are included in the train set. Therefore the model learns from the maximum available historical context.
+    \item \textbf{Rolling Window}: In this approach, the size of the training data is fixed. After finishing a validation step, new data becomes part of the next train set while the old data is dropped. This leads to a sliding window over the whole data with multiple combinations of train and test sets.
+    \item \textbf{Expanding Window}: In this approach, the size of the training data is growing with each validation step. After each round, new observations are included in the train set. Therefore, the model learns from the maximum available historical context.
 \end{itemize}
-
-In this work the Expanding Window strategy is used to incooperate the whole train set in the hope that the model can achieve better generalization. Because this paper evaluates varying forecast horizons, the standard implementation of expanding window was adapted to prevent look-ahead bias. Specifically, days that are used to calculate the target are excluded by a gap between train and test set. For example, if the target is a 3-day percentage change utilizing $y_{t-1}$, $y_{t-2}$, and $y_{t-3}$. Non of 3 days may be included in the train set. This assures a strict boundary for the models learning data, with no information leaks into the future.
+In this work, the Expanding Window strategy is used to incorporate the whole train set in the hope that the model can achieve better generalization. Because this paper evaluates varying forecast horizons, the standard implementation of the expanding window was adapted to prevent look-ahead bias. Specifically, days that are used to calculate the target are excluded by a gap between the train and test set. For example, if the target is a 3-day percentage change utilizing $y_{t-1}$, $y_{t-2}$, and $y_{t-3}$, none of the 3 days may be included in the train set. This assures a strict boundary for the model's learning data, with no information leaks into the future.
 
 \chapter{Results \& Experiments}
 \section{Basic Experiment Setup}
