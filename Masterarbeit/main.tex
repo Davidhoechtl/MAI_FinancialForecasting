@@ -154,9 +154,13 @@ $$P(y|x) = \text{softmax}(W \cdot h_{\text{[CLS]}} + b)$$
 Where $P(y|x)$ stands for the conditional probability, $h_{\text{[CLS]}}$ for the CLS token (compressed representation vector of the sentence), and $W$ and $b$ for the learned parameters of the classification layer.
 
 \section{Impact Scoring}
-Financial markets create a great volume of textual data. However, the distribution of important information is highly skewed. Most headlines are "noise" (repetitive updates, foreign news, minor price fluctuations), which can dilute the predictive power of the sentiment score. For this reason, a novel denoising method that uses large language models (LLMs) to differentiate between important headlines and noise is introduced.
+Financial markets create a large volume of textual data. However, the distribution of important information is highly skewed. Most headlines are "noise" (repetitive updates, foreign news, minor price fluctuations), which can dilute the predictive power of the sentiment score. For this reason, a novel denoising method that uses large language models (LLMs) to differentiate between important headlines and noise is introduced.
 
-The main component of this filtering process is Llama 3.1 Instruct (8B). To increase the throughput and memory efficiency, the model was implemented using a 6-bit quantization (.gguf format). The resulting memory footprint is approximately 6.85 GB, which enables local inference on consumer-grade hardware. Because this model is not fine-tuned a prompt had to be engineered. A self-annotated dataset of ~70 classified headlines served as a benchmark to compare different prompts. This is the final version that is used in further experiments:
+The main component of this filtering process is Llama 3.1 Instruct (8B). To increase throughput and memory efficiency, the model was implemented using 6-bit quantization (.gguf format). The resulting memory footprint is approximately 6.85 GB, which enables local inference on consumer-grade hardware. Because this model is not fine-tuned, a prompt had to be engineered. A self-annotated dataset of approximately 70 classified headlines served as a benchmark to compare different prompts. This is the final version that is used in further experiments:
+
+% ToDo: add more information about the prompt engineering
+% How was the evaluation strategy self annotation vs model output (A->D => big error, A->B => small error)
+% What was the final performance of the prompt
 
 \begin{figure}[H]
     \centering
@@ -165,15 +169,15 @@ The main component of this filtering process is Llama 3.1 Instruct (8B). To incr
     \label{fig:myimag13}
 \end{figure}
 
-Headlines are categorized in four classes (A,B,C,D) based on their predictive power on future S\&P500 returns. These labels are then transformed into a numerical number (A->1, B-> 0.66, C->0.33, D->0) called impact score.
+Headlines are categorized into four classes (A, B, C, D) based on their predictive power for future S&P 500 returns. These labels are then transformed into a numerical value ($A \rightarrow 1$, $B \rightarrow 0.66$, $C \rightarrow 0.33$, $D \rightarrow 0$) called the impact score.
 
-The final output of this procedure is a denoised weighted sentiment score. Rather than treating every sentiment score equally, we apply the Impact Score as an additional transformation. This ensures that a positive sentiment on a minor headline (Category C) contributes less to the overall trend than a positive sentiment on a major headline (Category A). The calculation is defined as:
+The final output of this procedure is a denoised, weighted sentiment score. Rather than treating every sentiment score equally, we apply the impact score as an additional transformation. This ensures that a positive sentiment for a minor headline (Category C) contributes less to the overall trend than a positive sentiment for a major headline (Category A). The calculation is defined as:
 
 $$S_{w} = S \times I$$
 
-Where:$S_w$ is the final weighted sentiment.
-$S$ is the raw sentiment score (ranging from -1 to 1).
-$I$ is the LLM-derived impact score (0 to 1).
+Where $S_w$ is the final weighted sentiment, \\
+$S$ is the raw sentiment score (ranging from $-1$ to $1$), and \\
+$I$ is the LLM-derived impact score (ranging from $0$ to $1$).
 
 \section{Evaluation Models} \label{ch:eval_chapter}
 To evaluate if sentiment does improve prediction accuracy for future returns of the SP500 an evaluation on different machine learning models is performed. Specifically, multiple feature configurations (with and without sentiment) will be used on a varity of regression and classification models to analyse the benefit of the sentiment feature.
