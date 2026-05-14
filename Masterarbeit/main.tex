@@ -232,27 +232,29 @@ To achieve a robust analysis of the regression task, a mix of traditional and ad
 \end{itemize}
 
 \subsection{Classification}
-In contrast to the regression task, the classification task shifts the focus away from predicting exact magnitudes to forecaste the binary direction of market movements. Specifically, this evaluation is going to analyse if the sentiment feature is benefitial when it comes to accuratly classifying the direction of the market (up or down).
+\subsection{Classification}
+In contrast to the regression task, the classification task shifts the focus away from predicting exact magnitudes to forecasting the binary direction of market movements. Specifically, this evaluation will analyze whether the sentiment feature is beneficial in accurately classifying the direction of the market (up or down).
 
-The target variable for the classification task is the binary direction of the market $Y_{t+1}$. Specifically, wethever the S\&P500 percentage change stated in the regression section is positive or flat/negative. The formular is as follows:
+The target variable for the classification task is the binary direction of the market, $Y_{t+1}$. Specifically, it indicates whether the S\&P 500 percentage change (as defined in the regression section) is positive or flat/negative. The formula is as follows:
 
 $$Y_{t+1} = \begin{cases} 1, & \text{if } R_{t+1} > 0 \\ 0, & \text{if } R_{t+1} \leq 0 \end{cases}$$
 
-For the binary classificaton problem a random guessing model would yield an accuracy of around 50 percent. Howerever, the markets history shows that there is a class imbalance in favor of upward movements. Therefore the baseline will be a classification model that always predicts the majority class, resulting in a more robust and real-world benchmark for comparison.
+A possible baseline for this task would be a random guessing model that predicts "up" and "down" with equal probability. However, historical market data reveals a class imbalance in favor of upward movements. Therefore, the baseline will be a classification model that consistently predicts the majority class, providing a more robust and realistic benchmark for comparison.
 
-To evaluate the performance and compare classification models across different feature sets the following metrics are utilized:
+To evaluate the performance and compare classification models across different feature sets, the following metrics are utilized:
 \begin{itemize}
-    \item \textbf{Accuracy}: Measures the overall porportion of right guesses. Accuracy is an important benchmark to understand model performance, however it sometimes does not show the complete picture. The model could learn to predict always up and yield a good performance alltough not optimal. For this reason other metrics from the confusion matrix are necesarry.
-    \item \textbf{Precision}: Calculates the ratio of true positive predictions to all positive predictions made by the model. In the context of financial forecasting, precision is critical because it indicates how reliable a model is when it signals an upward market movement. This metric is important if the goal is to minimize wrong buy signals.
-    \item \textbf{Recall}: Measures the ratio of true positive predictions to all actual positive cases. A model with high recall (sensitivity) missed very few upward cases (investment opportunities).
-    \item \textbf{F1-Score}: Represents the harmonic mean of precision and recall. Giving a good overview over the tradeoff between recall and precision. Specifically the balance between recalling all positive cases and actually beeing correct with the positive guesses.
+\begin{itemize}
+    \item \textbf{Accuracy}: While accuracy is an important benchmark for understanding model performance, it does not always provide a complete picture. A model could learn to always predict "up" and yield a seemingly good performance, even if it is not optimal. For this reason, other metrics derived from the confusion matrix are necessary.
+    \item \textbf{Precision}: In the context of financial forecasting, precision is critical because it indicates how reliable a model is when it signals an upward market movement. This metric is important if the goal is to minimize false buy signals.
+    \item \textbf{Recall}: A model with high recall (sensitivity) misses very few upward cases (investment opportunities).
+    \item \textbf{F1-Score}: A metric that provides a comprehensive overview of the trade-off between precision and recall. Specifically, it highlights the balance between successfully identifying all positive cases and actually being correct with those positive predictions.
 \end{itemize}
 
-To conduct a robust evaluation of the classification task, the analysis compares a traditional statistical method against an advanced ensemble learning technique. The following models will be evaluated:
+To conduct a robust evaluation of the classification task, a traditional statistical method is compared against an advanced ensemble learning technique. The following models will be evaluated:
 
 \begin{itemize}
-    \item \textbf{Multiple Logistic Regression (MLogR)}: The classification counterpart to Multiple Linear Regression. It models the probability of the market moving upward using a logistic function based on the explanatory features. In this evaluation, MLogR serves as a highly interpretable, linear baseline for the classification task, providing a benchmark to assess whether more complex, non-linear relationships exist in the data.
-    \item \textbf{XGBoost (eXtreme Gradient Boosting)}: A highly performant, tree-based ensemble learning algorithm. XGBoost builds multiple decision trees sequentially, with each new tree attempting to correct the residual errors of the previous ones. It is robust to outliers, handles non-linear relationships effectively, and is widely regarded as a state-of-the-art model for tabular financial data classification.
+    \item \textbf{Multiple Logistic Regression (MLogR)}: This model is the classification counterpart to Multiple Linear Regression. It estimates the probability of an upward market movement using a logistic function based on the explanatory features. In this evaluation, MLogR serves as a highly interpretable, linear baseline, providing a benchmark to analyze whether more complex, non-linear relationships exist within the data.
+    \item \textbf{XGBoost (eXtreme Gradient Boosting)}: This is a highly performant, tree-based ensemble learning algorithm. It is robust to outliers, handles non-linear relationships effectively, and is widely regarded as a state-of-the-art model for classifying tabular financial data.
 \end{itemize}
 
 \section{Validation}
