@@ -65,66 +65,11 @@ Despite the high performance claims, the ability to consistently and profitably 
 This ongoing debate highlights the following important question: where is sentiment actually effective? While previous studies \cite{ANBAEEFARIMANI2022108742,9175549} show benefit on single equities or specific currency pairs, the prediction of broad market indices remains a unique challenge. This paper will focus on predicting the S\&P 500 index to test if sentiment can effectively reflect broad macroeconomic moods or if it merely introduces noise. By doing so, this study adds a new data point to the EMH and GIF discussion, testing the limits and boundaries of market efficiency.
 
 \chapter{Methodology}
-\section{Sentiment Models}
-For the sentiment classification task two different models are used and compared: FinBERT and VADER. The reason for this decision is to compare which of the models performs better in sentiment analysis. Doing so will show how important contextual understanding of transformers are when it comes to sentiment classification of short texts like news headlines.
-
-\subsection{VADER}
-Vader is a traditional lexicon and rule based sentiment model \cite{hutto2014vader}. It was developed to analyse short sentences like social media posts, product reviews, or short editorials in news papers. It assignes each word a predefined polarity score and adjusts the values based on heuristical rules. Negations, Intensifiers (extremly, marginally, ...), Capitalisation are some examples for those rules. They are used to get more contextual understanding. 
-
-The final output of the model is called Compound-Score and is calculated by summing all polarity values and normalize:
-
-$$s_{compound} = \frac{\sum v_i}{\sqrt{\left(\sum v_i\right)^2 + \alpha}}$$
-
-Where $v_i$ are the adjusted polarity scores and $\alpha$ a normalization constant (default value $\alpha = 15$), which acts as sensitivity dial. As final output this formula guarantees a value between -1 (negative sentiment) and 1 (positive sentiment).
-
-\subsection{FinBERT}
-FinBERT is a state of the art sentiment model which in contrast uses a transformer architecture instead of a lexicon approach \cite{araci2019finbert}. It is a fine tuned version of the famous BERT model from Google \cite{devlin2019bert} and was trained on a large corpus of financial text. Because of its architecture and fine tuning it exceeds in the task of understanding semantic texts in the financial domain. At the end of the model architecture a dense layer for classification was added. The output is passed through a softmax function to obtain the probability distribution of the three senitment labels (positive, negative, neutral).
-
-$$P(y|x) = \text{softmax}(W \cdot h_{\text{[CLS]}} + b)$$
-
-Where P(y|x) stands for the conditional probability, $h_{\text{[CLS]}}$ for the CLS Token (compressed representation vector of the sentence) and W, b for the learned parameters of the classification layer.
-\section{Datasets}
-The data for the news sentiment score is joined by a datapipeline that combine, preprocess and align multiple datasets into one corpus of headlines. The aggregation of multiple news sources over a broader time horizon increases data coverage and diversity. Therefore reducing potential biases coming from a specific news portal or timeframe. Resulting in a more generalized and reliable sentiment signal.
-
-% Todo include information about preprocessing logic
-Following datasets are included in the pipeline:
-\begin{itemize}
-    \item \textbf{Financial News Headlines Data} (Pham, \cite{pham_financial_news}): Kaggle hosted dataset that spans from December 2017 to July 2020. It contains about 53330 Headlines scraped from CNBC, the Guardian, and Reuters official websites.
-    
-    \item \textbf{Daily Financial News for 6000+ Stocks} (Aenlle, \cite{aenlle_financial_news}): Kaggle hosted dataset that covers 1.85 million news from 2009-2020. Covers many news portals like Seeking Alpha, Zacks, GuruFocus. The timestamps are localized as UTC-4 (US/Eastern).
-    
-    % maybe move the potential error explanation into the appendix
-    \item \textbf{FNSPID: Financial News Dataset in Time Series} (Dong et al., \cite{dong2024fnspid}): This dataset aggregates ~15.7 million news headlines from Nasdaq. The corpus offers datapoints from 1999 through 2023. Although promising, it appears to have wrong time conversions on some entries. For example, Benzinga-sourced headlines are localized as UTC-4, the corresponding timestamp in the dataset is localized as UTC-0 but converted in the wrong direction. This leads to potential data leakage if the article was published after 8 pm.
-    
-    \item \textbf{NIFTY: News-Informed Financial Trend Yield} (Saqur, \cite{raeidsaqur2024NiftyLM}): Originally a dataset designed for aligning Large Language Models (LLMs) with financial market data. Contains headlines from 2010-2020 that are mostly about the Indian/Asian economy. In the context of this study, it is included as a benchmark to determine if there are performance variations compared to other datasets.
-\end{itemize}
-
-% ToDo add note to timezone alignment: what is the problem, how did you solve it and where should it be taken with a grain of salt
-
-\section{Impact Scoring}
-Financial markets create a great volume of textual data. However, the distribution of important information is highly skewed. Most headlines are "noise" (repetitive updates, foreign news, minor price fluctuations), which can dilute the predictive power of the sentiment score. For this reason, a novel denoising method that uses large language models (LLMs) to differentiate between important headlines and noise is introduced.
-
-The main component of this filtering process is Llama 3.1 Instruct (8B). To increase the throughput and memory efficiency, the model was implemented using a 6-bit quantization (.gguf format). The resulting memory footprint is approximately 6.85 GB, which enables local inference on consumer-grade hardware. Because this model is not fine-tuned a prompt had to be engineered. A self-annotated dataset of ~70 classified headlines served as a benchmark to compare different prompts. This is the final version that is used in further experiments:
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{PICs/Impact_Scoring_Classification_Prompt.png}
-    \caption{Llama 3.1 Instruct (8B) prompt to classify news headlines}
-    \label{fig:myimag13}
-\end{figure}
-
-Headlines are categorized in four classes (A,B,C,D) based on their predictive power on future S\&P500 returns. These labels are then transformed into a numerical number (A->1, B-> 0.66, C->0.33, D->0) called impact score.
-
-The final output of this procedure is a denoised weighted sentiment score. Rather than treating every sentiment score equally, we apply the Impact Score as an additional transformation. This ensures that a positive sentiment on a minor headline (Category C) contributes less to the overall trend than a positive sentiment on a major headline (Category A). The calculation is defined as:
-
-$$S_{w} = S \times I$$
-
-Where:$S_w$ is the final weighted sentiment.
-$S$ is the raw sentiment score (ranging from -1 to 1).
-$I$ is the LLM-derived impact score (0 to 1).
+\section{Overview}
+The primary objective of this thesis is to evaluate the predictive power of news sentiment. However, transforming unstructured textual data into a denoised, reliable and time-aligned signal requires a robust pipeline and methodology. This chapter outlines the empirical methodology and system architecture developed to process sentiment across multiple news headline datasets. To understand the fundamental processing and model evaluation techniques, the following sections provide a high-level overview of the pipeline's architecture before explaining each component in detail.
 
 \section{Pipeline}
-Because this research is featuring multiple datasets and sentiment models a data and evaluation pipeline was implemented to easily conduct multiple experiments with different settings. The top level architecture is designed as:
+To accommodate the multiple datasets and sentiment models used in this research, a modular pipeline was implemented. This design allows for easy configuration of various experiments. The top-level architecture is structured as:
 
 % image of the pipeline top level architecture
 \begin{figure}[H]
@@ -165,6 +110,65 @@ Because this research is featuring multiple datasets and sentiment models a data
 
     \item Model Evaluation: the last component of this system is the evaluation pipeline. Here the final feature matrix can be used to perform experiments on multiple evlaution models. This part of the pipeline is outsourcing the cross validation and result preprocessing/formatting implementations. This allows for a wide varity of experiments with different feature matrix and evaluation models.
 \end{itemize}
+
+\section{Datasets}
+The data for the news sentiment score is joined by a datapipeline that combine, preprocess and align multiple datasets into one corpus of headlines. The aggregation of multiple news sources over a broader time horizon increases data coverage and diversity. Therefore reducing potential biases coming from a specific news portal or timeframe. Resulting in a more generalized and reliable sentiment signal.
+
+% Todo include information about preprocessing logic
+Following datasets are included in the pipeline:
+\begin{itemize}
+    \item \textbf{Financial News Headlines Data} (Pham, \cite{pham_financial_news}): Kaggle hosted dataset that spans from December 2017 to July 2020. It contains about 53330 Headlines scraped from CNBC, the Guardian, and Reuters official websites.
+    
+    \item \textbf{Daily Financial News for 6000+ Stocks} (Aenlle, \cite{aenlle_financial_news}): Kaggle hosted dataset that covers 1.85 million news from 2009-2020. Covers many news portals like Seeking Alpha, Zacks, GuruFocus. The timestamps are localized as UTC-4 (US/Eastern).
+    
+    % maybe move the potential error explanation into the appendix
+    \item \textbf{FNSPID: Financial News Dataset in Time Series} (Dong et al., \cite{dong2024fnspid}): This dataset aggregates ~15.7 million news headlines from Nasdaq. The corpus offers datapoints from 1999 through 2023. Although promising, it appears to have wrong time conversions on some entries. For example, Benzinga-sourced headlines are localized as UTC-4, the corresponding timestamp in the dataset is localized as UTC-0 but converted in the wrong direction. This leads to potential data leakage if the article was published after 8 pm.
+    
+    \item \textbf{NIFTY: News-Informed Financial Trend Yield} (Saqur, \cite{raeidsaqur2024NiftyLM}): Originally a dataset designed for aligning Large Language Models (LLMs) with financial market data. Contains headlines from 2010-2020 that are mostly about the Indian/Asian economy. In the context of this study, it is included as a benchmark to determine if there are performance variations compared to other datasets.
+\end{itemize}
+
+% ToDo add note to timezone alignment: what is the problem, how did you solve it and where should it be taken with a grain of salt
+
+\section{Sentiment Models}
+For the sentiment classification task two different models are used and compared: FinBERT and VADER. The reason for this decision is to compare which of the models performs better in sentiment analysis. Doing so will show how important contextual understanding of transformers are when it comes to sentiment classification of short texts like news headlines.
+
+\subsection{VADER}
+Vader is a traditional lexicon and rule based sentiment model \cite{hutto2014vader}. It was developed to analyse short sentences like social media posts, product reviews, or short editorials in news papers. It assignes each word a predefined polarity score and adjusts the values based on heuristical rules. Negations, Intensifiers (extremly, marginally, ...), Capitalisation are some examples for those rules. They are used to get more contextual understanding. 
+
+The final output of the model is called Compound-Score and is calculated by summing all polarity values and normalize:
+
+$$s_{compound} = \frac{\sum v_i}{\sqrt{\left(\sum v_i\right)^2 + \alpha}}$$
+
+Where $v_i$ are the adjusted polarity scores and $\alpha$ a normalization constant (default value $\alpha = 15$), which acts as sensitivity dial. As final output this formula guarantees a value between -1 (negative sentiment) and 1 (positive sentiment).
+
+\subsection{FinBERT}
+FinBERT is a state of the art sentiment model which in contrast uses a transformer architecture instead of a lexicon approach \cite{araci2019finbert}. It is a fine tuned version of the famous BERT model from Google \cite{devlin2019bert} and was trained on a large corpus of financial text. Because of its architecture and fine tuning it exceeds in the task of understanding semantic texts in the financial domain. At the end of the model architecture a dense layer for classification was added. The output is passed through a softmax function to obtain the probability distribution of the three senitment labels (positive, negative, neutral).
+
+$$P(y|x) = \text{softmax}(W \cdot h_{\text{[CLS]}} + b)$$
+
+Where P(y|x) stands for the conditional probability, $h_{\text{[CLS]}}$ for the CLS Token (compressed representation vector of the sentence) and W, b for the learned parameters of the classification layer.
+
+\section{Impact Scoring}
+Financial markets create a great volume of textual data. However, the distribution of important information is highly skewed. Most headlines are "noise" (repetitive updates, foreign news, minor price fluctuations), which can dilute the predictive power of the sentiment score. For this reason, a novel denoising method that uses large language models (LLMs) to differentiate between important headlines and noise is introduced.
+
+The main component of this filtering process is Llama 3.1 Instruct (8B). To increase the throughput and memory efficiency, the model was implemented using a 6-bit quantization (.gguf format). The resulting memory footprint is approximately 6.85 GB, which enables local inference on consumer-grade hardware. Because this model is not fine-tuned a prompt had to be engineered. A self-annotated dataset of ~70 classified headlines served as a benchmark to compare different prompts. This is the final version that is used in further experiments:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{PICs/Impact_Scoring_Classification_Prompt.png}
+    \caption{Llama 3.1 Instruct (8B) prompt to classify news headlines}
+    \label{fig:myimag13}
+\end{figure}
+
+Headlines are categorized in four classes (A,B,C,D) based on their predictive power on future S\&P500 returns. These labels are then transformed into a numerical number (A->1, B-> 0.66, C->0.33, D->0) called impact score.
+
+The final output of this procedure is a denoised weighted sentiment score. Rather than treating every sentiment score equally, we apply the Impact Score as an additional transformation. This ensures that a positive sentiment on a minor headline (Category C) contributes less to the overall trend than a positive sentiment on a major headline (Category A). The calculation is defined as:
+
+$$S_{w} = S \times I$$
+
+Where:$S_w$ is the final weighted sentiment.
+$S$ is the raw sentiment score (ranging from -1 to 1).
+$I$ is the LLM-derived impact score (0 to 1).
 
 \section{Evaluation Models} \label{ch:eval_chapter}
 To evaluate if sentiment does improve prediction accuracy for future returns of the SP500 an evaluation on different machine learning models is performed. Specifically, multiple feature configurations (with and without sentiment) will be used on a varity of regression and classification models to analyse the benefit of the sentiment feature.
