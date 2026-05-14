@@ -180,7 +180,7 @@ $S$ is the raw sentiment score (ranging from $-1$ to $1$), and \\
 $I$ is the LLM-derived impact score (ranging from $0$ to $1$).
 
 \section{Evaluation Models} \label{ch:eval_chapter}
-To evaluate if sentiment does improve prediction accuracy for future returns of the SP500 an evaluation on different machine learning models is performed. Specifically, multiple feature configurations (with and without sentiment) will be used on a varity of regression and classification models to analyse the benefit of the sentiment feature.
+To evaluate whether sentiment improves prediction accuracy for future returns of the S\&P 500, an evaluation of different machine learning models is performed. Specifically, multiple feature configurations (with and without sentiment) will be used across a variety of regression and classification tasks to analyze the benefit of the sentiment feature.
 
 % table of different feature configurations (maybe change all technicals +- sentiment to a permutation of technicals +- sentiment)
 \par\vspace{2ex}
@@ -201,35 +201,34 @@ To evaluate if sentiment does improve prediction accuracy for future returns of 
 \par\vspace{1ex}
 
 \subsection{Regression}
-The regression task aims to test how well a model can predict exact numbers of future returns. Specifically, the models attempt to predict the price percentage change $y_{t+1}$ based on the feature sets defined in Table \ref{tab:feature_configuration_setups}. This approach will show how well the model can learn to predict not only the direction of the price change but also the magnitude.
-
-The target variable for the regression models is percentage change of the SP500 returns at time $t+1$.
+The regression task aims to test how well a model can predict the exact values of future returns. Specifically, the models attempt to predict the price percentage change $y_{t+1}$ based on the feature sets defined in Table \ref{tab:feature_configuration_setups}. This approach will demonstrate how well a model can learn to predict not only the direction of the price change but also its magnitude.
+The target variable for the regression models is the percentage change of S\&P 500 returns at time $t+1$.
 
 $$R_t = \frac{P_t - P_{t-1}}{P_{t-1}}$$
 
 % Todo fact check again
 \begin{quote}
-\small \textit{Note: Log returns may be preferred for other financial forecasting tasks \cite{fama1965behavior}. In this work however, the "simple" percentage change is sufficient because price change isn't used additively and variability is accounted for by the VIX index. The only arguable benefit of log returns would be that it is symmetric (a drop by 5\% followed by a 5\% increase is not zeroing out with normal percentage change). After testing both targets, the performance difference is negligible.}
+\small \textit{Note: Log returns may be preferred for other financial forecasting tasks \cite{fama1965behavior}. However, in this work, the simple percentage change is sufficient because the price changes are not used additively (we are only predicting the next data point, $t+1$). Either way, both target variables were tested, and the results suggest that the performance difference is negligible.}
 \end{quote}
 
-To evaluate the benefit of each forecaster, a baseline model was implemented that simply predicts the mean price change of the training set. This serve as a benchmark to evaluate if any sentiment or non-sentiment provides a gain in performance.
+To evaluate the effectiveness of each forecaster, a baseline model was implemented that simply predicts the mean price change of the training set. This serves as a benchmark to determine whether the inclusion of sentiment features explains additional variance in the target variable.
 
 $$\bar{y} = \frac{1}{n} \sum_{i=1}^{n} y_i$$
-
-To compare the different forcasting models across the different feature sets the following loss function and metrics are utilized:
+To compare the forecasting models across various feature sets, the following loss function and metrics are utilized:
 \begin{itemize}
-    \item \textbf{Mean Squared Error (MSE)}: Measures the average suqared difference between the target and the predicted value, penalizing large outlierts more heavily. Allthough used as a loss function for regression models like multiple linear regression (MLR), for the final evaluation pipeline MSE is excluded because it is not suited for small numbers like percentage changes. Instead Mean Absolute Error and Root Mean Squared Error are used for the final comparison.
-    \item \textbf{Root Mean Squared Error (RMSE)}: Represents the square root of the MSE. It helps to transform the magnitude of the error back into the units of the target variable, making it easier to interpret.
-    \item \textbf{Mean Absolute Error}: Calculates the average of the absolute differences between target and prediction. In contrast to MSE and RMSE it does not square errors, making it less sensitive against outliers.
-    \item \textbf{R2}: Measures the proportion of variance in the target variable that can be explained by the feature set. If the value is around 0 it means that the model is not better than the baseline (predicting always the mean of the train target distribution).
+    \item \textbf{Mean Squared Error (MSE)}: While used as a loss function for regression models like multiple linear regression (MLR), for the final evaluation pipeline, MSE is excluded because it is not suited for small numbers like percentage changes. Instead, Mean Absolute Error and Root Mean Squared Error are used for the final comparison.
+    \item \textbf{Root Mean Squared Error (RMSE)}: Helps to transform the magnitude of the error back into the units of the target variable, making it easier to interpret.
+    \item \textbf{Mean Absolute Error (MAE)}: In contrast to MSE and RMSE, it does not square errors, making it less sensitive to outliers.
+    \item \textbf{R-squared ($R^2$)}: Measures the proportion of variance in the target variable that can be explained by the feature set. If the value is around 0, it means that the model is no better than the baseline (always predicting the mean of the train target distribution).
 \end{itemize}
 
-To achieve a robust analysis of the regression task, a mix of traditional and advanced machine learning models is used. Using both statistical baselines and more complex recurrent neural networks provides a better comparison than relying on only one architecture. Therefore, the following models will be evaluated:
+To achieve a robust analysis of the regression task, a mix of traditional and advanced machine learning models is used. Using both statistical baselines and more complex recurrent neural networks provides a better comparison than relying on a single architecture. Therefore, the following models will be evaluated:
+
 \begin{itemize}
-    \item \textbf{ARMA(X) (Auto-Regressive Moving Average)}: A statistical model for forecasting time series data. It mixes a Auto-Regressive(AR) component, which uses previous target variables and a Moving Average(MA) component, which uses the models past forecasting errors. To include additional inputs like sentiment a extended version called ARMAX is used (the X comes from ARMA with eXogenous variables).
-    \item \textbf{LSTM (Long Short-Term Memory)}: An advanced RNN (Recurrent Neural Network) architecture that uses three distinct gates (input, output and forget) to improve long-term dependency learning. In financial forcasting, LSTM is often used and among the most performant models. %Quellen hier zitieren
-    \item \textbf{GRU (Gated Recurrent Unit)}: A type of RNN that is designed to efficiently handle sequential data. Compared to the LSTM model it has only two gates (update, reset) to mitigate for the vanishing gradient problem. Because of its architecture it is more lightweight than a LSTM but often achieve comparable performance.
-    \item \textbf{MLR (Multiple Linear Regression)}: A fundamental statistical method that models the linear relationship between the target variable and two or more explanatory features. In this evaluation, MLR serves as a highly interpretable, linear baseline model to contrast against the more complex, non-linear deep learning approaches (GRU and LSTM).
+\item \textbf{ARMA(X) (Auto-Regressive Moving Average)}: A statistical model for forecasting time series data. It combines an Auto-Regressive (AR) component, which uses previous target variables, and a Moving Average (MA) component, which uses the model's past forecasting errors. To include additional inputs like sentiment, an extended version called ARMAX is used (the X stands for eXogenous variables).
+\item \textbf{LSTM (Long Short-Term Memory)}: An advanced RNN (Recurrent Neural Network) architecture that uses three distinct gates (input, output, and forget) to improve long-term dependency learning. In financial forecasting, LSTM is frequently used and is among the most performant models. %Quellen hier zitieren
+\item \textbf{GRU (Gated Recurrent Unit)}: A type of RNN designed to efficiently handle sequential data. Compared to the LSTM model, it has only two gates (update and reset) to mitigate the vanishing gradient problem. Because of its architecture, it is more lightweight than an LSTM but often achieves comparable performance.
+\item \textbf{MLR (Multiple Linear Regression)}: A fundamental statistical method that models the linear relationship between the target variable and two or more explanatory features. In this evaluation, MLR serves as a highly interpretable, linear baseline model to contrast against the more complex, non-linear deep learning approaches (GRU and LSTM).
 \end{itemize}
 
 \subsection{Classification}
