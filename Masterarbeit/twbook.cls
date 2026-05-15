@@ -270,6 +270,8 @@ urlcolor=TWblue, urlbordercolor=white}
 \newcommand{\schlagworte}[1]{\gdef\@schlagworte{#1}}
 \newcommand*{\@outline}{}
 \newcommand{\outline}[1]{\gdef\@outline{#1}}
+\newcommand*{\@outlineGerman}{}
+\newcommand{\outlineGerman}[1]{\gdef\@outlineGerman{#1}}
 \newcommand*{\@keywords}{}
 \newcommand{\keywords}[1]{\gdef\@keywords{#1}}
 \newcommand*{\@acknowledgements}{}
@@ -501,6 +503,15 @@ urlcolor=TWblue, urlbordercolor=white}
 \fi
 \fi
 
+\ifx\@outlineGerman\@empty
+\ifx\@keywords\@empty
+\else\clearpage
+\fi
+\else\clearpage
+\chapter*{Abstract}
+\@outlineGerman
+\fi
+
 \ifx\@acknowledgements\@empty
 \else\clearpage
 \chapter*{Danksagung}\@acknowledgements
@@ -561,6 +572,15 @@ urlcolor=TWblue, urlbordercolor=white}
   \fi
 \fi
 
+\ifx\@outlineGerman\@empty
+  \ifx\@empty
+  \else\clearpage
+  \fi
+\else\clearpage
+  \chapter*{Abstract}
+  \@outlineGerman
+\fi
+
 \ifx\@acknowledgements\@empty
 \else\clearpage
   \chapter*{Danksagung}\@acknowledgements
@@ -619,6 +639,16 @@ urlcolor=TWblue, urlbordercolor=white}
   \fi
 \fi
 
+\ifx\@outlineGerman\@empty
+  \ifx\@keywords\@empty
+  \else\clearpage
+  \fi
+\else\clearpage
+  \chapter*{Abstract}
+  \@outlineGerman
+\fi
+
+
 \ifx\@acknowledgements\@empty
 \else\clearpage
   \chapter*{Acknowledgements}\@acknowledgements
@@ -676,6 +706,16 @@ urlcolor=TWblue, urlbordercolor=white}
   \else\vfill\paragraph*{Keywords:}\@keywords
   \fi
 \fi
+
+\ifx\@outlineGerman\@empty
+  \ifx\@keywords\@empty
+  \else\clearpage\null\vfill\paragraph*{Keywords:}\@keywords
+  \fi
+\else\clearpage
+  \chapter*{Abstract (German)}
+  \@outlineGerman
+\fi
+
 
 \ifx\@acknowledgements\@empty
 \else\clearpage
