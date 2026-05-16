@@ -120,7 +120,7 @@ The following datasets are included in the pipeline:
 \begin{minipage}{\linewidth}
     \centering
     \small
-    \begin{tabularx}{\linewidth}{|l|X|}
+    \begin{tabularx}{\linewidth}{|p{0.28\linewidth}|X|}
     \hline
     \textbf{Dataset} & \textbf{Description} \\ \hline
     \textbf{Financial News Headlines Data} (Pham, \cite{pham_financial_news}) & Kaggle-hosted dataset that spans from December 2017 to July 2020. It contains about 53330 headlines scraped from CNBC, The Guardian, and Reuters official websites. \\ \hline
@@ -262,7 +262,8 @@ Because financial forecasting relies on time-series market data, standard cross-
     \item \textbf{Rolling Window}: In this approach, the size of the training data is fixed. After finishing a validation step, new data becomes part of the next train set while the old data is dropped. This leads to a sliding window over the whole data with multiple combinations of train and test sets.
     \item \textbf{Expanding Window}: In this approach, the size of the training data is growing with each validation step. After each round, new observations are included in the train set. Therefore, the model learns from the maximum available historical context.
 \end{itemize}
-In this work, the Expanding Window strategy is used to incorporate the whole train set in the hope that the model can achieve better generalization. Because this paper evaluates varying forecast horizons, the standard implementation of the expanding window was adapted to prevent look-ahead bias. Specifically, days that are used to calculate the target are excluded by a gap between the train and test set. For example, if the target is a 3-day percentage change utilizing $y_{t-1}$, $y_{t-2}$, and $y_{t-3}$, none of the 3 days may be included in the train set. This assures a strict boundary for the model's learning data, with no information leaks into the future.
+% Todo get feedback on this first sentence
+In this work, the Expanding Window Strategy is used to incorporate the entire training set, aiming for better model generalization and avoiding the risk of insufficient data that can occur with a fixed size rolling window. Because this paper evaluates varying forecast horizons, the standard implementation of the expanding window was adapted to prevent look-ahead bias. Specifically, days that are used to calculate the target are excluded by a gap between the train and test set. For example, if the target is a 3-day percentage change utilizing $y_{t-1}$, $y_{t-2}$, and $y_{t-3}$, none of the 3 days may be included in the train set. This assures a strict boundary for the model's learning data, with no information leaks into the future.
 
 \chapter{Results \& Experiments}
 \section{Basic Experiment Setup}
@@ -284,11 +285,11 @@ In this work, the Expanding Window strategy is used to incorporate the whole tra
 \end{minipage}
 \par\vspace{1ex}
 
-\textit{As stated in the methodology section expanding window cross validation will be utilized. In regard to the basic experiment this means approximately 24 folds over the complete dataset. The initial train set will consist of 200 datapoints and the test set will be fixed at 100 datapoints. This will ensure the preservation of the temporal order, preventing any look-ahead biases and providing a consistent and robust evaluation for the evaluation models.}
+\textit{As stated in the methodology section**,** expanding**-window cross-validation will be utilized. For the basic experiment,** this results in approximately 24 folds over the complete dataset. The initial training set will consist of 200 data points, and the test set will be fixed at 100 data points. This ensures the preservation of temporal order, thereby preventing look-ahead bias and providing a consistent and robust framework for model evaluation.}
 
 \section{Explorative Data Analsysis}
 \subsection{Target}
-The dataset for the basic experiment consists of 2,613 daily data points spanning from 03.02.2010 to 18.07.2020. This period would naturally euqal 3819 real days but all non-business days (weekend and holidays where the new york stock exchange was not open) are excluded (2614 days), -1 because we dont have a target $t+1$ for the last day. To get a better picture of the target variable this analysis examine the statistical properties of the 1-day percentage price change of the S\%P500 - the target variable of our basic experiement. With a positive mean of $\mu = 0.00046$ alongside a standard diviation of $\sigma = 0.01093$, the distribution shows a relatively sharp peak with a slight rightward skew. This positive skewness captures the markets underlying tendency to have more positive days than negative ones. The distribution is shown in the following figure
+The dataset for the basic experiment consists of 2,613 daily data points spanning from 03.02.2010 to 18.07.2020. While this period covers 3,819 calendar days, all non-business days (weekends and holidays when the New York Stock Exchange was closed) are excluded, leaving 2,614 trading days. One additional day is subtracted because the target variable ($t+1$) is unavailable for the final observation. To gain a clearer understanding of this target, this analysis examines the statistical properties of the 1-day percentage price change of the S\&P 500. With a positive mean of $\mu = 0.00046$ and a standard deviation of $\sigma = 0.01093$, the distribution exhibits a relatively sharp peak with a slight rightward skew. This positive skewness captures the market's underlying tendency to experience more positive days than negative ones. The distribution is illustrated in the figure below.
 
 \begin{figure}[H]
     \centering
@@ -297,7 +298,7 @@ The dataset for the basic experiment consists of 2,613 daily data points spannin
     \label{fig:1dtargetdistribution}
 \end{figure}
 
-To also include statistics for the classification objective, the mapped binary target (market direction) is also analysed for characteristics. There is a moderate class imbalance within the analysed time horizon. With 1435 days that signals up there are "only" 1178 days that signal a negative market direction. This again implies that the market tends to have a positive drift. This properties are also the reason for our naive baseline model that predicts the majority class rather than random.
+To also include statistics for the classification objective, the mapped binary target (market direction) is analyzed for its characteristics. There is a moderate class imbalance within the analyzed time horizon. While 1,435 days signal an upward direction, there are only 1,178 days that signal a negative market direction. This again implies that the market tends to have a positive drift. These properties are also the reason our naive baseline model predicts the majority class rather than making random selections.
 
 \begin{figure}[H]
     \centering
@@ -310,7 +311,7 @@ To also include statistics for the classification objective, the mapped binary t
 % optional sentiment distribution
 
 % News headline coverage
-Before analyzing the distribution of the sentiment score and its correlations, it is necessary to check the coverage of news headline across the target horizon. This is important to see if there are any gaps that could lead to noise in the results and distort the final conclusions.
+Before analyzing the distribution of the sentiment scores and their correlations, it is necessary to check the coverage of news headlines across the target horizon. This is important to determine if there are any data gaps that could introduce noise into the results and distort the final conclusions.
 
 \begin{figure}[H]
     \centering
@@ -319,10 +320,10 @@ Before analyzing the distribution of the sentiment score and its correlations, i
     \label{fig:headlineCoverage}
 \end{figure}
 
-As shown in figure \ref{fig:headlineCoverage} there is some volatility in the amount of headlines for each year. The dataset exhibits a mean headline count of $\mu = 231$ alongside a standard diviation of $\sigma = 241$. Allthough the volatile volume of the datapoints the coverage is fortunately sufficient enough. Out of the 2163 day only 15 days are without headlines. In this case the sentiment score for this day will be set to 0, indicating a neutral mood.
+As shown in figure \ref{fig:headlineCoverage}, there is some volatility in the number of headlines per year. The dataset exhibits a mean daily headline count of $\mu = 231$ with a standard deviation of $\sigma = 241$. Despite this volatility in data volume, the coverage is fortunately sufficient. Out of the 2,163 days, only 15 lack headlines entirely. For these days, the sentiment score is set to 0, indicating a neutral mood.
 
 % correlations (price x sentiment), 
-Following the analysis on headline coverage, the correlation between the target variable and the sentiment value will be analysed. Specifically, the daily aggreagted sentiment score calculated by mean sentiment of all headlines will be compared to the 1-day percentage price change of the S\&P500 index. Both spearman and pearson correlation coefficients will be utilized to analyse if there are any linear or monotonic relationships between the two variables.
+Following the analysis of headline coverage, the correlation between the target variable and the sentiment value will be analyzed. Specifically, the daily aggregated sentiment score, calculated as the mean sentiment of all headlines, will be compared to the 1-day percentage price change of the S\&P 500 index. Both the Spearman and Pearson correlation coefficients will be utilized to analyze if there are any linear or monotonic relationships between the two variables.
 
 \begin{figure}[H]
     \centering
@@ -331,10 +332,10 @@ Following the analysis on headline coverage, the correlation between the target 
     \label{fig:pctChangexsentiment}
 \end{figure}
 
-The result is a strong disconnect between raw daily sentiment and next day price change. The Pearson correlation yields a coefficient of  $r = -0.019$ with a $p$-value of $0.330$. Similarly, the Spearman correlation results in $\rho = -0.021$ with a $p$-value of $0.289$. Because both p-values are well above standard significance threshold of $\alpha = 0.05$ it can be concluded that there is no statistical correlation between the two variables. 
+The results reveal a strong disconnect between raw daily sentiment and the next-day price change. The Pearson correlation yields a coefficient of $r = -0.019$ ($p = 0.33$), while the Spearman correlation results in $\rho = -0.021$ ($p = 0.29$). Because both $p$-values are well above the standard significance threshold of $\alpha = 0.05$, it can be concluded that this comparison fails to reject the null hypothesis of no correlation between the variables.
 
 % (sentiment x volatility),
-Eventhough there is no immediate relation between sentiment and target. The relationship between the standard deviation of the price (volatility) and sentiment reveals a significant market dynamic. Similar to the previous experiment the Pearson and Spearman correlation coefficient are calculated for senitment and market volatility. The Pearson coefficient is $r = -0.208$ ($p = 3.71 \times 10^{-27}$) while the Spearman coefficient $\rho = -0.279$ ($p = 2.26 \times 10^{-48}$). These very small p-values confirm a highly statistical inverse relationship. When sentiment is low (bad mood) the volatility rises.
+Although no immediate relationship exists between sentiment and the target variable, the relationship between price volatility (measured by the standard deviation of price) and sentiment reveals a significant market dynamic. Similar to the previous experiment, the Pearson and Spearman correlation coefficients were calculated for sentiment and market volatility. The Pearson coefficient is $r = -0.208$ ($p = 3.71 \times 10^{-27}$), while the Spearman coefficient is $\rho = -0.279$ ($p = 2.26 \times 10^{-48}$). These extremely small $p$-values confirm a significant inverse relationship: when sentiment is low (reflecting a negative market mood), volatility rises.
 
 \begin{figure}[H]
     \centering
@@ -343,10 +344,10 @@ Eventhough there is no immediate relation between sentiment and target. The rela
     \label{fig:volatilityxsentiment1}
 \end{figure}
 
-However, this long-term inverse correlation is not stationary. When evaluating the correlations on a smaller rolling window of 90-days the correlation may vary. This fluctuation strongly suggests that the relationship between the two variables is regime-dependent. Furthermore, the origin of the news headlines matter. When looking on strong publishers only like in \cite{pham_financial_news} (Reuters, CNBC, The Guardian) a clearer non linear relationship emerges \ref{fig:volatilityxsentiment_pham}. This could imply that market participants value the source of the headline as well as the emotional polarity of the text. Finally if we compare the sentiment score to the VIX-index of the S\&P500 a similar even more inverse picture can be observed (see \ref{fig:vixxsentiment}).
+However, this long-term inverse correlation is not stationary. When evaluating the correlations on a smaller rolling window of 90 days, the correlation varies. This fluctuation strongly suggests that the relationship between the two variables is regime-dependent. Furthermore, the origin of the news headlines matters. When looking at prominent publishers only, as in \cite{pham_financial_news} (Reuters, CNBC, The Guardian), a clearer non-linear relationship emerges (see figure \ref{fig:volatilityxsentiment_pham}). This could imply that market participants value the source of the headline as well as the emotional polarity of the text. Finally, if we compare the sentiment score to the VIX index of the S\&P 500, a similar, even more inverse relationship can be observed (see figure \ref{fig:vixxsentiment}).
 
 % price change x same day sentiment
-Lastly the sentiment feature is offset by one day. This introduces a lookahead bias, where sentiment of tomorrow is used to predict the price change of the same day. Under the assumption that sentiment does have an impact on price change, this should yield a significant performance increase. Similar to the other comparisons we use a scatterplot and Pearson- and Spearman correlation to understand the connection between the two variables. Later the unfair feature is also utilized in a prediction setup to analyse the quantitative performance.
+Lastly, the sentiment feature is offset by one day. This introduces a look-ahead bias, where the sentiment of tomorrow is used to predict the price change of the same day. Under the assumption that sentiment does have an impact on price change, this should yield a significant performance increase. Similar to the other comparisons, we use a scatter plot and both Pearson and Spearman correlations to understand the connection between the two variables. Later, this unfair feature is also utilized in a forecasting setup to analyze the quantitative performance.
 
 \begin{figure}[H]
     \centering
@@ -355,8 +356,7 @@ Lastly the sentiment feature is offset by one day. This introduces a lookahead b
     \label{fig:pctChangexsentimenttomorrow}
 \end{figure}
 
-As \ref{fig:pctChangexsentimenttomorrow} suggests there is a slight positive correlation with a Pearson coefficient of $r = 0.1373$ with a $p-value = 1.5286e-12$ and a Spearman coefficient of $\rho = 0.1878$ with a $p-value = 2.6537e-22$. This shows a statistical significant correlation between both variables. Eventhough sentiment of the same day is not a fair feature it suggests that the extracted mood score is not pure noise but a variable with some explainability. 
-% signal seperation (historgram seperation)
+As figure \ref{fig:pctChangexsentimenttomorrow} suggests, there is a slight positive correlation with a Pearson coefficient of $r = 0.1373$ ($p\text{-value} = 1.53 \times 10^{-12}$) and a Spearman coefficient of $\rho = 0.1878$ ($p\text{-value} = 2.65 \times 10^{-22}$). These results show that the null hypothesis can be rejected, confirming a significant positive correlation between both variables. Even though the sentiment of the following day is a "unfair" feature, it suggests that the extracted mood score is not pure noise but a variable with some explanatory power.
 
 \section{Sentiment vs No-Sentiment Models}
 In this chapter the experiment descriped in \ref{ch:eval_chapter} will be performed. In short multiple maschine learning models will be evaluated and cross validated on four different features sets on regression and classification objectives. The first the only price and price + sentiment feature set will be compared. The goal is to compare the predicitve power of these models when utilizing various combinations of price data, sentiment score and technical indicators.
