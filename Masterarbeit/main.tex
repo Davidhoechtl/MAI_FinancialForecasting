@@ -492,7 +492,7 @@ In this chapter, the experiment described in \ref{ch:eval_chapter} will be perfo
 \end{itemize}
 
 \section{FinBERT vs VADER}
-In this section the two sentiment models finBERT and VADER (Valence Aware Dictionary and sEntiment Reasoner) will be compared and evaluated. Both models use fundamentally different appraoches when it comes to sentiment analysis. FinBERT is based on a transformer architecture enabling it to extract deep semantic information from text. VADER on the other hand is using a set of rules to analyse the sentiment and intensity of the given headlines. The goal of this comparison is to understand which model is more successfull in extracting mood from financial news headlines.
+In this section, the two sentiment models, FinBERT and VADER (Valence Aware Dictionary and sEntiment Reasoner), are compared and evaluated. Both models use fundamentally different approaches to sentiment analysis. FinBERT is based on a transformer architecture, enabling it to extract deep semantic information from text. VADER, on the other hand, uses a set of rules to analyze the sentiment and intensity of the given headlines. The goal of this comparison is to understand which model is more successful in extracting mood from financial news headlines.
 
 \begin{figure}[H]
     \centering
@@ -501,7 +501,7 @@ In this section the two sentiment models finBERT and VADER (Valence Aware Dictio
     \label{fig:finbertvsvader}
 \end{figure}
 
-While the resulting sentiment time series from both models demonstrate a strong overall correlation, a closer examination reveals notable differences in their behavior. Specifically, FinBERT mood series exhibits significantly greater variation. Those more extreme amplitudes suggests that FinBERT is more sensitive to mood shifts and contextual nuances. To confirm this statement, two experiments will be performed. First, the basic experiment will be conducted using only VADER and FinBERT sentiment. Second, the shifted sentiment feature (same-day sentiment) will be applied to see which of the two models is superior in capturing the events of the market day.
+While the resulting sentiment time series from both models demonstrate a strong overall correlation, a closer examination reveals notable differences in their behavior. Specifically, the FinBERT mood series exhibits significantly greater variation. These more extreme amplitudes suggest that FinBERT is more sensitive to mood shifts and contextual nuances. To verify this hypothesis, two experiments will be performed. First, a baseline experiment will be conducted using only the original VADER and FinBERT sentiment scores. Second, a shifted sentiment feature (same-day sentiment) will be applied to see which of the two models is superior in capturing market-day events
 
 \begin{table}[htbp]
     \centering
@@ -528,7 +528,7 @@ While the resulting sentiment time series from both models demonstrate a strong 
     \label{tab:vader_advantage}
 \end{table}
 
-Interesstingly the experiment with only $vader\_sentiment$ was superior to the configuration with only $finbert\_sentiment$. While the regression task improvement seem to be negligible the performance increase of the classification models is notable. The overall prediction accuracy improved by 2.5 percent, with a notable 18 percent increase in the MLogR model´s recall. Next we will examine the results of the seconds experiment to determine if this superiority persists when using the shifted same-day sentiment feature.
+Interestingly, the experiment with only $vader\_sentiment$ was superior to the configuration with only $finbert\_sentiment$. While the regression task improvement seems to be negligible, the performance increase of the classification models is notable. The overall prediction accuracy improved by $2.5$\%, with a notable $18$\% increase in the MLogR model's recall. Next we will examine the results of the second experiment to determine if this superiority persists when using the shifted same-day sentiment feature.
 
 \begin{table}[htbp]
     \centering
@@ -555,7 +555,7 @@ Interesstingly the experiment with only $vader\_sentiment$ was superior to the c
     \label{tab:vader_advantage_shifted}
 \end{table}
 
-In contrast to the first experiment, the results of using same-day sentiment strongly favor the FinBERT mode. Nearly every performance benchmakr decreased fro VADER compared to FinBERT, with the only exception being the MLogR model´s recall (with an increase of approximately $10.7$ percent). These results show that $finbert\_sentiment$ capture the nuances of context of the same day sentiment better than $vader\_sentiment$. Howerver, this does not mean that capturing context is the only important factor when it comes to the predicitve power of the sentiment score. Concluded the overall performance of both sentiment features is highly comparable in a fair setup (no lookahead). VADER holds a slight advantage in predictive classification tasks while FinBERT succeeds in the lookahead setup.
+In contrast to the first experiment, the results of using same-day sentiment strongly favor the FinBERT model. Nearly every performance benchmark decreased for VADER compared to FinBERT, with the only exception being the MLogR model's recall (which saw an increase of approximately $10.7$\%). These results show that $finbert_sentiment$ captures the contextual nuances of same-day sentiment better than $vader_sentiment$. However, this does not mean that capturing context is the only important factor when it comes to the predictive power of the sentiment score. In conclusion, the overall performance of both sentiment features is highly comparable in a fair setup (without lookahead). VADER holds a slight advantage in predictive classification tasks, while FinBERT succeeds in the lookahead setup.
 
 % Comparing the performance on the basic experiment (sentiment_finbert, sentiment_vader)
 % Vader sentiment has similar performance on the regression models (slightly better), classificaton performance is better especially the recall of the MLogR has improved significant
