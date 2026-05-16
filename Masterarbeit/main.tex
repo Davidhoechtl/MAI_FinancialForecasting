@@ -359,11 +359,11 @@ Lastly, the sentiment feature is offset by one day. This introduces a look-ahead
 As figure \ref{fig:pctChangexsentimenttomorrow} suggests, there is a slight positive correlation with a Pearson coefficient of $r = 0.1373$ ($p\text{-value} = 1.53 \times 10^{-12}$) and a Spearman coefficient of $\rho = 0.1878$ ($p\text{-value} = 2.65 \times 10^{-22}$). These results show that the null hypothesis can be rejected, confirming a significant positive correlation between both variables. Even though the sentiment of the following day is a "unfair" feature, it suggests that the extracted mood score is not pure noise but a variable with some explanatory power.
 
 \section{Sentiment vs No-Sentiment Models}
-In this chapter the experiment descriped in \ref{ch:eval_chapter} will be performed. In short multiple maschine learning models will be evaluated and cross validated on four different features sets on regression and classification objectives. The first the only price and price + sentiment feature set will be compared. The goal is to compare the predicitve power of these models when utilizing various combinations of price data, sentiment score and technical indicators.
+In this chapter, the experiment described in \ref{ch:eval_chapter} will be performed. In short, multiple machine learning models will be evaluated and cross-validated on four different feature sets across regression and classification objectives. The goal is to compare the predictive power of these models when utilizing various combinations of price data, sentiment scores, and technical indicators.
 
 \begin{itemize}
-    \item \textbf{Baselines}: First we look at the performance of the baseline models, their performance will not change across the different experiments because they rely only on static values or the target variable. For the regression tasks, a the Mean-Baseline approach achieved a $RMSE=0.00942$ and a $MAE=0.00678$. For the classification tasks, the "always up" baseline strategy yielded an accuracy of $54.9$ percent and an $F1-score=0.70$
-    \item \textbf{Price Only}: Next the evaluation models will be trained on only on $t-1$ percentage price change. The results indicates no notable performance improvement against the established baselines. In the regression tasks, simple regression models like Multiple Linear Regression outperformed more complex architecture like LSTM or GRU. For the classification objective MLogR(Multiple Logistic Regression) performed poorly yielding an accurcay of $48.2$ percent (which is worse than random chance) and a $F1-score=0.2948$. On the other hand XGBoost performed slightly better, achieving an accurcay of $50.4$, a $F1-score=0.5829$ and a $recall=0.6351$. This indicates that using past price data is not enough for prediciting market returns.
+    \item \textbf{Baselines}: First, we examine the performance of the baseline models. Their performance remains unchanged across the different experiments because they rely solely on static values or the target variable itself. For the regression tasks, the mean-baseline approach achieved an RMSE of $0.00942$ and a MAE of $0.00678$. For the classification tasks, the "always up" baseline strategy yielded an accuracy of $54.9$\% and an F1-score of $0.70$.
+    \item \textbf{Price Only}: Next, the evaluation models are trained solely on the $t-1$ percentage price change. The results indicate no notable performance improvement against the established baselines. In the regression tasks, simple models like Multiple Linear Regression outperformed more complex architectures such as LSTMs or GRUs. For the classification objective, Multiple Logistic Regression (MLogR) performed poorly, yielding an accuracy of $48.2$\% and an F1-score of $0.2948$. Conversely, XGBoost performed slightly better, achieving an accuracy of $50.4$\%, an F1-score of $0.5829$, and a recall of $0.6351$. This indicates that historical price data alone is insufficient for predicting market returns. These results align with the assumptions made by the weak form of the EMH.
     \begin{table}[htbp]
     \centering
     \small % Reduces font size for the table
@@ -388,13 +388,7 @@ In this chapter the experiment descriped in \ref{ch:eval_chapter} will be perfor
     \caption{Price-Only Results}
     \label{tab:price_only_results}
     \end{table}
-    % \begin{figure}[H]
-    %     \centering
-    %     \includegraphics[width=1\textwidth]{PICs/results_price.png}
-    %     \caption{price only results}
-    %     \label{fig:res_price_only}
-    % \end{figure}
-    \item \textbf{Sentiment Only}: The sentiment only feature set yieled similar results. For regression there is no significant difference between price only. However, there were shifts in classification performance. MLogR raised its accuracy to $51.1$ percent while also raising its F1-score to $0.5058$. Interesstingly the performance of the other classification model XGBoost dropped below the $50$ percent accuracy mark. The same conclusion as in the price only experiment is that sentiment alone could not be enough to improve prediction accuracy.
+    \item \textbf{Sentiment Only}: The sentiment-only feature set yielded similar results. For regression, there was no significant difference compared to the price-only experiment. However, notable shifts occurred in classification performance. MLogR improved its accuracy to $51.1$\% while simultaneously increasing its F1-score to $0.5058$. Interestingly, the performance of the other classification model, XGBoost, dropped below the $50$\% accuracy threshold. Parallel to the findings of the price-only experiment, these results indicate that sentiment data alone is insufficient to improve predictive accuracy.
     \begin{table}[htbp]
     \centering
     \small % Reduces font size for the table
@@ -419,13 +413,8 @@ In this chapter the experiment descriped in \ref{ch:eval_chapter} will be perfor
     \caption{Sentiment-Only Results}
     \label{tab:res_sent_only}
     \end{table}
-    % \begin{figure}[H]
-    %     \centering
-    %     \includegraphics[width=1\textwidth]{PICs/results_sentiment.png}
-    %     \caption{sentiment only results}
-    %     \label{fig:res_sent_only}
-    % \end{figure}
-    \item \textbf{All Technical Indicators}: In this Experiment all technical indicators ("Pct\_Change", "VIX", "Volume", "Moving\_Average\_30", "US1Y\_Yield") where used to predict the target. Even with this additional information the prediction performance could not be improved. However more complex models had a lower regression loss compared to the simpler models. Both classification models did not achieve above $50$ percent accurcacy, suggesting that there was no benefit in combining all the technical indicators for market direction prediction.
+
+    \item \textbf{All Technical Indicators}: In this experiment, all technical indicators ("Pct\_Change", "VIX", "Volume", "Moving\_Average\_30", "US1Y\_Yield") were used to predict the target. Even with this additional information, predictive performance did not improve. However, the more complex models experienced a lower regression loss compared to their simpler counterparts. Both classification models failed to achieve an accuracy above $50$\%, suggesting that combining these technical indicators provided no clear benefit for market direction prediction.
     \begin{table}[htbp]
     \centering
     \small % Reduces font size for the table
@@ -450,13 +439,7 @@ In this chapter the experiment descriped in \ref{ch:eval_chapter} will be perfor
     \caption{All-Technicals Results}
     \label{tab:res_all_technicals}
     \end{table}
-    % \begin{figure}[H]
-    %     \centering
-    %     \includegraphics[width=1\textwidth]{PICs/results_alltechnicals.png}
-    %     \caption{all technicals results}
-    %     \label{fig:res_all_technicals}
-    % \end{figure}
-    \item \textbf{All Technical Indicators and Sentiment}: Finally we are looking at the combined feature matrix of sentiment plus all technical indicators. The performance of this experiment is nearly indentical to the experiment with only technical indicators. A possible explaination could be that sentiment is regulated away during training due to a lack of notable corss feature-synergies and explainatory power. Even when utilizing every available feature the market could not be predicted with an accuracy above initial baseline.
+    \item \textbf{All Technical Indicators and Sentiment}: Finally, we analyze the combined feature matrix of sentiment data plus all technical indicators. The performance in this experiment is nearly identical to that of the experiment utilizing only technical indicators. A possible explanation could be that sentiment is regularized away during training due to a lack of notable cross-feature synergies and explanatory power. Consequently, even when utilizing every available feature, the market could not be predicted with an accuracy above the initial baseline.
     \begin{table}[htbp]
     \centering
     \small % Reduces font size for the table
@@ -481,13 +464,7 @@ In this chapter the experiment descriped in \ref{ch:eval_chapter} will be perfor
     \caption{All-Technicals + Sentiment Results}
     \label{tab:res_all_technicals_plus_sentiment}
     \end{table}
-    % \begin{figure}[H]
-    %     \centering
-    %     \includegraphics[width=1\textwidth]{PICs/results_alltechnicals_sentiment.png}
-    %     \caption{all technicals plus sentiment results}
-    %     \label{fig:res_all_technicals_plus_sentiment}
-    % \end{figure}
-    \item \textbf{Lookahead BIAS (sentiment tomorrow)}: In \ref{ch:eda_sentiment} a statistical significant correlation could be confirmed. In this run the quantitative performance of the evaluation models will be analysed when introducing lookahead bias by offseting the sentiment feature by one day. This should create an unfair advantage against the baseline models and yield a superior performance. The results supports this assumption, the performance of the LSTM, GRU and MLR models improved and they successfully beat the baseline. Classification accurcay also rose to a value between $55.6-60$ percent with F1-scores improving to approximately $0.61$. This experiment thereby validates that sentiment models extract valuable information instead of pure noise.
+    \item \textbf{Lookahead BIAS (sentiment tomorrow)}: In section \ref{ch:eda_sentiment} a statistically significant correlation could be confirmed. In this run, the quantitative performance of the evaluation models will be analyzed when introducing look-ahead bias by offsetting the sentiment feature by one day. This should create an unfair advantage over the baseline models and yield superior performance. The results support this assumption! The performance of the LSTM, GRU, and MLR models improved, and they successfully beat the baseline. Classification accuracy also rose to a value between $55.6$ and $60$ percent, with F1-scores improving to approximately $0.61$. This experiment thereby validates that the sentiment feature extracts valuable information instead of pure noise.
     \begin{table}[htbp]
     \centering
     \small % Reduces font size for the table
@@ -512,12 +489,6 @@ In this chapter the experiment descriped in \ref{ch:eval_chapter} will be perfor
     \caption{Sentiment-Tomorrow Results}
     \label{tab:res_tomorrow_sent}
     \end{table}
-    % \begin{figure}[H]
-    %     \centering
-    %     \includegraphics[width=1\textwidth]{PICs/results_sanity_sentiment_tomorrow.png}
-    %     \caption{sentiment tomorrow results}
-    %     \label{fig:res_tomorrow_sent}
-    % \end{figure}
 \end{itemize}
 
 \section{FinBERT vs VADER}
