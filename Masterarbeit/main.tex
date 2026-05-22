@@ -597,7 +597,8 @@ Figure \ref{fig:impact_score_distribution} shows the distribution of impact scor
 \end{figure}
 
 As shown in Figure \ref{fig:sentimentvsweighted_sentiment}, the sharpened sentiment appears dampened compared to the original mood time series. This is due to the mathematical effect of multiplying a score by an $\text{impact\_score} \leq 1$, yielding less extreme amplitudes compared to the original sentiment score. Interestingly, extreme outliers like in 2016 or 2010 are no longer present in the impact score series. Furthermore, in some sections like 2014-2016 or 2018, the mood score is notably below the original values. This illustration shows that while utilizing the same FinBERT class labels, the impact score adjusted the time series in some notable ways.
-To evaluate the benefit of the impact score the basic experiment is changed by multipling the sentiment score with the impact score yielding a weighted sentiment score. This new feature is used as sole predictor in the evaluation pipeline and is compared to a sentiment only run. The resulting data will show how much the prediction performance increased/decreased when using the sharpened denoised predictor.
+
+To evaluate the benefits of the impact score, the basic experiment was modified by multiplying the sentiment score by the impact score to yield a weighted sentiment score. This new feature was then used as the sole predictor in the evaluation pipeline and compared to a baseline sentiment-only run. The resulting data demonstrates how much prediction performance increases or decreases when using this sharpened, denoised predictor.
 
 \begin{table}[htbp]
     \centering
