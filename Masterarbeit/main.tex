@@ -154,30 +154,47 @@ $$P(y|x) = \text{softmax}(W \cdot h_{\text{[CLS]}} + b)$$
 Where $P(y|x)$ stands for the conditional probability, $h_{\text{[CLS]}}$ for the CLS token (compressed representation vector of the sentence), and $W$ and $b$ for the learned parameters of the classification layer.
 
 \section{Impact Scoring}
-Financial markets create a large volume of textual data. However, the distribution of important information is highly skewed. Most headlines are "noise" (repetitive updates, foreign news, minor price fluctuations), which can dilute the predictive power of the sentiment score. For this reason, a novel denoising method that uses large language models (LLMs) to differentiate between important headlines and noise is introduced.
+Financial markets produce a large volume of textual data. However, the distribution of important information is highly skewed. Most headlines are "noise" (repetitive updates, foreign news, minor price fluctuations), which can dilute the predictive power of the sentiment score. For this reason, a novel denoising method that uses large language models (LLMs) to differentiate between important headlines and noise is introduced. The main component of the filtering process is Llama 3.1 Instruct (8B). Due to limited computational resources, an optimized version of the model was used (6-bit quantization). This reduced the memory footprint to approximately 6.85 GB and enabled inference on consumer-grade hardware.
 
-The main component of this filtering process is Llama 3.1 Instruct (8B). To increase throughput and memory efficiency, the model was implemented using 6-bit quantization (.gguf format). The resulting memory footprint is approximately 6.85 GB, which enables local inference on consumer-grade hardware. Because this model is not fine-tuned, a prompt had to be engineered. A self-annotated dataset of approximately 70 classified headlines served as a benchmark to compare different prompts. This is the final version that is used in further experiments:
+\subsection{Prompt Engineering}
+Because the Llama 3.1 Instruct (8B) model is not fine-tuned for this specific task, few-shot examples were included in the system prompt. To evaluate the effectiveness of the prompt, a benchmark dataset of approximately 60 self-annotated headlines was created. Each headline received a categorization ranging from Class A (highly important) to Class D (noise). A custom loss function was then developed to penalize minor disagreements less severely than fatal misclassifications. Specifically, this metric distinguishes between a "small error" (a difference of exactly one class) and a "big error" (a difference of two or more classes). The formula calculates the weighted accuracy by counting half a point for small errors and a full point for big errors. The exact mathematical formulation is defined as:
 
-% ToDo: add more information about the prompt engineering
-% How was the evaluation strategy self annotation vs model output (A->D => big error, A->B => small error)
-% What was the final performance of the prompt
+\vspace{0.2cm}
+$$\text{Weighted Accuracy} = \frac{N_{\text{headlines}} - (0.5 \cdot E_{\text{small}}) - E_{\text{big}}}{N_{\text{headlines}}}$$
+\vspace{0.2cm}
+
+The prompt was engineered iteratively. First, an initial prompt was written, and the performance score was calculated. After that, predictions with big errors were analyzed, and new few-shot examples were integrated when needed. To prevent the prompt from overfitting to the benchmark dataset, only generic examples were added, and the total example count was limited to five per class. The final prompt has a weighted accuracy of approximately 73\% (21 small errors, 6 big errors on 61 classifications), which will be used for downstream impact scoring tasks \ref{fig:impact_scoring_prompt}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{PICs/Impact_Scoring_Classification_Prompt.png}
     \caption{Llama 3.1 Instruct (8B) prompt to classify news headlines}
-    \label{fig:myimag13}
+    \label{fig:impact_scoring_prompt}
 \end{figure}
 
-Headlines are categorized into four classes (A, B, C, D) based on their predictive power for future S\&P 500 returns. These labels are then transformed into a numerical value ($A \rightarrow 1$, $B \rightarrow 0.66$, $C \rightarrow 0.33$, $D \rightarrow 0$) called the impact score.
+To use these categorical classifications (A, B, C, D) for adjusting the original sentiment score, a transformation into the corresponding numerical values is needed. The core idea is that headlines assigned to Class A should retain their full weight without any penalty, while headlines identified as noise (Class D) should be completely excluded. The resulting numerical values are called impact scores and range from 0 to 1.
+\par\vspace{2ex}
+\begin{minipage}{\linewidth}
+    \centering
+    \small
+    \begin{tabularx}{0.98\linewidth}{|l|X|}
+    \hline
+    \textbf{Class} & \textbf{Description / Predictive Power for S\&P 500} \\ \hline
+    \texttt{Class A (1.00)} & High Predictive Power (No Penalty). \\ \hline
+    \texttt{Class B (0.66)} & Moderate Predictive Power. \\ \hline
+    \texttt{Class C (0.33)} & Low Predictive Power. \\ \hline
+    \texttt{Class D (0.00)} & Noise / No Predictive Power (Completely Excluded). \\ \hline
+    \end{tabularx}
+    \captionof{table}{Mapping of Headline Classes to Numerical Impact Scores}
+    \label{tab:impact_score_mapping}
+\end{minipage}
+\par\vspace{1ex}
 
-The final output of this procedure is a denoised, weighted sentiment score. Rather than treating every sentiment score equally, we apply the impact score as an additional transformation. This ensures that a positive sentiment for a minor headline (Category C) contributes less to the overall trend than a positive sentiment for a major headline (Category A). The calculation is defined as:
+The final output of this procedure is a denoised sentiment score. We apply the impact score as an additional transformation. This ensures that a positive sentiment for a minor headline (Category C) contributes less to the overall trend than a positive sentiment for a major headline (Category A). The calculation is defined as:
 
 $$S_{w} = S \times I$$
 
-Where $S_w$ is the final weighted sentiment, \\
-$S$ is the raw sentiment score (ranging from $-1$ to $1$), and \\
-$I$ is the LLM-derived impact score (ranging from $0$ to $1$).
+where $S_{w}$ represents the final weighted sentiment, calculated by scaling the raw sentiment score $S \in [-1, 1]$ by the impact score $I \in [0, 1]$.
 
 \section{Evaluation Models} \label{ch:eval_chapter}
 To evaluate whether sentiment improves prediction accuracy for future returns of the S\&P 500, an evaluation of different machine learning models is performed. Specifically, multiple feature configurations (with and without sentiment) will be used across a variety of regression and classification tasks to analyze the benefit of the sentiment feature.
@@ -231,7 +248,6 @@ To achieve a robust analysis of the regression task, a mix of traditional and ad
 \item \textbf{MLR (Multiple Linear Regression)}: A fundamental statistical method that models the linear relationship between the target variable and two or more explanatory features. In this evaluation, MLR serves as a highly interpretable, linear baseline model to contrast against the more complex, non-linear deep learning approaches (GRU and LSTM).
 \end{itemize}
 
-\subsection{Classification}
 \subsection{Classification}
 In contrast to the regression task, the classification task shifts the focus away from predicting exact magnitudes to forecasting the binary direction of market movements. Specifically, this evaluation will analyze whether the sentiment feature is beneficial in accurately classifying the direction of the market (up or down).
 
@@ -298,14 +314,7 @@ The dataset for the basic experiment consists of 2,613 daily data points spannin
     \label{fig:1dtargetdistribution}
 \end{figure}
 
-To also include statistics for the classification objective, the mapped binary target (market direction) is analyzed for its characteristics. There is a moderate class imbalance within the analyzed time horizon. While 1,435 days signal an upward direction, there are only 1,178 days that signal a negative market direction. This again implies that the market tends to have a positive drift. These properties are also the reason our naive baseline model predicts the majority class rather than making random selections.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{PICs/ClassImbalance.png}
-    \caption{binary target distribution}
-    \label{fig:ClassImbalance}
-\end{figure}
+To also include statistics for the classification objective, the mapped binary target (market direction) is analyzed for its characteristics. There is a moderate class imbalance within the analyzed time horizon. While 1,434 days signal an upward direction, there are only 1,178 days that signal a negative market direction (see \ref{fig:ClassImbalanceV2}). This again implies that the market tends to have a positive drift. These properties are also the reason our naive baseline model predicts the majority class rather than making random selections.
 
 \subsection{Sentiment} \label{ch:eda_sentiment}
 % optional sentiment distribution
@@ -785,7 +794,7 @@ The fundamental question that this study was trying to answer is, "Can daily agg
         \hline
         \textbf{AI Tool} & \textbf{Purpose} \\
         \hline
-        \textbf{Gemini Pro 3.1} & Correcting grammar, improving wording, and creating latex tables. \\
+        \textbf{Gemini Pro 3.1} & Correcting grammar and spelling, polishing sentences, and creating latex tables. \\
         \hline
         \textbf{Consensus} & Finding literature in addition to manual literature research with Google Scholar. \\
         \hline
@@ -796,6 +805,13 @@ The fundamental question that this study was trying to answer is, "Can daily agg
 
 \chapter{Appendix}
 \section{Plots}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{PICs/ClassImbalanceV2.png}
+    \caption{binary target distribution}
+    \label{fig:ClassImbalanceV2}
+\end{figure}
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{PICs/vixxsentiment.png}
