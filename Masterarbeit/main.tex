@@ -243,8 +243,8 @@ To achieve a robust analysis of the regression task, a mix of traditional and ad
 
 \begin{itemize}
 \item \textbf{ARMA(X) (Auto-Regressive Moving Average)}: A statistical model for forecasting time series data. It combines an Auto-Regressive (AR) component, which uses previous target variables, and a Moving Average (MA) component, which uses the model's past forecasting errors. To include additional inputs like sentiment, an extended version called ARMAX is used (the X stands for eXogenous variables).
-\item \textbf{LSTM (Long Short-Term Memory)}: An advanced RNN (Recurrent Neural Network) architecture that uses three distinct gates (input, output, and forget) to improve long-term dependency learning. In financial forecasting, LSTM is frequently used and is among the most performant models. %Quellen hier zitieren
-\item \textbf{GRU (Gated Recurrent Unit)}: A type of RNN designed to efficiently handle sequential data. Compared to the LSTM model, it has only two gates (update and reset) to mitigate the vanishing gradient problem. Because of its architecture, it is more lightweight than an LSTM but often achieves comparable performance.
+\item \textbf{LSTM (Long Short-Term Memory) \cite{LSTM_Paper}}: An advanced RNN (Recurrent Neural Network) architecture that uses three distinct gates (input, output, and forget) to improve long-term dependency learning. In financial forecasting, LSTM is frequently used and is among the most performant models. %Quellen hier zitieren
+\item \textbf{GRU (Gated Recurrent Unit) \cite{gru_compare_paper}}: A type of RNN designed to efficiently handle sequential data. Compared to the LSTM model, it has only two gates (update and reset) to mitigate the vanishing gradient problem. Because of its architecture, it is more lightweight than an LSTM but often achieves comparable performance.
 \item \textbf{MLR (Multiple Linear Regression)}: A fundamental statistical method that models the linear relationship between the target variable and two or more explanatory features. In this evaluation, MLR serves as a highly interpretable, linear baseline model to contrast against the more complex, non-linear deep learning approaches (GRU and LSTM).
 \end{itemize}
 
@@ -269,7 +269,7 @@ To conduct a robust evaluation of the classification task, a traditional statist
 
 \begin{itemize}
     \item \textbf{Multiple Logistic Regression (MLogR)}: This model is the classification counterpart to Multiple Linear Regression. It estimates the probability of an upward market movement using a logistic function based on the explanatory features. In this evaluation, MLogR serves as a highly interpretable, linear baseline, providing a benchmark to analyze whether more complex, non-linear relationships exist within the data.
-    \item \textbf{XGBoost (eXtreme Gradient Boosting)}: This is a highly performant, tree-based ensemble learning algorithm. It is robust to outliers, handles non-linear relationships effectively, and is widely regarded as a state-of-the-art model for classifying tabular financial data.
+    \item \textbf{XGBoost (eXtreme Gradient Boosting) \cite{XGBoost_paper}}: This is a highly performant, tree-based ensemble learning algorithm. It is robust to outliers, handles non-linear relationships effectively, and is widely regarded as a state-of-the-art model for classifying tabular financial data.
 \end{itemize}
 
 \section{Validation}
@@ -341,7 +341,7 @@ Following the analysis of headline coverage, the correlation between the target 
     \label{fig:pctChangexsentiment}
 \end{figure}
 
-The results reveal a strong disconnect between raw daily sentiment and the next-day price change. The Pearson correlation yields a coefficient of $r = -0.019$ ($p = 0.33$), while the Spearman correlation results in $\rho = -0.021$ ($p = 0.29$). Because both $p$-values are well above the standard significance threshold of $\alpha = 0.05$, it can be concluded that this comparison fails to reject the null hypothesis of no correlation between the variables.
+The results reveal a strong disconnect between raw daily sentiment and the next-day price change. The Pearson correlation yields a coefficient of $r = -0.019$ ($p = 0.33$), while the Spearman correlation results in $\rho = -0.021$ ($p = 0.29$). Because both p-values are well above the standard significance threshold of $\alpha = 0.05$, it can be concluded that this comparison fails to reject the null hypothesis of no correlation between the variables.
 
 % (sentiment x volatility),
 Although no immediate relationship exists between sentiment and the target variable, the relationship between price volatility (measured by the standard deviation of price) and sentiment reveals a significant market dynamic. Similar to the previous experiment, the Pearson and Spearman correlation coefficients were calculated for sentiment and market volatility. The Pearson coefficient is $r = -0.208$ ($p = 3.71 \times 10^{-27}$), while the Spearman coefficient is $\rho = -0.279$ ($p = 2.26 \times 10^{-48}$). These extremely small $p$-values confirm a significant inverse relationship: when sentiment is low (reflecting a negative market mood), volatility rises.
@@ -355,8 +355,8 @@ Although no immediate relationship exists between sentiment and the target varia
 
 However, this long-term inverse correlation is not stationary. When evaluating the correlations on a smaller rolling window of 90 days, the correlation varies. This fluctuation strongly suggests that the relationship between the two variables is regime-dependent. Furthermore, the origin of the news headlines matters. When looking at prominent publishers only, as in \cite{pham_financial_news} (Reuters, CNBC, The Guardian), a clearer non-linear relationship emerges (see figure \ref{fig:volatilityxsentiment_pham}). This could imply that market participants value the source of the headline as well as the emotional polarity of the text. Finally, if we compare the sentiment score to the VIX index of the S\&P 500, a similar, even more inverse relationship can be observed (see figure \ref{fig:vixxsentiment}).
 
-% price change x same day sentiment
-Lastly, the sentiment feature is offset by one day. This introduces a look-ahead bias, where the sentiment of tomorrow is used to predict the price change of the same day. Under the assumption that sentiment does have an impact on price change, this should yield a significant performance increase. Similar to the other comparisons, we use a scatter plot and both Pearson and Spearman correlations to understand the connection between the two variables. Later, this unfair feature is also utilized in a forecasting setup to analyze the quantitative performance.
+% price change x same day sentiment  
+Lastly, the sentiment feature is offset by one day. This introduces an unfair look-ahead advantage, by providing sentiment values of the next day. Under the assumption that sentiment does have an impact on price change, this should yield a significant performance increase. Similar to the other comparisons, we use a scatter plot and both Pearson and Spearman correlations to understand the connection between the two variables. Later, this unfair feature is also utilized in a forecasting setup to analyze the quantitative performance.
 
 \begin{figure}[H]
     \centering
