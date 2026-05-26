@@ -302,11 +302,11 @@ In this work, the Expanding Window Strategy is used to incorporate the entire tr
 \end{minipage}
 \par\vspace{1ex}
 
-\textit{As stated in the methodology section**,** expanding**-window cross-validation will be utilized. For the basic experiment,** this results in approximately 24 folds over the complete dataset. The initial training set will consist of 200 data points, and the test set will be fixed at 100 data points. This ensures the preservation of temporal order, thereby preventing look-ahead bias and providing a consistent and robust framework for model evaluation.}
+\textit{As stated in the methodology section, expanding-window cross-validation will be utilized. For the basic experiment, this results in approximately 24 folds over the complete dataset. The initial training set will consist of 200 data points, and the test set will be fixed at 100 data points. This ensures the preservation of temporal order, thereby preventing look-ahead bias and providing a consistent and robust framework for model evaluation.}
 
 \section{Explorative Data Analsysis}
 \subsection{Target}
-The dataset for the basic experiment consists of 2,613 daily data points spanning from 03.02.2010 to 18.07.2020. While this period covers 3,819 calendar days, all non-business days (weekends and holidays when the New York Stock Exchange was closed) are excluded, leaving 2,614 trading days. One additional day is subtracted because the target variable ($t+1$) is unavailable for the final observation. To gain a clearer understanding of this target, this analysis examines the statistical properties of the 1-day percentage price change of the S\&P 500. With a positive mean of $\mu = 0.00046$ and a standard deviation of $\sigma = 0.01093$, the distribution exhibits a relatively sharp peak with a slight rightward skew. This positive skewness captures the market's underlying tendency to experience more positive days than negative ones. The distribution is illustrated in the figure below.
+The dataset for the basic experiment consists of 2,613 daily data points spanning from 03.02.2010 to 18.07.2020. While this period covers 3,819 calendar days, all non-business days (weekends and holidays when the New York Stock Exchange was closed) are excluded. This results in 2,614 trading days, where one additional day is subtracted because the target variable ($t+1$) is unavailable for the final observation. To gain a clearer understanding of the target, this analysis examines the statistical properties of the 1-day percentage price change of the S\&P 500. With a positive mean of $\mu = 0.00046$ and a standard deviation of $\sigma = 0.01093$, the distribution exhibits a relatively sharp peak with a slight rightward skew. This positive skewness captures the market's underlying tendency to experience more positive days than negative ones. The distribution is illustrated in the figure below.
 
 \begin{figure}[H]
     \centering
@@ -354,10 +354,10 @@ Although no immediate relationship exists between sentiment and the target varia
     \label{fig:volatilityxsentiment1}
 \end{figure}
 
-However, this long-term inverse correlation is not stationary. When evaluating the correlations on a smaller rolling window of 90 days, the correlation varies. This fluctuation strongly suggests that the relationship between the two variables is regime-dependent. Furthermore, the origin of the news headlines matters. When looking at prominent publishers only, as in \cite{pham_financial_news} (Reuters, CNBC, The Guardian), a clearer non-linear relationship emerges (see figure \ref{fig:volatilityxsentiment_pham}). This could imply that market participants value the source of the headline as well as the emotional polarity of the text. Finally, if we compare the sentiment score to the VIX index of the S\&P 500, a similar, even more inverse relationship can be observed (see figure \ref{fig:vixxsentiment}).
+However, this long-term inverse correlation is not stationary. When evaluating the correlations on a rolling window of 90 days, the correlation varies. This fluctuation strongly suggests that the relationship between the two variables is regime-dependent. Furthermore, the origin of the news headlines matters. When looking at prominent publishers only, as in \cite{pham_financial_news} (Reuters, CNBC, The Guardian), a clearer non-linear relationship emerges (see figure \ref{fig:volatilityxsentiment_pham}). This could imply that market participants value the source of the headline as well as the emotional polarity of the text. Finally, if we compare the sentiment score to the VIX index of the S\&P 500, a similar, even more inverse relationship can be observed (see figure \ref{fig:vixxsentiment}).
 
 % price change x same day sentiment  
-Lastly, the sentiment feature is offset by one day. This introduces an unfair look-ahead advantage, by providing sentiment values of the next day. Under the assumption that sentiment does have an impact on price change, this should yield a significant performance increase. Similar to the other comparisons, we use a scatter plot and both Pearson and Spearman correlations to understand the connection between the two variables. Later, this unfair feature is also utilized in a forecasting setup to analyze the quantitative performance.
+Lastly, the sentiment feature is offset by one day. Under the assumption that sentiment does have an impact on price change, this should yield a significant correlation increase. Similar to the other comparisons, we use a scatter plot and both Pearson and Spearman correlations to understand the connection between the two variables. Later, this unfair feature is also utilized in a forecasting setup to analyze the quantitative performance.
 
 \begin{figure}[H]
     \centering
@@ -374,7 +374,7 @@ In this chapter, the experiment described in \ref{ch:eval_chapter} will be perfo
 \begin{itemize}
     \item \textbf{Baselines}: First, we examine the performance of the baseline models. Their performance remains unchanged across the different experiments because they rely solely on static values or the target variable itself. For the regression tasks, the mean-baseline approach achieved an RMSE of $0.00942$ and a MAE of $0.00678$. For the classification tasks, the "always up" baseline strategy yielded an accuracy of $54.9$\% and an F1-score of $0.70$.
     \item \textbf{Price Only}: Next, the evaluation models are trained solely on the $t-1$ percentage price change. The results indicate no notable performance improvement against the established baselines. In the regression tasks, simple models like Multiple Linear Regression outperformed more complex architectures such as LSTMs or GRUs. For the classification objective, Multiple Logistic Regression (MLogR) performed poorly, yielding an accuracy of $48.2$\% and an F1-score of $0.2948$. Conversely, XGBoost performed slightly better, achieving an accuracy of $50.4$\%, an F1-score of $0.5829$, and a recall of $0.6351$. This indicates that historical price data alone is insufficient for predicting market returns. These results align with the assumptions made by the weak form of the EMH.
-    \begin{table}[htbp]
+    \begin{table}[H]
     \centering
     \small % Reduces font size for the table
     \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
@@ -399,7 +399,7 @@ In this chapter, the experiment described in \ref{ch:eval_chapter} will be perfo
     \label{tab:price_only_results}
     \end{table}
     \item \textbf{Sentiment Only}: The sentiment-only feature set yielded similar results. For regression, there was no significant difference compared to the price-only experiment. However, notable shifts occurred in classification performance. MLogR improved its accuracy to $51.1$\% while simultaneously increasing its F1-score to $0.5058$. Interestingly, the performance of the other classification model, XGBoost, dropped below the $50$\% accuracy threshold. Parallel to the findings of the price-only experiment, these results indicate that sentiment data alone is insufficient to improve predictive accuracy.
-    \begin{table}[htbp]
+    \begin{table}[H]
     \centering
     \small % Reduces font size for the table
     \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
@@ -425,7 +425,7 @@ In this chapter, the experiment described in \ref{ch:eval_chapter} will be perfo
     \end{table}
 
     \item \textbf{All Technical Indicators}: In this experiment, all technical indicators ("Pct\_Change", "VIX", "Volume", "Moving\_Average\_30", "US1Y\_Yield") were used to predict the target. Even with this additional information, predictive performance did not improve. However, the more complex models experienced a lower regression loss compared to their simpler counterparts. Both classification models failed to achieve an accuracy above $50$\%, suggesting that combining these technical indicators provided no clear benefit for market direction prediction.
-    \begin{table}[htbp]
+    \begin{table}[H]
     \centering
     \small % Reduces font size for the table
     \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
@@ -450,7 +450,7 @@ In this chapter, the experiment described in \ref{ch:eval_chapter} will be perfo
     \label{tab:res_all_technicals}
     \end{table}
     \item \textbf{All Technical Indicators and Sentiment}: Finally, we analyze the combined feature matrix of sentiment data plus all technical indicators. The performance in this experiment is nearly identical to that of the experiment utilizing only technical indicators. A possible explanation could be that sentiment is regularized away during training due to a lack of notable cross-feature synergies and explanatory power. Consequently, even when utilizing every available feature, the market could not be predicted with an accuracy above the initial baseline.
-    \begin{table}[htbp]
+    \begin{table}[H]
     \centering
     \small % Reduces font size for the table
     \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
@@ -474,8 +474,8 @@ In this chapter, the experiment described in \ref{ch:eval_chapter} will be perfo
     \caption{All-Technicals + Sentiment Results}
     \label{tab:res_all_technicals_plus_sentiment}
     \end{table}
-    \item \textbf{Lookahead BIAS (sentiment tomorrow)}: In section \ref{ch:eda_sentiment} a statistically significant correlation could be confirmed. In this run, the quantitative performance of the evaluation models will be analyzed when introducing look-ahead bias by offsetting the sentiment feature by one day. This should create an unfair advantage over the baseline models and yield superior performance. The results support this assumption! The performance of the LSTM, GRU, and MLR models improved, and they successfully beat the baseline. Classification accuracy also rose to a value between $55.6$ and $60$ percent, with F1-scores improving to approximately $0.61$. This experiment thereby validates that the sentiment feature extracts valuable information instead of pure noise.
-    \begin{table}[htbp]
+    \item \textbf{Lookahead BIAS (sentiment tomorrow)}: In section \ref{ch:eda_sentiment} a statistically significant correlation could be confirmed. In this run, the quantitative performance of the evaluation models will be analyzed when introducing look-ahead bias by offsetting the sentiment feature by one day. This should create an unfair advantage over the baseline models and yield superior performance. The results support this assumption. The performance of the LSTM, GRU, and MLR models improved, and they successfully beat the baseline. Classification accuracy also rose to a value between $55.6$ and $60$ percent, with F1-scores improving to approximately $0.61$. This experiment thereby validates that the sentiment feature extracts valuable information instead of pure noise.
+    \begin{table}[H]
     \centering
     \small % Reduces font size for the table
     \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
@@ -513,7 +513,7 @@ In this section, the two sentiment models, FinBERT and VADER (Valence Aware Dict
 
 While the resulting sentiment time series from both models demonstrate a strong overall correlation, a closer examination reveals notable differences in their behavior. Specifically, the FinBERT mood series exhibits significantly greater variation. These more extreme amplitudes suggest that FinBERT is more sensitive to mood shifts and contextual nuances. To verify this hypothesis, two experiments will be performed. First, a baseline experiment will be conducted using only the original VADER and FinBERT sentiment scores. Second, a shifted sentiment feature (same-day sentiment) will be applied to see which of the two models is superior in capturing market-day events
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \small % Reduces font size for the table
     \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
@@ -540,7 +540,7 @@ While the resulting sentiment time series from both models demonstrate a strong 
 
 Interestingly, the experiment with only $vader\_sentiment$ was superior to the configuration with only $finbert\_sentiment$. While the regression task improvement seems to be negligible, the performance increase of the classification models is notable. The overall prediction accuracy improved by $2.5$\%, with a notable $18$\% increase in the MLogR model's recall. Next we will examine the results of the second experiment to determine if this superiority persists when using the shifted same-day sentiment feature.
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \small % Reduces font size for the table
     \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
@@ -565,13 +565,13 @@ Interestingly, the experiment with only $vader\_sentiment$ was superior to the c
     \label{tab:vader_advantage_shifted}
 \end{table}
 
-In contrast to the first experiment, the results of using same-day sentiment strongly favor the FinBERT model. Nearly every performance benchmark decreased for VADER compared to FinBERT, with the only exception being the MLogR model's recall (which saw an increase of approximately $10.7$\%). These results show that $finbert_sentiment$ captures the contextual nuances of same-day sentiment better than $vader_sentiment$. However, this does not mean that capturing context is the only important factor when it comes to the predictive power of the sentiment score. In conclusion, the overall performance of both sentiment features is highly comparable in a fair setup (without lookahead). VADER holds a slight advantage in predictive classification tasks, while FinBERT succeeds in the lookahead setup.
+In contrast to the first experiment, the results of using same-day sentiment strongly favor the FinBERT model. Nearly every performance benchmark decreased for VADER compared to FinBERT, with the only exception being the MLogR model's recall (which saw an increase of approximately $10.7$\%). These results show that $finbert\_sentiment$ captures the contextual nuances of same-day sentiment better than $vader \_sentiment$. However, this does not mean that capturing context is the only important factor when it comes to the predictive power of the sentiment score. In conclusion, the overall performance of both sentiment features is highly comparable in a fair setup (without lookahead). VADER holds a slight advantage in predictive classification tasks, while FinBERT succeeds in the lookahead setup.
 
 \section{Impact Score}
-In this section, the effectiveness of the novel denoising function introduced in this work is analyzed. In the world of stock market prediction, distinguishing between signal and noise in financial headlines is far from trivial. For example, a headline like "Buy these 10 stocks today" has near-zero utility for future prediction, whereas "The US Fed is increasing interest rates by 0.5 percentage points" will have a much more pronounced impact on the market. To filter out irrelevant news, impact scoring is utilized, leveraging modern large language models to classify data points into four categories (ranging from A for "very impactful" to D for "noise").
+In this section, the effectiveness of the introduced denoising function is analyzed. In the world of stock market prediction, distinguishing between signal and noise in financial headlines is far from trivial. For example, a headline like "Buy these 10 stocks today" has near-zero utility for future prediction, whereas "The US Fed is increasing interest rates by 0.5 percentage points" will have a much more pronounced impact on the market. To filter out irrelevant news, impact scoring is utilized, leveraging modern large language models to classify data points into four categories.
 
-The scale of this denoising process was substantial, because the dataset consisted of a massive raw pool of 1.9 million financial headlines and computational resources were limited. Therefore, to filter out most of the noise, one important preprocessing step was to remove duplicated rows. The assumption is that news that repeats will likely be noise. With this rule, the amount of headlines shrank by an astonishing 1 million data points—showing the amount of redundant news headlines.
-Before diving into the specific experiment setup, it is important to address the computational cost for this experiment. The classification process was run on an RTX 5070ti hosting the Llama 3.1 8B Instruct model. With an average of 13 headlines per second and 919,858 classifications, the total time needed resulted in 19 hours. This shows that even with limited computational power, a broad headline corpus can be processed in a reasonable timeframe. To improve processing efficiency, 6-bit GGUF quantization was utilized, a choice that significantly lowers memory usage and accelerates inference speed. To ensure the model's output could be cleanly parsed into specific classes, the LLM was prompted to return results only in a valid JSON format. Because large language models can behave unexpectedly, graceful error handling was essential. Therefore, a retry mechanism was implemented to re-execute the process whenever an invalid response was received. In the event of 3 failed attempts, the headline was excluded by setting its impact score to NaN.
+The scale of this denoising process was substantial, because the dataset consisted of a massive raw pool of 1.9 million financial headlines and computational resources were limited. Therefore, to filter out most of the noise, one important preprocessing step was to remove duplicated rows. The assumption is that news that repeat will likely be noise. With this rule, the amount of headlines shrank by an astonishing 1 million data points, showing the amount of redundant news headlines.
+Before diving into the specific experiment setup, it is important to address the computational cost for this experiment. The classification process was run on an RTX 5070ti hosting the Llama 3.1 8B Instruct model. With an average of 13 headlines per second and 919,858 classifications, the total time needed resulted in 19 hours. This shows that even with limited computational power, a broad headline corpus can be processed in a reasonable timeframe. To improve processing efficiency, 6-bit GGUF quantization was utilized, a choice that significantly lowers memory usage and accelerates inference speed. To ensure the model's output could be cleanly parsed into specific classes, the LLM was prompted to return results only in a valid JSON format.
 
 Following table will show some examples of the llm annoated headlines
 \begin{table}[h]
@@ -597,7 +597,7 @@ Following table will show some examples of the llm annoated headlines
     \label{tab:impact_examples}
 \end{table}
 
-Figure \ref{fig:impact_score_distribution} shows the distribution of impact score classes. The most striking feature is that the model does not produce a smooth, continuous distribution from A to D. Instead, it is biased toward classes D and B. Approximately 250,000 headlines were filtered out completely, while around 400,000 were marked as important. A much smaller portion, approximately 20,000, was categorized as very important, and about 50,000 were marked as somewhat important. While the classification process effectively filters out some noise, it is not performing at an optimal level. This problem could be due to two main issues. Primarily, because a non-fine-tuned variant of Llama 3.1 Instruct is being used, the system relies entirely on the prompt for guidance. If the prompt lacks sufficient examples, or if the model fails to understand the context of the headline, classification performance can suffer, and biases toward certain classes can occur.
+Figure \ref{fig:impact_score_distribution} shows the distribution of impact score classes. The most striking feature is that the model does not produce a smooth, continuous distribution from A to D. Instead, it is biased toward classes D and B. Approximately 250,000 headlines were filtered out completely, while around 400,000 were marked as important. A much smaller portion, approximately 20,000, was categorized as very important, and about 50,000 were marked as somewhat important. While the classification process effectively filters out some noise, it is not performing at an optimal level. This problem could be due to two main issues. Primarily, because a non-fine-tuned variant of Llama 3.1 Instruct is being used, the system relies entirely on the prompt for guidance. Additionally, if the model fails to understand the context of the headline, classification performance can suffer, and biases toward certain classes can occur.
 
 \begin{figure}[H]
     \centering
@@ -610,7 +610,7 @@ As shown in Figure \ref{fig:sentimentvsweighted_sentiment}, the sharpened sentim
 
 To evaluate the benefits of the impact score, the basic experiment will be modified by multiplying the sentiment score by the impact score to yield a weighted sentiment score. This new feature will then be used as the sole predictor in the evaluation pipeline and compared to the sentiment-only run. The resulting data will demonstrate how much prediction performance increases or decreases when using this sharpened, denoised predictor.
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \small % Reduces font size for the table
     \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
@@ -635,7 +635,7 @@ To evaluate the benefits of the impact score, the basic experiment will be modif
     \label{tab:weighted_sentiment_advantage}
 \end{table}
 
-As shown in \ref{tab:weighted_sentiment_advantage}, impact scoring consistently improves prediction performance in both regression and classification tasks. The most notable improvements are registered in the classification model MLogR, with a $\Delta F1-score = +0.1243$, and the regression model MLR, with a $\Delta R2-score = + 0.00239$. Even though prediction accuracy increased by a small yet consistent amount. While the baseline models remain unbeaten, the results suggest that robust preprocessing of headlines can still provide valuable leverage for improving financial forecasting via sentiment analysis.
+As shown in \ref{tab:weighted_sentiment_advantage}, impact scoring improves prediction performance in both regression and classification tasks. The most notable improvements are registered in the classification model MLogR, with a $\Delta \text{F1-score} = +0.1243$, and the regression model MLR, with a $\Delta \text{R2-score} = + 0.00239$. Even though the gains are modest, they occurred with great consistency. While the baseline models remain unbeaten, the data shows that robust preprocessing of headlines can still provide valuable leverage for improving financial forecasting via sentiment analysis.
 
 It is important to note that while the impact model successfully filters out a considerable amount of noise, it is not without misclassifications. A manual review of the impact score datastore revealed occurrences of both false negatives and false positives. Most critical is the sub-optimal performance on recall, as the model frequently fails to identify highly relevant headlines (obvious 1s).
 
@@ -653,7 +653,7 @@ This section will analyze if applying a rolling average to sentiment scores enha
 
 As shown in \ref{fig:rollingsentimentvspricechange}, there is no statistically significant configuration between rolling sentiment of 1–60 days and next-day price changes. This hints that even though correlation values increase around day 20, they are still not strong enough to be declared statistically significant ($p\text{-value} \ge 0.05$). While this gives a pessimistic view of the independent predictive power of this feature, a complex machine learning model could still extract something useful. Therefore, the original sentiment feature will be replaced with the previously stated 3-day, 5-day, and 20-day rolling sentiment values. To better illustrate the impact, the baseline configuration with only sentiment as a predictor will be used for comparison.
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \small % Reduces font size for the table
     \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
@@ -684,7 +684,7 @@ The results show that there is only a small difference between the rolling senti
 \section{Different Datasets}
 Additionally to the impact scoring section, the importance of quality data as a starting point will be examined in this section. Specifically, the dataset configuration of the basic experiment is going to be replaced by a datasource that has little connection to the target index fund. The goal of this analysis is to verify if there is any performance difference when introducing a vast amount of noise into the sentiment score. To achieve this, two dataset configurations will be compared: the NIFTY dataset and the Pham and Aenlle dataset. The NIFTY dataset contains general financial news and articles tied to the Indian NIFTY 50 index, while sharing some global economic concerns, it will mainly add irrelevant information. On the other hand, the Pham+Aenlle datapoints contain highly relevant and domain-specific nuances. To measure the change in performance accuracy, both configurations $sentiment\_nifty$ and $sentiment\_phamaenlle$ will be evaluated and compared. The assumption is that while keeping the model's architecture, hyperparameters, and seed the same, changing the underlying data will reduce performance.
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \small
     \setlength{\tabcolsep}{4pt}
@@ -739,7 +739,7 @@ It is also important to note that the expanding window cross-validation is adjus
 
 To evaluate how prediction accuracy changes across the new target variables, the basic experiment is run with all available features (sentiment + all technicals). After that, every result will be plotted with a delta to the 1-day outcomes. This will reveal whether the evaluation models benefit from the previously mentioned trade-offs.
 
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
