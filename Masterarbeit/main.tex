@@ -840,6 +840,56 @@ The fundamental question that this study was trying to answer is, "Can daily agg
     \label{fig:impact_score_distribution_nifty}
 \end{figure}
 
+
+\begin{table}[H]
+    \centering
+    \small % Reduces font size for the table
+    \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
+    \begin{tabular}{|lcccc|}
+        \hline
+        \textbf{Model} & \textbf{$\Delta$ RMSE} & \textbf{$\Delta$ MAE} & \textbf{$\Delta$ $R^2$} & \\
+        \hline
+        ARIMA          & \cellcolor{red!50}+0.000010 & \cellcolor{red!50}+0.000015 & \cellcolor{red!50}-0.003668 & \\
+        LSTM           & 0.000000                     & 0.000000                     & \cellcolor{red!50}-0.000741 & \\
+        GRU            & \cellcolor{green!50}-0.000004 & 0.000000                     & \cellcolor{green!50}+0.000308 & \\
+        MLR            & \cellcolor{red!50}+0.000021 & \cellcolor{red!50}+0.000012 & \cellcolor{red!50}-0.003257 & \\
+        Mean-Baseline  & 0.000000                     & 0.000000                     & 0.000000                     & \\
+        \hline
+        \textbf{Model} & \textbf{$\Delta$ Accuracy} & \textbf{$\Delta$ Precision} & \textbf{$\Delta$ Recall} & \textbf{$\Delta$ F1-Score} \\
+        \hline
+        XGBoost        & \cellcolor{red!50}-0.015416 & \cellcolor{red!50}-0.010901 & \cellcolor{red!50}-0.033019 & \cellcolor{red!50}-0.020982 \\
+        MLogR          & \cellcolor{green!50}+0.028750 & \cellcolor{green!50}+0.180575 & \cellcolor{green!50}+0.270727 & \cellcolor{green!50}+0.210957 \\
+        Always Up      & 0.000000                     & 0.000000                     & 0.000000                     & 0.000000                     \\
+        \hline
+    \end{tabular}
+    \caption{Comparison of Results: Sentiment-Only vs Price-Only ($\Delta$ = Sentiment-Only - Price-Only). Green cells indicate Sentiment-Only superiority, while red cells indicate Price-Only superiority.}
+    \label{tab:sentiment_vs_price_delta}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \small % Reduces font size for the table
+    \setlength{\tabcolsep}{4pt} % Reduces horizontal space between columns
+    \begin{tabular}{|lcccc|}
+        \hline
+        \textbf{Model} & \textbf{$\Delta$ RMSE} & \textbf{$\Delta$ MAE} & \textbf{$\Delta$ $R^2$} & \\
+        \hline
+        ARIMA          & \cellcolor{red!50}+0.000007 & \cellcolor{green!50}-0.000005 & \cellcolor{red!50}-0.001799 & \\
+        LSTM           & \cellcolor{green!50}-0.000002 & \cellcolor{green!50}-0.000005 & \cellcolor{red!50}-0.000165 & \\
+        GRU            & \cellcolor{green!50}-0.000011 & \cellcolor{green!50}-0.000012 & \cellcolor{green!50}+0.001696 & \\
+        MLR            & \cellcolor{red!50}+0.000017 & \cellcolor{green!50}-0.000001 & \cellcolor{red!50}-0.000863 & \\
+        Mean-Baseline  & 0.000000                     & 0.000000                     & 0.000000                     & \\
+        \hline
+        \textbf{Model} & \textbf{$\Delta$ Accuracy} & \textbf{$\Delta$ Precision} & \textbf{$\Delta$ Recall} & \textbf{$\Delta$ F1-Score} \\
+        \hline
+        XGBoost        & \cellcolor{red!50}-0.003333 & \cellcolor{red!50}-0.001110 & \cellcolor{red!50}-0.027280 & \cellcolor{red!50}-0.012707 \\
+        MLogR          & \cellcolor{green!50}+0.053334 & \cellcolor{green!50}+0.226538 & \cellcolor{green!50}+0.481488 & \cellcolor{green!50}+0.335258 \\
+        Always Up      & 0.000000                     & 0.000000                     & 0.000000                     & 0.000000                     \\
+        \hline
+    \end{tabular}
+    \caption{Comparison of Results: Weighted Sentiment vs Price-Only ($\Delta$ = Weighted Sentiment - Price-Only). Green cells indicate Weighted Sentiment superiority, while red cells indicate Price-Only superiority.}
+    \label{tab:weighted_sentiment_vs_price_delta}
+\end{table}
 %
 % Hier beginnen die Verzeichnisse.
 %

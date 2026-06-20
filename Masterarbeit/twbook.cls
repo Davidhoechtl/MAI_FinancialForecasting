@@ -389,7 +389,7 @@ urlcolor=TWblue, urlbordercolor=white}
 \@secondsupervisordesc:%
 \fi%
 \end{minipage}~%
-\begin{minipage}[t]{0.6\linewidth}%
+\begin{minipage}[t]{0.67\linewidth}%
 \bgroup\@supervisor\egroup\\%
 \bgroup\@secondsupervisor\egroup%
 \end{minipage}\vspace{0.8\baselineskip}%
